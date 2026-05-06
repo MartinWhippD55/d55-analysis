@@ -50,6 +50,20 @@ All jobs use the same pattern:
 2. Deduplicate by primary key using latest `dms_timestamp`
 3. `MERGE INTO` Iceberg table in staging bucket
 
+### Source Partition Structure
+
+Source tables are partitioned by `year/month/day/hour`:
+```
+s3://rel-esg-prod-data-eng-cdc-centrestage/usmart_repo/titanium_documentdata/
+├── 2025/
+├── 2026/
+│   ├── 01/ ... 05/
+│   │   ├── 01/ ... 06/
+│   │   │   ├── 07/ 08/ 10/ 13/   (hourly partitions)
+```
+
+Partition keys in Glue Catalog: `partition_0` (year), `partition_1` (month), `partition_2` (day), `partition_3` (hour).
+
 ## Root Cause (Confirmed)
 
 **Glue Job Bookmark's `PartitionFilesListerUsingBookmark` overwhelms source S3 buckets with parallel `listObjectsV2` and `getObjectMetadata` requests.**
@@ -88,13 +102,27 @@ Separate from the S3 throttle: `phidex-project-unit-rate` (4x G.4X) hits "Timeou
 
 A recent deployment introduced a **separate** failure mode: `LFCredential fetch failed with status code: 400`. This is a Lake Formation credential vending issue unrelated to the original S3 throttle problem.
 
+## Key Finding: Push-Down Predicates Reduce Bookmark Listing Scope
+
+Per [AWS documentation](https://docs.aws.amazon.com/glue/latest/dg/monitor-continuations.html), the execution order is:
+
+1. Push-down predicate filters partitions using Glue Catalog metadata (no S3 calls)
+2. Bookmark then lists files **only within the filtered partitions**
+3. Bookmark filters to files newer than the last bookmark timestamp
+4. Data is read
+
+This means a push-down predicate on the partition keys (e.g., last 7 days) would dramatically reduce the `listObjectsV2` scope — from listing all files across the entire table history to just ~168 hourly partitions.
+
+The AWS docs explicitly state: "A bookmark will list all files under each input partition and do the filtering, so if there are too many files under a single partition the bookmark can run into driver OOM. Use the AWS Glue Amazon S3 file lister to avoid listing all files in memory at once."
+
 ## Status
 
-🟢 Root cause confirmed and cross-validated
+🟢 Root cause confirmed, mitigation identified
 
 ## Next Steps
 
-- [ ] Identify mitigation strategies (batching jobs, staggered starts, retry logic)
-- [ ] Consider whether bookmark file listing can be optimised (fewer files in source paths, compaction of CDC data)
+- [ ] Implement push-down predicate (last 7 days) on all 94 jobs to reduce bookmark listing scope
+- [ ] Add retry with backoff to the `run-glue-job` sub-state-machine
+- [ ] Consider batching jobs if push-down predicate alone isn't sufficient
 - [ ] Investigate the post-deployment LF credential issue separately
 - [ ] Address phidex-project-unit-rate timeout separately

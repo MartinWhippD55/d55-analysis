@@ -59,12 +59,32 @@ PartitionFilesListerUsingBookmark.$anonfun$partitions$3(FileSystemBookmark.scala
 
 | # | Option | Effort | Impact | Risk |
 |---|---|---|---|---|
-| 1 | **Batch jobs into groups of 15-20** with waits between batches in the Step Function | Medium | High | Low |
-| 2 | **Add retry with backoff** to the `run-glue-job` sub-state-machine (e.g., 2 retries, 60s/120s) | Low | Medium | Low |
-| 3 | **Compact CDC source files** to reduce the number of files the bookmark needs to list | Medium-High | High | Medium |
-| 4 | **Replace bookmarks with timestamp filtering** — read all data, filter by `dms_timestamp > last_run` | Medium | High | Medium |
+| 1 | **Add a push-down predicate (last 7 days)** to limit the partition scope the bookmark needs to list | Low | High | Low |
+| 2 | **Batch jobs into groups of 15-20** with waits between batches in the Step Function | Medium | High | Low |
+| 3 | **Add retry with backoff** to the `run-glue-job` sub-state-machine (e.g., 2 retries, 60s/120s) | Low | Medium | Low |
+| 4 | **Compact CDC source files** to reduce the number of files the bookmark needs to list | Medium-High | High | Medium |
+| 5 | **Replace bookmarks with timestamp filtering** — read all data, filter by `dms_timestamp > last_run` | Medium | High | Medium |
 
-**Recommended approach:** Implement options 1 + 2 together for immediate relief, then pursue option 3 for long-term improvement.
+### Option 1 Detail: Push-Down Predicate
+
+The source data is partitioned by `year/month/day/hour` (partition keys: `partition_0` through `partition_3`). A push-down predicate filters partitions **before** the bookmark lists files, reducing the `listObjectsV2` scope from the entire table history to just the recent window.
+
+Example change to the script:
+```python
+dynf = glueContext.create_dynamic_frame.from_catalog(
+    database=centrestage_database,
+    table_name=table_name,
+    transformation_ctx="source_dynf",
+    push_down_predicate="partition_0 == '2026' and partition_1 == '05'"  # or dynamic last-7-days logic
+)
+```
+
+This works because (per [AWS docs](https://docs.aws.amazon.com/glue/latest/dg/monitor-continuations.html)):
+- Push-down predicate filters partitions using Glue Catalog metadata (no S3 calls)
+- Bookmark then only lists files within the filtered partitions
+- This reduces listing from all-time to ~168 hourly partitions (7 days × 24 hours)
+
+**Recommended approach:** Start with option 1 (push-down predicate) as the lowest-effort, highest-impact fix. Add option 3 (retry) as a safety net. Consider option 2 (batching) if the predicate alone isn't sufficient.
 
 ## Notes
 
