@@ -2,7 +2,7 @@
 
 ## Summary
 
-Investigating throttling and credential failures in the `rel-esg-prod-data-eng--data-orchestration` Step Function, which orchestrates **94 parallel Glue jobs** writing to Iceberg tables on S3.
+Investigating throttling issues in the `rel-esg-prod-data-eng--data-orchestration` Step Function, which orchestrates **94 parallel Glue jobs** writing to Iceberg tables on S3.
 
 ## Environment
 
@@ -11,7 +11,7 @@ Investigating throttling and credential failures in the `rel-esg-prod-data-eng--
 - Sub-state-machine: `rel-esg-prod-data-eng--run-glue-job` (poll-based: start → wait 30s → check status → loop)
 - Glue version: 5.0
 - Job mode: SCRIPT
-- All jobs share the same script template (fail at line 48 calling `getDynamicFrame`)
+- All jobs share the same script template
 
 ## Orchestration Flow
 
@@ -21,27 +21,11 @@ Investigating throttling and credential failures in the `rel-esg-prod-data-eng--
 4. `run-glue-jobs` — Parallel: 8 master-record jobs (sequential dep: invoice-activity → allocated-payment-refund-activity)
 5. `data-orchestration-failed` — Fail state (catch-all, no retry)
 
-## Findings (30 failed executions, Apr 30 – May 6 2026)
-
-### Error Categories
-
-| Error Type | Frequency | Category | Detail |
-|---|---|---|---|
-| Lake Formation credential failure | Most common | `UNCLASSIFIED_ERROR` | "LFCredential fetch failed with status code: 400" |
-| S3 request rate throttle | 2-3 explicit | `THROTTLING_ERROR` | S3 503 SlowDown during `getDynamicFrame` |
-| Connection pool timeout | 1-3 | `TIMEOUT_ERROR` | "Timeout waiting for connection from pool" (Iceberg catalog contention) |
-
-### Failure Distribution
-
-- **26 unique jobs** have failed across 30 executions
-- Failures are essentially random — whichever job loses the race for credentials or S3 capacity
-- Top offenders: titanium-document-data (3x), titanium-invoice-crm-data (3x), phidex-project-unit-rate (3x), titanium-invoice-detail (3x)
-
-### Job Inventory (94 jobs)
+## Job Inventory (94 jobs)
 
 All 94 jobs write to the **same warehouse bucket**: `s3://rel-esg-prod-data-eng-cdc-staging/`
 
-#### Source Distribution
+### Source Distribution
 
 | Source Database | Job Count | Staging Database |
 |---|---|---|
@@ -51,7 +35,7 @@ All 94 jobs write to the **same warehouse bucket**: `s3://rel-esg-prod-data-eng-
 | `rel-esg-prod-data-eng-bryt-db` | 2 | `rel_esg_prod_data_eng_bryt_cdc_staging_db` |
 | `rel-esg-prod-data-eng-ensek-db` | 2 | `rel_esg_prod_data_eng_ensek_cdc_staging_db` |
 
-#### Worker Sizing
+### Worker Sizing
 
 | Workers | Count | Jobs |
 |---|---|---|
@@ -59,7 +43,7 @@ All 94 jobs write to the **same warehouse bucket**: `s3://rel-esg-prod-data-eng-
 | 4x G.4X | 5 | phidex-billing-contract-mpan-rate, phidex-billing-invoice-error, phidex-project-document, phidex-project-unit-rate, salesforce-case |
 | 5x G.8X | 1 | phidex-billing-contract-mpan-volume |
 
-#### S3 Bucket Layout (write target)
+### S3 Bucket Layout (write target)
 
 ```
 s3://rel-esg-prod-data-eng-cdc-staging/
@@ -77,25 +61,54 @@ All jobs use the same pattern:
 2. Deduplicate by primary key using latest `dms_timestamp`
 3. `MERGE INTO` Iceberg table in staging bucket
 
-The failure point (line 48) is the `getDynamicFrame` call, which requires Lake Formation credentials to access the source data.
+## Findings — Pre-Deployment (before 05/05/2026)
 
-## Root Cause Analysis
+Analysed 20 failed executions from Apr 30 – May 4 2026.
 
-The core problem is **94 Glue jobs starting simultaneously**, causing a thundering herd:
+### Error Categories
 
-1. **Lake Formation API saturation** (most frequent) — All 94 jobs request temporary credentials at the same moment. LF's credential vending API throttles, returning 400 errors.
+| Error Type | Count | Percentage |
+|---|---|---|
+| S3 503 SlowDown (THROTTLING_ERROR) | 15 | 83% |
+| Connection pool timeout (TIMEOUT_ERROR) | 3 | 17% |
 
-2. **S3 503 SlowDown** — Jobs that get past credential fetch collectively exceed S3's per-prefix rate limits (3,500 PUT/5,500 GET per second per prefix). All writes target the same bucket.
+**No Lake Formation credential errors** — those only appear post-deployment and are likely a separate issue introduced by the recent release.
 
-3. **Connection pool exhaustion** — Larger jobs (4x G.4X) timeout waiting for connections, likely due to Iceberg metadata/Glue Catalog contention from the parallel blast.
+### Error Details
+
+- All S3 throttle errors occur at **line 31** (`getDynamicFrame`) — during the source read phase
+- Error: `"Slow Down (Service: Amazon S3; Status Code: 503; Error Code: 503 Slow Down)"`
+- Typical runtime before failure: 100-180 seconds
+- The timeout errors affect `phidex-project-unit-rate` (4x G.4X) at line 65 (`o149.sql`) — "Timeout waiting for connection from pool"
+
+### Most Affected Jobs (pre-deployment)
+
+| Failures | Job |
+|---|---|
+| 3x | centerstage-titanium-invoice-detail |
+| 3x | phidex-project-unit-rate |
+| 2x | centerstage-titanium-invoice-crm-data |
+| 2x | phidex-billing-invoice |
+| 2x | centerstage-titanium-document-data |
+| 2x | centerstage-titanium-site-billing-raw-data |
+| 1x | 5 other jobs |
+
+### Root Cause
+
+**94 Glue jobs start simultaneously and collectively exceed S3 request rate limits.**
+
+- The throttle occurs during the **read phase** (`getDynamicFrame` from source), not during writes
+- S3 returns 503 SlowDown after ~100-180 seconds of sustained parallel reads
+- The jobs that fail are essentially random — whichever ones are still reading when the rate limit is hit
+- The `phidex-project-unit-rate` job has a separate issue: connection pool timeout during its SQL/MERGE phase, likely due to Iceberg catalog contention
 
 ## Status
 
-🟡 In progress — root cause identified, job inventory complete
+🟡 In progress — root cause confirmed as S3 read-side throttling from parallel burst
 
 ## Next Steps
 
-- [ ] Confirm source bucket locations for each of the 5 source databases
-- [ ] Identify mitigation strategies (batching, backoff, prefix distribution, concurrency limits)
-- [ ] Examine whether Lake Formation credential caching could help
-- [ ] Consider restructuring the step function to batch jobs in groups of 15-20
+- [ ] Confirm source bucket locations for each of the 5 source databases (to understand read-side S3 layout)
+- [ ] Determine whether the reads are all hitting the same S3 bucket/prefix
+- [ ] Identify mitigation strategies (batching, staggered starts, retry logic)
+- [ ] Separately investigate the post-deployment Lake Formation credential issue
