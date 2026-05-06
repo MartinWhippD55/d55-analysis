@@ -27,13 +27,13 @@ All 94 jobs write to the **same warehouse bucket**: `s3://rel-esg-prod-data-eng-
 
 ### Source Distribution
 
-| Source Database | Job Count | Staging Database |
-|---|---|---|
-| `rel-esg-prod-data-eng-centrestage-db` | ~55 | `rel_esg_prod_data_eng_centrestage_cdc_staging_db` |
-| `rel-esg-prod-data-eng-phidex-db` | ~33 | `rel_esg_prod_data_eng_phidex_cdc_staging_db` |
-| `rel-esg-prod-data-eng-salesforce-db` | 3 | `rel_esg_prod_data_eng_salesforce_cdc_staging_db` |
-| `rel-esg-prod-data-eng-bryt-db` | 2 | `rel_esg_prod_data_eng_bryt_cdc_staging_db` |
-| `rel-esg-prod-data-eng-ensek-db` | 2 | `rel_esg_prod_data_eng_ensek_cdc_staging_db` |
+| Source Database | S3 Source Bucket | Job Count | Staging Database |
+|---|---|---|---|
+| `rel-esg-prod-data-eng-centrestage-db` | `s3://rel-esg-prod-data-eng-cdc-centrestage/usmart_repo/` | ~55 | `rel_esg_prod_data_eng_centrestage_cdc_staging_db` |
+| `rel-esg-prod-data-eng-phidex-db` | `s3://rel-esg-prod-data-eng-cdc-phidex/dbo/` | ~33 | `rel_esg_prod_data_eng_phidex_cdc_staging_db` |
+| `rel-esg-prod-data-eng-salesforce-db` | `s3://prod-salesforce-cdc/replication/` | 3 | `rel_esg_prod_data_eng_salesforce_cdc_staging_db` |
+| `rel-esg-prod-data-eng-ensek-db` | `s3://master-prod-ensek-ignition-cdc/` | 2 | `rel_esg_prod_data_eng_ensek_cdc_staging_db` |
+| `rel-esg-prod-data-eng-bryt-db` | `s3://rel-esg-prod-data-eng-cdc-bryt/` | 2 | `rel_esg_prod_data_eng_bryt_cdc_staging_db` |
 
 ### Worker Sizing
 
@@ -43,72 +43,58 @@ All 94 jobs write to the **same warehouse bucket**: `s3://rel-esg-prod-data-eng-
 | 4x G.4X | 5 | phidex-billing-contract-mpan-rate, phidex-billing-invoice-error, phidex-project-document, phidex-project-unit-rate, salesforce-case |
 | 5x G.8X | 1 | phidex-billing-contract-mpan-volume |
 
-### S3 Bucket Layout (write target)
-
-```
-s3://rel-esg-prod-data-eng-cdc-staging/
-├── rel_esg_prod_data_eng_centrestage_cdc_staging_db.db/   (~55 Iceberg tables)
-├── rel_esg_prod_data_eng_phidex_cdc_staging_db.db/        (~33 Iceberg tables)
-├── rel_esg_prod_data_eng_salesforce_cdc_staging_db.db/    (3 Iceberg tables)
-├── rel_esg_prod_data_eng_bryt_cdc_staging_db.db/          (2 Iceberg tables)
-└── rel_esg_prod_data_eng_ensek_cdc_staging_db.db/         (2 Iceberg tables)
-```
-
 ### Shared Script Template
 
 All jobs use the same pattern:
-1. `create_dynamic_frame.from_catalog()` — reads CDC data from source database (Lake Formation governed)
+1. `create_dynamic_frame.from_catalog()` with `job-bookmark-enable` — reads CDC data from source
 2. Deduplicate by primary key using latest `dms_timestamp`
 3. `MERGE INTO` Iceberg table in staging bucket
 
-## Findings — Pre-Deployment (before 05/05/2026)
+## Root Cause (Confirmed)
 
-Analysed 20 failed executions from Apr 30 – May 4 2026.
+**Glue Job Bookmark's `PartitionFilesListerUsingBookmark` overwhelms source S3 buckets with parallel `listObjectsV2` and `getObjectMetadata` requests.**
 
-### Error Categories
+### Mechanism
 
-| Error Type | Count | Percentage |
-|---|---|---|
-| S3 503 SlowDown (THROTTLING_ERROR) | 15 | 83% |
-| Connection pool timeout (TIMEOUT_ERROR) | 3 | 17% |
+1. Each job calls `getDynamicFrame` with job bookmarking enabled
+2. Glue's bookmark system uses `PartitionFilesListerUsingBookmark` to enumerate all files in the source S3 path (to determine which are new since last bookmark)
+3. This listing is done using **parallel** `listObjectsV2` + `getObjectMetadata` calls via Scala's `ForkJoinPool`
+4. With 55 centrestage jobs (or 33 phidex jobs) all doing this simultaneously against the same source bucket, the combined request rate exceeds S3's per-prefix partition limits
+5. S3 returns 503 SlowDown, Glue does not retry, and the job fails
 
-**No Lake Formation credential errors** — those only appear post-deployment and are likely a separate issue introduced by the recent release.
+### Evidence
 
-### Error Details
+Cross-checked with CloudWatch logs from both source buckets:
 
-- All S3 throttle errors occur at **line 31** (`getDynamicFrame`) — during the source read phase
-- Error: `"Slow Down (Service: Amazon S3; Status Code: 503; Error Code: 503 Slow Down)"`
-- Typical runtime before failure: 100-180 seconds
-- The timeout errors affect `phidex-project-unit-rate` (4x G.4X) at line 65 (`o149.sql`) — "Timeout waiting for connection from pool"
+| Job Source | Bucket Being Throttled | S3 Request ID Prefixes | Jobs Hitting It |
+|---|---|---|---|
+| centrestage | `s3://rel-esg-prod-data-eng-cdc-centrestage` | `68P`, `Q1N`, `KCCW` | ~55 simultaneous |
+| phidex | `s3://rel-esg-prod-data-eng-cdc-phidex` | `PDF`, `Q44` | ~33 simultaneous |
 
-### Most Affected Jobs (pre-deployment)
+Both show identical stack traces:
+```
+PartitionFilesListerUsingBookmark.$anonfun$partitions$3(FileSystemBookmark.scala:404/419)
+→ listObjectsV2 / getObjectMetadata
+→ S3 503 SlowDown
+```
 
-| Failures | Job |
-|---|---|
-| 3x | centerstage-titanium-invoice-detail |
-| 3x | phidex-project-unit-rate |
-| 2x | centerstage-titanium-invoice-crm-data |
-| 2x | phidex-billing-invoice |
-| 2x | centerstage-titanium-document-data |
-| 2x | centerstage-titanium-site-billing-raw-data |
-| 1x | 5 other jobs |
+The source buckets are being **independently** throttled — each bucket's own rate limit is exceeded by the thundering herd of bookmark file-listing operations from its respective group of jobs.
 
-### Root Cause
+### Secondary Issue: phidex-project-unit-rate timeout
 
-**94 Glue jobs start simultaneously and collectively exceed S3 request rate limits.**
+Separate from the S3 throttle: `phidex-project-unit-rate` (4x G.4X) hits "Timeout waiting for connection from pool" during its MERGE/SQL phase. Likely Iceberg catalog contention or under-resourcing for its data volume.
 
-- The throttle occurs during the **read phase** (`getDynamicFrame` from source), not during writes
-- S3 returns 503 SlowDown after ~100-180 seconds of sustained parallel reads
-- The jobs that fail are essentially random — whichever ones are still reading when the rate limit is hit
-- The `phidex-project-unit-rate` job has a separate issue: connection pool timeout during its SQL/MERGE phase, likely due to Iceberg catalog contention
+### Post-Deployment Issue (after 05/05/2026)
+
+A recent deployment introduced a **separate** failure mode: `LFCredential fetch failed with status code: 400`. This is a Lake Formation credential vending issue unrelated to the original S3 throttle problem.
 
 ## Status
 
-🟡 In progress — root cause confirmed as S3 read-side throttling from parallel burst
+🟢 Root cause confirmed and cross-validated
 
 ## Next Steps
 
-- [ ] Confirm source bucket locations for each of the 5 source databases (to understand read-side S3 layout)
-- [ ] Determine whether the reads are all hitting the same S3 bucket/prefix
-- [ ] Identify mitigation strategies (batching, staggered starts, retry logic)
-- [ ] Separately investigate the post-deployment Lake Formation credential issue
+- [ ] Identify mitigation strategies (batching jobs, staggered starts, retry logic)
+- [ ] Consider whether bookmark file listing can be optimised (fewer files in source paths, compaction of CDC data)
+- [ ] Investigate the post-deployment LF credential issue separately
+- [ ] Address phidex-project-unit-rate timeout separately
