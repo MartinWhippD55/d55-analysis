@@ -21,6 +21,20 @@ Exploring cost-effective approaches to bring ~4,500 additional MySQL tables into
 - Data flows through raw → curated → refined pipeline
 - Cost is the primary concern at 4,500 table scale
 
+## Options at a Glance
+
+| # | Option | True CDC? | Source Impact | Est. Cost | Latency |
+|---|---|---|---|---|---|
+| 1 | DMS (scaled up) | ✓ | Low (replica) | High | Real-time |
+| 2 | DMS Serverless | ✓ | Low (replica) | Medium-High | Real-time |
+| 3 | Batch export from replica | ✗ | None | Low | Hourly |
+| 4 | Debezium on MSK/MSK Serverless | ✓ | Low (replica) | Medium | Real-time |
+| 5 | Aurora native S3 export | ✗ | Low | Very Low | Hourly |
+| 6 | RDS Snapshot Export to S3 | ✗ | None | Low-High* | Daily |
+| 7 | Maxwell → Kinesis Firehose | ✓ | Low (replica) | Low | Near real-time |
+
+*Option 6 cost scales with total table size, not change volume.
+
 ## Options Analysis
 
 ### Option 1: AWS DMS (current approach, scaled up)
