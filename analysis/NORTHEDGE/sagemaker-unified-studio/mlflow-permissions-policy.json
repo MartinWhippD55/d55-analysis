@@ -1,0 +1,31 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "MLflowTrackingServerPermissions",
+      "Effect": "Allow",
+      "Action": [
+        "sagemaker:CreateMlflowTrackingServer",
+        "sagemaker:UpdateMlflowTrackingServer",
+        "sagemaker:DeleteMlflowTrackingServer",
+        "sagemaker:DescribeMlflowTrackingServer",
+        "sagemaker:ListMlflowTrackingServers",
+        "sagemaker:StartMlflowTrackingServer",
+        "sagemaker:StopMlflowTrackingServer",
+        "sagemaker:CreatePresignedMlflowTrackingServerUrl"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "MLflowPassRole",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "arn:aws:iam::922850913962:role/service-role/AmazonSageMaker-ExecutionRole-20260204T112984",
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": "sagemaker.amazonaws.com"
+        }
+      }
+    }
+  ]
+}

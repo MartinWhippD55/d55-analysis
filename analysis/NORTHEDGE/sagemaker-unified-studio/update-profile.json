@@ -1,0 +1,28 @@
+[
+  {
+    "environmentBlueprintId": "crhkalixm0eac6",
+    "name": "Environment-0",
+    "deploymentOrder": 0,
+    "deploymentMode": "ON_CREATE",
+    "id": "9d9c3c0e-10e1-4329-89b7-7187c1a8bde1",
+    "awsAccount": {"awsAccountId": "922850913962"},
+    "awsRegion": {"regionName": "eu-west-1"}
+  },
+  {
+    "environmentBlueprintId": "czd3y13t8ibexi",
+    "name": "Environment-1",
+    "deploymentOrder": 1,
+    "deploymentMode": "ON_CREATE",
+    "id": "6c9c599a-2272-486b-805c-774049266610",
+    "awsAccount": {"awsAccountId": "922850913962"},
+    "awsRegion": {"regionName": "eu-west-1"}
+  },
+  {
+    "environmentBlueprintId": "6gm02axbwjor12",
+    "name": "MLExperiments",
+    "deploymentOrder": 2,
+    "deploymentMode": "ON_CREATE",
+    "awsAccount": {"awsAccountId": "922850913962"},
+    "awsRegion": {"regionName": "eu-west-1"}
+  }
+]

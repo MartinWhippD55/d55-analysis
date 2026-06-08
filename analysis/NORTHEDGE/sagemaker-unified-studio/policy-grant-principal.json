@@ -1,0 +1,11 @@
+{
+  "project": {
+    "projectDesignation": "OWNER",
+    "projectGrantFilter": {
+      "domainUnitFilter": {
+        "domainUnit": "6wn5gxdtxttuae",
+        "includeChildDomainUnits": true
+      }
+    }
+  }
+}

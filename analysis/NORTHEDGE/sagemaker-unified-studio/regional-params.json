@@ -1,0 +1,8 @@
+{
+  "eu-west-1": {
+    "AZs": "eu-west-1a,eu-west-1a,eu-west-1b,eu-west-1b",
+    "S3Location": "s3://amazon-sagemaker-922850913962-eu-west-1-aa70d61af00e",
+    "Subnets": "subnet-0e425cf7560bbb1d8,subnet-0815c88132ebb2164,subnet-01d5cfc1b17da87a1,subnet-083eaa776cb8af67c",
+    "VpcId": "vpc-0dbd787844fe0861e"
+  }
+}
