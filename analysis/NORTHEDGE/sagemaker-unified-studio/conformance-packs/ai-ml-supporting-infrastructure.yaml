@@ -1,0 +1,155 @@
+##################################################################################
+#
+#   Conformance Pack:
+#     AI/ML Security & Governance Supporting Infrastructure Best Practices
+#
+#   Baseline security configurations for the underlying infrastructure
+#   that AI/ML workloads run on: compute, storage, networking, logging, IAM.
+#
+##################################################################################
+
+Resources:
+
+  # Encryption at rest for EBS volumes
+  EncryptedVolumes:
+    Properties:
+      ConfigRuleName: aiml-infra-encrypted-volumes
+      Source:
+        Owner: AWS
+        SourceIdentifier: ENCRYPTED_VOLUMES
+    Type: AWS::Config::ConfigRule
+
+  # S3 bucket encryption enabled
+  S3BucketEncryption:
+    Properties:
+      ConfigRuleName: aiml-infra-s3-encryption
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED
+    Type: AWS::Config::ConfigRule
+
+  # S3 bucket public access blocked
+  S3BucketPublicAccessBlocked:
+    Properties:
+      ConfigRuleName: aiml-infra-s3-no-public-access
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_PUBLIC_READ_PROHIBITED
+    Type: AWS::Config::ConfigRule
+
+  # S3 bucket SSL only
+  S3BucketSslOnly:
+    Properties:
+      ConfigRuleName: aiml-infra-s3-ssl-only
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_SSL_REQUESTS_ONLY
+    Type: AWS::Config::ConfigRule
+
+  # CloudTrail enabled
+  CloudTrailEnabled:
+    Properties:
+      ConfigRuleName: aiml-infra-cloudtrail-enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: CLOUD_TRAIL_CLOUD_WATCH_LOGS_ENABLED
+    Type: AWS::Config::ConfigRule
+
+  # CloudTrail encryption
+  CloudTrailEncryption:
+    Properties:
+      ConfigRuleName: aiml-infra-cloudtrail-encrypted
+      Source:
+        Owner: AWS
+        SourceIdentifier: CLOUD_TRAIL_ENCRYPTION_ENABLED
+    Type: AWS::Config::ConfigRule
+
+  # CloudTrail log file validation
+  CloudTrailLogValidation:
+    Properties:
+      ConfigRuleName: aiml-infra-cloudtrail-log-validation
+      Source:
+        Owner: AWS
+        SourceIdentifier: CLOUD_TRAIL_LOG_FILE_VALIDATION_ENABLED
+    Type: AWS::Config::ConfigRule
+
+  # VPC flow logs enabled
+  VpcFlowLogs:
+    Properties:
+      ConfigRuleName: aiml-infra-vpc-flow-logs
+      Source:
+        Owner: AWS
+        SourceIdentifier: VPC_FLOW_LOGS_ENABLED
+    Type: AWS::Config::ConfigRule
+
+  # KMS key rotation
+  KmsKeyRotation:
+    Properties:
+      ConfigRuleName: aiml-infra-kms-key-rotation
+      Source:
+        Owner: AWS
+        SourceIdentifier: CMK_BACKING_KEY_ROTATION_ENABLED
+    Type: AWS::Config::ConfigRule
+
+  # IAM policy no admin access
+  IamNoAdminAccess:
+    Properties:
+      ConfigRuleName: aiml-infra-iam-no-admin-access
+      Source:
+        Owner: AWS
+        SourceIdentifier: IAM_POLICY_NO_STATEMENTS_WITH_ADMIN_ACCESS
+    Type: AWS::Config::ConfigRule
+
+  # IAM root access key check
+  IamRootAccessKey:
+    Properties:
+      ConfigRuleName: aiml-infra-iam-root-access-key
+      Source:
+        Owner: AWS
+        SourceIdentifier: IAM_ROOT_ACCESS_KEY_CHECK
+    Type: AWS::Config::ConfigRule
+
+  # Root account MFA enabled
+  RootMfa:
+    Properties:
+      ConfigRuleName: aiml-infra-root-mfa
+      Source:
+        Owner: AWS
+        SourceIdentifier: ROOT_ACCOUNT_MFA_ENABLED
+    Type: AWS::Config::ConfigRule
+
+  # CloudWatch log group encrypted
+  CloudWatchLogGroupEncrypted:
+    Properties:
+      ConfigRuleName: aiml-infra-cw-loggroup-encrypted
+      Source:
+        Owner: AWS
+        SourceIdentifier: CLOUDWATCH_LOG_GROUP_ENCRYPTED
+    Type: AWS::Config::ConfigRule
+
+  # EC2 instances in VPC
+  Ec2InVpc:
+    Properties:
+      ConfigRuleName: aiml-infra-ec2-in-vpc
+      Source:
+        Owner: AWS
+        SourceIdentifier: INSTANCES_IN_VPC
+    Type: AWS::Config::ConfigRule
+
+  # EBS encryption by default
+  EbsEncryptionByDefault:
+    Properties:
+      ConfigRuleName: aiml-infra-ebs-encryption-default
+      Source:
+        Owner: AWS
+        SourceIdentifier: EC2_EBS_ENCRYPTION_BY_DEFAULT
+    Type: AWS::Config::ConfigRule
+
+  # Security group restricted SSH
+  RestrictedSsh:
+    Properties:
+      ConfigRuleName: aiml-infra-restricted-ssh
+      Source:
+        Owner: AWS
+        SourceIdentifier: INCOMING_SSH_DISABLED
+    Type: AWS::Config::ConfigRule

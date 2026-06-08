@@ -1,0 +1,146 @@
+##################################################################################
+#
+#   Conformance Pack:
+#     Amazon SageMaker AI Security and Governance Best Practices
+#
+#   Baseline security configurations for AI/ML workloads on Amazon SageMaker.
+#   Covers encryption, network isolation, VPC placement, and access controls.
+#
+##################################################################################
+
+Resources:
+
+  # Endpoint encryption at rest
+  SagemakerEndpointConfigKmsKey:
+    Properties:
+      ConfigRuleName: sagemaker-endpoint-config-kms-key
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_ENDPOINT_CONFIGURATION_KMS_KEY_CONFIGURED
+    Type: AWS::Config::ConfigRule
+
+  # Endpoint production instance count (high availability)
+  SagemakerEndpointConfigProdInstanceCount:
+    Properties:
+      ConfigRuleName: sagemaker-endpoint-config-prod-count
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_ENDPOINT_CONFIG_PROD_INSTANCE_COUNT
+    Type: AWS::Config::ConfigRule
+
+  # Notebook encryption
+  SagemakerNotebookKmsKey:
+    Properties:
+      ConfigRuleName: sagemaker-notebook-kms-key
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_NOTEBOOK_INSTANCE_KMS_KEY_CONFIGURED
+    Type: AWS::Config::ConfigRule
+
+  # Notebook network isolation
+  SagemakerNotebookNoDirectInternet:
+    Properties:
+      ConfigRuleName: sagemaker-notebook-no-internet
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_NOTEBOOK_NO_DIRECT_INTERNET_ACCESS
+    Type: AWS::Config::ConfigRule
+
+  # Notebook inside VPC
+  SagemakerNotebookInsideVpc:
+    Properties:
+      ConfigRuleName: sagemaker-notebook-in-vpc
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_NOTEBOOK_INSTANCE_INSIDE_VPC
+    Type: AWS::Config::ConfigRule
+
+  # Notebook root access check
+  SagemakerNotebookRootAccessCheck:
+    Properties:
+      ConfigRuleName: sagemaker-notebook-root-access-check
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_NOTEBOOK_INSTANCE_ROOT_ACCESS_CHECK
+    Type: AWS::Config::ConfigRule
+
+  # Domain in VPC
+  SagemakerDomainInVpc:
+    Properties:
+      ConfigRuleName: sagemaker-domain-in-vpc
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_DOMAIN_IN_VPC
+    Type: AWS::Config::ConfigRule
+
+  # Model in VPC
+  SagemakerModelInVpc:
+    Properties:
+      ConfigRuleName: sagemaker-model-in-vpc
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_MODEL_IN_VPC
+    Type: AWS::Config::ConfigRule
+
+  # Model network isolation
+  SagemakerModelIsolation:
+    Properties:
+      ConfigRuleName: sagemaker-model-isolation
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_MODEL_ISOLATION_ENABLED
+    Type: AWS::Config::ConfigRule
+
+  # Data quality job network isolation
+  SagemakerDataQualityJobIsolation:
+    Properties:
+      ConfigRuleName: sagemaker-data-quality-job-isolation
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_DATA_QUALITY_JOB_ISOLATION
+    Type: AWS::Config::ConfigRule
+
+  # Data quality job encrypt in transit
+  SagemakerDataQualityJobEncryptInTransit:
+    Properties:
+      ConfigRuleName: sagemaker-data-quality-encrypt-transit
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_DATA_QUALITY_JOB_ENCRYPT_IN_TRANSIT
+    Type: AWS::Config::ConfigRule
+
+  # Model bias job isolation
+  SagemakerModelBiasJobIsolation:
+    Properties:
+      ConfigRuleName: sagemaker-model-bias-job-isolation
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_MODEL_BIAS_JOB_ISOLATION
+    Type: AWS::Config::ConfigRule
+
+  # Model explainability job encrypt in transit
+  SagemakerModelExplainabilityEncryptTransit:
+    Properties:
+      ConfigRuleName: sagemaker-model-explainability-encrypt
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_MODEL_EXPLAINABILITY_JOB_ENCRYPT_IN_TRANSIT
+    Type: AWS::Config::ConfigRule
+
+  # Monitoring schedule isolation
+  SagemakerMonitoringScheduleIsolation:
+    Properties:
+      ConfigRuleName: sagemaker-monitoring-schedule-isolation
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_MONITORING_SCHEDULE_ISOLATION
+    Type: AWS::Config::ConfigRule
+
+  # Feature group encryption at rest
+  SagemakerFeatureGroupEncryption:
+    Properties:
+      ConfigRuleName: sagemaker-featuregroup-encryption
+      Source:
+        Owner: AWS
+        SourceIdentifier: SAGEMAKER_FEATUREGROUP_ENCRYPTION_AT_REST
+    Type: AWS::Config::ConfigRule

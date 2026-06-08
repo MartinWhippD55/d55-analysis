@@ -1,0 +1,38 @@
+##################################################################################
+#
+#   Conformance Pack:
+#     Amazon Bedrock Security and Governance Best Practices
+#
+#   Baseline security configurations for Amazon Bedrock generative AI workloads.
+#   Covers guardrails, invocation logging, and encryption.
+#
+##################################################################################
+
+Resources:
+
+  # Bedrock guardrails configured
+  BedrockGuardrailConfigured:
+    Properties:
+      ConfigRuleName: bedrock-guardrail-configured
+      Source:
+        Owner: AWS
+        SourceIdentifier: BEDROCK_GUARDRAIL_CONFIGURED
+    Type: AWS::Config::ConfigRule
+
+  # Bedrock model invocation logging enabled
+  BedrockModelInvocationLoggingEnabled:
+    Properties:
+      ConfigRuleName: bedrock-invocation-logging-enabled
+      Source:
+        Owner: AWS
+        SourceIdentifier: BEDROCK_MODEL_INVOCATION_LOGGING_ENABLED
+    Type: AWS::Config::ConfigRule
+
+  # Bedrock agent encrypted
+  BedrockAgentEncrypted:
+    Properties:
+      ConfigRuleName: bedrock-agent-encrypted
+      Source:
+        Owner: AWS
+        SourceIdentifier: BEDROCK_AGENT_ENCRYPTED
+    Type: AWS::Config::ConfigRule
