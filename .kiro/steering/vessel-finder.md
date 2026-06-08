@@ -9,7 +9,7 @@ Scrapes the top N vessels from VesselFinder and collects key details from each v
 
 ## Parameters
 
-- **N** — the number of vessels to fetch (default: 10). The user specifies this when invoking the skill, e.g. "get the top 5 vessels" or "fetch 20 vessels". If not specified, default to 10.
+- **N** — the number of vessels to fetch (default: 10). The user specifies this when invoking the skill, e.g. "get the top 5 vessels" or "fetch 20 vessels". If not specified, default to 3.
 
 ## Steps
 

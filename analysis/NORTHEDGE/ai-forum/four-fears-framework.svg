@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Background -->
+  <rect width="900" height="700" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="450" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">Four Fears Framework — AI Adoption</text>
+  
+  <!-- Axis labels -->
+  <text x="225" y="75" text-anchor="middle" font-size="14" fill="#666">Past / Present Leaning</text>
+  <text x="675" y="75" text-anchor="middle" font-size="14" fill="#666">Future Thinking</text>
+  <text x="860" y="250" text-anchor="middle" font-size="14" fill="#666" transform="rotate(90, 860, 250)">Tasks</text>
+  <text x="860" y="500" text-anchor="middle" font-size="14" fill="#666" transform="rotate(90, 860, 500)">People</text>
+  
+  <!-- Axes -->
+  <line x1="450" y1="90" x2="450" y2="650" stroke="#999" stroke-width="2"/>
+  <line x1="50" y1="370" x2="830" y2="370" stroke="#999" stroke-width="2"/>
+
+  <!-- Blue quadrant - Loss of Control (top-left) -->
+  <rect x="70" y="100" width="360" height="255" rx="12" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="250" y="140" text-anchor="middle" font-size="16" font-weight="bold" fill="#1565c0">Loss of Control</text>
+  <text x="250" y="165" text-anchor="middle" font-size="12" fill="#1976d2">Controller</text>
+  <text x="250" y="200" text-anchor="middle" font-size="11" fill="#333">"I can't manage what I can't understand."</text>
+  <line x1="130" y1="225" x2="370" y2="225" stroke="#1976d2" stroke-width="1" stroke-dasharray="4"/>
+  <text x="250" y="250" text-anchor="middle" font-size="11" font-weight="bold" fill="#1565c0">↻ The Flip</text>
+  <text x="250" y="275" text-anchor="middle" font-size="11" fill="#333">More control, not less. AI gives better</text>
+  <text x="250" y="295" text-anchor="middle" font-size="11" fill="#333">observability, metrics, and consistency.</text>
+  <text x="250" y="315" text-anchor="middle" font-size="11" fill="#333">Control shifts to systemic oversight.</text>
+
+  <!-- Red quadrant - Project Failure (top-right) -->
+  <rect x="470" y="100" width="360" height="255" rx="12" fill="#ffebee" stroke="#d32f2f" stroke-width="2"/>
+  <text x="650" y="140" text-anchor="middle" font-size="16" font-weight="bold" fill="#c62828">Project Failure</text>
+  <text x="650" y="165" text-anchor="middle" font-size="12" fill="#d32f2f">Driver</text>
+  <text x="650" y="200" text-anchor="middle" font-size="11" fill="#333">"This could go wrong and I'll be accountable."</text>
+  <line x1="530" y1="225" x2="770" y2="225" stroke="#d32f2f" stroke-width="1" stroke-dasharray="4"/>
+  <text x="650" y="250" text-anchor="middle" font-size="11" font-weight="bold" fill="#c62828">↻ The Flip</text>
+  <text x="650" y="275" text-anchor="middle" font-size="11" fill="#333">Faster failure recovery, not more failure.</text>
+  <text x="650" y="295" text-anchor="middle" font-size="11" fill="#333">AI compresses feedback loops. Fail faster,</text>
+  <text x="650" y="315" text-anchor="middle" font-size="11" fill="#333">cheaper, smaller. Less risk, not more.</text>
+
+  <!-- Green quadrant - Disruption to Hierarchy (bottom-left) -->
+  <rect x="70" y="385" width="360" height="255" rx="12" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  <text x="250" y="425" text-anchor="middle" font-size="16" font-weight="bold" fill="#2e7d32">Disruption to Hierarchy</text>
+  <text x="250" y="450" text-anchor="middle" font-size="12" fill="#388e3c">Stabiliser</text>
+  <text x="250" y="485" text-anchor="middle" font-size="11" fill="#333">"My position, relationships, authority —</text>
+  <text x="250" y="505" text-anchor="middle" font-size="11" fill="#333">all under threat."</text>
+  <line x1="130" y1="525" x2="370" y2="525" stroke="#388e3c" stroke-width="1" stroke-dasharray="4"/>
+  <text x="250" y="550" text-anchor="middle" font-size="11" font-weight="bold" fill="#2e7d32">↻ The Flip</text>
+  <text x="250" y="575" text-anchor="middle" font-size="11" fill="#333">Hierarchy reshapes, doesn't disappear.</text>
+  <text x="250" y="595" text-anchor="middle" font-size="11" fill="#333">Orchestrators of AI become more valuable.</text>
+  <text x="250" y="615" text-anchor="middle" font-size="11" fill="#333">Lean in = stronger position.</text>
+
+  <!-- Yellow quadrant - Feeling Overshadowed (bottom-right) -->
+  <rect x="470" y="385" width="360" height="255" rx="12" fill="#fffde7" stroke="#f9a825" stroke-width="2"/>
+  <text x="650" y="425" text-anchor="middle" font-size="16" font-weight="bold" fill="#f57f17">Feeling Overshadowed</text>
+  <text x="650" y="450" text-anchor="middle" font-size="12" fill="#f9a825">Influencer</text>
+  <text x="650" y="485" text-anchor="middle" font-size="11" fill="#333">"If AI does the impressive stuff,</text>
+  <text x="650" y="505" text-anchor="middle" font-size="11" fill="#333">what's my value?"</text>
+  <line x1="530" y1="525" x2="770" y2="525" stroke="#f9a825" stroke-width="1" stroke-dasharray="4"/>
+  <text x="650" y="550" text-anchor="middle" font-size="11" font-weight="bold" fill="#f57f17">↻ The Flip</text>
+  <text x="650" y="575" text-anchor="middle" font-size="11" fill="#333">Amplification, not replacement. AI handles</text>
+  <text x="650" y="595" text-anchor="middle" font-size="11" fill="#333">grunt work, freeing space for creative,</text>
+  <text x="650" y="615" text-anchor="middle" font-size="11" fill="#333">strategic, interpersonal work. More stage.</text>
+
+  <!-- Footer -->
+  <text x="450" y="680" text-anchor="middle" font-size="11" fill="#999">D55 — AI Adoption Framework</text>
+</svg>
