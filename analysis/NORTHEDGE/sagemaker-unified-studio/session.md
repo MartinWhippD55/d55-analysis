@@ -1,5 +1,15 @@
 # Session Notes — 8 June 2026
 
+## Context
+
+D55 is a consultancy. Rhys (CTO) is preparing for a meeting with Northedge (PE house) who back Cezanne (HR/payroll SaaS company). Northedge are unhappy with Cezanne's pace and cost, and have moved the CTO out. D55's angle is to show we can help them adopt AI to become more productive.
+
+There are two workstreams here:
+
+1. **AI Forum prep** (`analysis/NORTHEDGE/ai-forum/`) — talking points, frameworks, and a PowerPoint deck for the Northedge meeting. This is largely complete (see `focus.md` for the full brief).
+
+2. **Sagemaker Unified Studio demos** (`analysis/NORTHEDGE/sagemaker-unified-studio/`) — building working demo content to showcase capabilities. Rhys wants demos across the AI/ML menu items in Unified Studio (MLflow, Models, Training Jobs, Inference Endpoints, ML Pipelines) and the Generative AI section (Playground, AI Apps).
+
 ## What We've Done
 
 ### Security & Governance (Complete)
@@ -53,7 +63,17 @@
 ## Issues Encountered & Fixed
 
 1. MLExperiments blueprint wasn't enabled → enabled via `put-environment-blueprint-configuration`
-2. Blueprint missing provisioning role + regional params → added to match Tooling blueprint
-3. DataZone execution role missing MLflow permissions → added `MLflowTrackingServerPolicy` inline policy
-4. Existing projects don't pick up new environments (ON_CREATE mode) → had to create new project
+2. Blueprint missing provisioning role + regional params → added to match Tooling blueprint config
+3. DataZone execution role missing MLflow permissions → added `MLflowTrackingServerPolicy` inline policy to `D55-kpidemo-financials-dev-datazone-execution-role`
+4. Existing projects don't pick up new environments (ON_CREATE mode) → had to create new project "ML Demo"
 5. Bedrock Config rules not available in eu-west-1 → parked for now
+6. The "RDD - Finance v2" project cannot use MLflow — it was created before MLExperiments was in the profile. Only the new "ML Demo" project has it.
+
+## Related Files
+
+- `focus.md` in `ai-forum/` — the full talking points brief for Rhys
+- `security-governance.md` — documenting the Config/CloudTrail/Governance angle
+- `mlflow.md` — the plan for the MLflow demo (data, models, steps)
+- `notebooks/revenue_forecasting.py` — the actual notebook script to run
+- `resources.md` — all AWS resources created + teardown commands
+- `conformance-packs/` — the YAML templates deployed to AWS Config
