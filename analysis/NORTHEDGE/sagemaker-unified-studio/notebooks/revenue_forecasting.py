@@ -12,7 +12,6 @@ import numpy as np
 import mlflow
 import mlflow.sklearn
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
@@ -24,17 +23,22 @@ warnings.filterwarnings("ignore")
 # ============================================================================
 
 S3_DATA_PATH = "s3://kpi-demo-data-922850913962-eu-west-1/kpi-gold/finance/gold_sales_transactions/gold_sales_transactions.parquet"
-MLFLOW_TRACKING_URI = "arn:aws:sagemaker:eu-west-1:922850913962:mlflow-tracking-server/tracking-server-4wwmeysrro2ydy-c05lwjjhigt6om-dev"
 EXPERIMENT_NAME = "Revenue Forecasting"
+MLFLOW_TRACKING_URI = "arn:aws:sagemaker:eu-west-1:922850913962:mlflow-tracking-server/tracking-server-4wwmeysrro2ydy-c05lwjjhigt6om-dev"
 
 # ============================================================================
 # SETUP MLFLOW
 # ============================================================================
 
+import os
+os.environ["AWS_STS_REGIONAL_ENDPOINTS"] = "regional"
+os.environ["AWS_DEFAULT_REGION"] = "eu-west-1"
+
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 mlflow.set_experiment(EXPERIMENT_NAME)
 
 print(f"MLflow tracking URI: {MLFLOW_TRACKING_URI}")
+print(f"Experiment: {EXPERIMENT_NAME}")ACKING_URI}")
 print(f"Experiment: {EXPERIMENT_NAME}")
 
 # ============================================================================
@@ -78,7 +82,7 @@ monthly_revenue['revenue_rolling_6m'] = monthly_revenue['total_revenue'].rolling
 # Drop rows with NaN from lag/rolling
 monthly_revenue = monthly_revenue.dropna().reset_index(drop=True)
 
-feature_cols = ['month', 'quarter', 'year', 'month_index',
+feature_cols = ['month', 'quarter', 'year',
                 'revenue_lag1', 'revenue_lag2', 'revenue_lag3',
                 'revenue_rolling_3m', 'revenue_rolling_6m']
 target_col = 'total_revenue'
@@ -163,7 +167,7 @@ def train_and_log_model(model, model_name, params, X_train, y_train, X_test, y_t
         mlflow.log_artifact(plot_path, "plots")
 
         # Log the model
-        mlflow.sklearn.log_model(model, "model")
+        mlflow.sklearn.log_model(model, "model", input_example=X_train.iloc[:1])
 
         # Print results
         print(f"\n{'='*60}")
@@ -184,19 +188,9 @@ def train_and_log_model(model, model_name, params, X_train, y_train, X_test, y_t
 test_dates = test['date']
 results = {}
 
-# --- Model 1: Linear Regression (baseline) ---
+# --- Model 1: Random Forest ---
 print("\n\n--- Training models ---")
 
-results['Linear Regression'] = train_and_log_model(
-    model=LinearRegression(),
-    model_name="Linear Regression",
-    params={"model_type": "linear_regression", "features": len(feature_cols)},
-    X_train=X_train, y_train=y_train,
-    X_test=X_test, y_test=y_test,
-    test_dates=test_dates
-)
-
-# --- Model 2: Random Forest ---
 rf_params = {"n_estimators": 100, "max_depth": 5, "random_state": 42}
 results['Random Forest'] = train_and_log_model(
     model=RandomForestRegressor(**rf_params),
@@ -207,7 +201,7 @@ results['Random Forest'] = train_and_log_model(
     test_dates=test_dates
 )
 
-# --- Model 3: Gradient Boosting (XGBoost-like) ---
+# --- Model 2: Gradient Boosting (XGBoost-like) ---
 gb_params = {"n_estimators": 200, "max_depth": 4, "learning_rate": 0.1, "random_state": 42}
 results['Gradient Boosting'] = train_and_log_model(
     model=GradientBoostingRegressor(**gb_params),
@@ -218,7 +212,7 @@ results['Gradient Boosting'] = train_and_log_model(
     test_dates=test_dates
 )
 
-# --- Model 4: Tuned Gradient Boosting ---
+# --- Model 3: Tuned Gradient Boosting ---
 gb_tuned_params = {"n_estimators": 500, "max_depth": 3, "learning_rate": 0.05,
                    "subsample": 0.8, "random_state": 42}
 results['Gradient Boosting (Tuned)'] = train_and_log_model(

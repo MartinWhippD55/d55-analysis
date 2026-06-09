@@ -48,6 +48,13 @@ All resources created for the Northedge demo. Remove after demo is complete.
 | datazone_usr_role_4wwmeysrro2ydy_4ru69fqxew4s9i | MLflowDirectAccess | Managed policy condition (`aws:PrincipalTag/AmazonDataZoneProject`) wasn't matching at session level. Added direct MLflow access scoped to `tracking-server-4wwmeysrro2ydy-*`. |
 | datazone_usr_role_4wwmeysrro2ydy_4ru69fqxew4s9i | RDD-S3-Access (updated) | Added `kpi-demo-data-922850913962-eu-west-1` bucket to existing policy (previously only had `d55-related-data-demo`). |
 
+### VPC Endpoints (added for RDD - Finance v2 MLflow connectivity)
+
+| Endpoint ID | Service | Reason |
+|-------------|---------|--------|
+| vpce-0f49aa2f82677ee92 | aws.sagemaker.eu-west-1.mlflow | MLflow plugin needs to resolve `*.mlflow.sagemaker.eu-west-1.app.aws` from private subnets |
+| vpce-0f954a95252a9a4f2 | aws.sagemaker.eu-west-1.experiments | MLflow tracking server presigned URLs use `*.eu-west-1.experiments.sagemaker.aws` domain |
+
 ### DataZone Blueprint Configurations
 
 | Blueprint | ID | Action |
@@ -80,4 +87,7 @@ aws iam delete-role-policy --role-name D55-kpidemo-financials-dev-datazone-execu
 # RDD - Finance v2 inline policies
 aws iam delete-role-policy --role-name datazone_usr_role_4wwmeysrro2ydy_4ru69fqxew4s9i --policy-name MLflowDirectAccess --profile d55-sagemaker-demo
 # Note: RDD-S3-Access was updated (not created) — revert by removing kpi-demo-data bucket entries if needed
+
+# VPC endpoints added for MLflow
+aws ec2 delete-vpc-endpoints --vpc-endpoint-ids vpce-0f49aa2f82677ee92 vpce-0f954a95252a9a4f2 --region eu-west-1 --profile d55-sagemaker-demo
 ```
