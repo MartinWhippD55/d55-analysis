@@ -5,6 +5,10 @@ Trains multiple models on KPI sales transaction data, logs experiments to MLflow
 compares performance, and registers the best model.
 
 Designed to run in SageMaker Unified Studio notebook environment.
+
+Prerequisites (run in a cell before this script):
+    %pip install scikit-learn==1.2.2 mlflow sagemaker-mlflow pandas matplotlib pyarrow
+    # Then restart the kernel
 """
 
 import pandas as pd
@@ -38,7 +42,6 @@ mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 mlflow.set_experiment(EXPERIMENT_NAME)
 
 print(f"MLflow tracking URI: {MLFLOW_TRACKING_URI}")
-print(f"Experiment: {EXPERIMENT_NAME}")ACKING_URI}")
 print(f"Experiment: {EXPERIMENT_NAME}")
 
 # ============================================================================
