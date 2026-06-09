@@ -24,7 +24,7 @@ warnings.filterwarnings("ignore")
 # ============================================================================
 
 S3_DATA_PATH = "s3://kpi-demo-data-922850913962-eu-west-1/kpi-gold/finance/gold_sales_transactions/gold_sales_transactions.parquet"
-MLFLOW_TRACKING_URI = "arn:aws:sagemaker:eu-west-1:922850913962:mlflow-tracking-server/d55-revenue-forecasting"
+MLFLOW_TRACKING_URI = "arn:aws:sagemaker:eu-west-1:922850913962:mlflow-tracking-server/tracking-server-4wwmeysrro2ydy-c05lwjjhigt6om-dev"
 EXPERIMENT_NAME = "Revenue Forecasting"
 
 # ============================================================================

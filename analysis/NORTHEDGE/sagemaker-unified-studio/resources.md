@@ -41,6 +41,13 @@ All resources created for the Northedge demo. Remove after demo is complete.
 |------|-------------|--------|
 | D55-kpidemo-financials-dev-datazone-execution-role | MLflowTrackingServerPolicy | DataZone execution role lacked SageMaker MLflow permissions. Added `CreateMlflowTrackingServer`, `DescribeMlflowTrackingServer`, etc. + `iam:PassRole` for the SageMaker execution role. Without this, users got "User is not permitted to perform operation: CreateEnvironment" when trying to create an MLflow tracking server from Unified Studio UI. |
 
+### IAM Policy Additions (RDD - Finance v2)
+
+| Role | Policy Name | Reason |
+|------|-------------|--------|
+| datazone_usr_role_4wwmeysrro2ydy_4ru69fqxew4s9i | MLflowDirectAccess | Managed policy condition (`aws:PrincipalTag/AmazonDataZoneProject`) wasn't matching at session level. Added direct MLflow access scoped to `tracking-server-4wwmeysrro2ydy-*`. |
+| datazone_usr_role_4wwmeysrro2ydy_4ru69fqxew4s9i | RDD-S3-Access (updated) | Added `kpi-demo-data-922850913962-eu-west-1` bucket to existing policy (previously only had `d55-related-data-demo`). |
+
 ### DataZone Blueprint Configurations
 
 | Blueprint | ID | Action |
@@ -67,6 +74,10 @@ aws sagemaker delete-mlflow-tracking-server --tracking-server-name "tracking-ser
 # MLflow artefacts
 aws s3 rm s3://kpi-demo-data-922850913962-eu-west-1/mlflow-artifacts/ --recursive --profile d55-sagemaker-demo --region eu-west-1
 
-# IAM policy added for MLflow
+# IAM policies added for MLflow
 aws iam delete-role-policy --role-name D55-kpidemo-financials-dev-datazone-execution-role --policy-name MLflowTrackingServerPolicy --profile d55-sagemaker-demo --region eu-west-1
+
+# RDD - Finance v2 inline policies
+aws iam delete-role-policy --role-name datazone_usr_role_4wwmeysrro2ydy_4ru69fqxew4s9i --policy-name MLflowDirectAccess --profile d55-sagemaker-demo
+# Note: RDD-S3-Access was updated (not created) — revert by removing kpi-demo-data bucket entries if needed
 ```
