@@ -6,8 +6,24 @@
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; line-height: 1.4; font-size: 14px; }
   h1 { font-size: 20px; border-bottom: 3px solid #1a73e8; padding-bottom: 8px; margin-bottom: 5px; }
-  h2 { font-size: 16px; color: #fff; background: #1a73e8; padding: 6px 12px; margin: 25px 0 10px 0; border-radius: 4px; }
-  h3 { font-size: 14px; color: #333; margin: 12px 0 6px 0; border-left: 4px solid #1a73e8; padding-left: 8px; }
+  .section-note { font-size: 12px; color: #888; font-style: italic; margin-bottom: 15px; }
+  
+  /* Main collapsible sections */
+  details.main-section { margin: 10px 0; border-radius: 4px; }
+  details.main-section > summary { font-size: 16px; color: #fff; background: #1a73e8; padding: 8px 12px; border-radius: 4px; cursor: pointer; list-style: none; }
+  details.main-section > summary::-webkit-details-marker { display: none; }
+  details.main-section > summary::before { content: "▶ "; font-size: 12px; }
+  details.main-section[open] > summary::before { content: "▼ "; font-size: 12px; }
+  details.main-section > summary:hover { background: #1557b0; }
+  
+  /* Sub-sections (detail fallback) */
+  details.sub-section { margin: 8px 0; }
+  details.sub-section > summary { font-size: 13px; color: #666; cursor: pointer; padding: 4px 0; }
+  details.sub-section > summary:hover { color: #1a73e8; }
+
+  /* Sub-topic headers */
+  .sub-topic { font-size: 14px; color: #333; margin: 14px 0 6px 0; border-left: 4px solid #1a73e8; padding-left: 8px; font-weight: bold; }
+
   .question { background: #f0f4ff; border-left: 4px solid #ff6b35; padding: 8px 12px; margin: 10px 0; font-style: italic; color: #444; }
   .quick-bullets { background: #e8f5e9; padding: 10px 15px; border-radius: 4px; margin: 8px 0; }
   .quick-bullets li { margin: 4px 0; font-weight: 500; }
@@ -17,8 +33,7 @@
   .demo-link::before { content: "🖥️ "; }
   .highlight { background: #ffeb3b; padding: 1px 4px; font-weight: bold; }
   .killer-stat { background: #ffcdd2; padding: 6px 10px; border-radius: 4px; font-weight: bold; font-size: 15px; display: block; margin: 8px 0; }
-  .section-note { font-size: 12px; color: #888; font-style: italic; margin-bottom: 15px; }
-  hr { border: none; border-top: 2px dashed #ccc; margin: 30px 0; }
+  hr { border: none; border-top: 2px dashed #ccc; margin: 20px 0; }
 </style>
 </head>
 <body>
@@ -26,9 +41,9 @@
 <h1>AI Forum — Crib Sheet</h1>
 <p class="section-note">Questions 1–5: Product & Platform (anchor to Unified Studio demos). Questions 6–7: People, Process & Delivery (anchor to D55 project experience).</p>
 
-<hr>
-
-<h2>1. Aligning AI to Business Outcomes</h2>
+<!-- ============ QUESTION 1 ============ -->
+<details class="main-section" open>
+<summary>1. Aligning AI to Business Outcomes</summary>
 
 <div class="question">How are leading organisations aligning AI to create tangible business outcomes? What are the most common ways this goes wrong?</div>
 
@@ -41,6 +56,8 @@
 </ul>
 </div>
 
+<details class="sub-section">
+<summary>📋 Detail & demo links...</summary>
 <div class="detail">
 <ul>
 <li>We built a data platform (SageMaker Unified Studio) with catalogued, governed datasets — finance, HR, marketing — before touching any models</li>
@@ -50,10 +67,12 @@
 </ul>
 <span class="demo-link">Unified Studio → MLflow experiments → revenue metrics comparison</span>
 </div>
+</details>
+</details>
 
-<hr>
-
-<h2>2. Building Customer Confidence & Trust</h2>
+<!-- ============ QUESTION 2 ============ -->
+<details class="main-section">
+<summary>2. Building Customer Confidence & Trust</summary>
 
 <div class="question">What have you seen work to build customer confidence and trust in AI? How have regulated businesses overcome resistance?</div>
 
@@ -66,8 +85,10 @@
 </ul>
 </div>
 
-<h3>2.1 Governance, Risk & Trust Without Slowing Delivery</h3>
+<div class="sub-topic">2.1 Governance, Risk & Trust Without Slowing Delivery</div>
 
+<details class="sub-section">
+<summary>📋 Detail & demo links...</summary>
 <div class="detail">
 <ul>
 <li>AWS Config conformance packs for SageMaker — continuous compliance monitoring (encryption, VPC isolation, logging)</li>
@@ -79,10 +100,12 @@
 <span class="demo-link">AWS Config → conformance packs → non-compliant findings</span><br>
 <span class="demo-link">Model Dashboard → drift monitoring</span>
 </div>
+</details>
+</details>
 
-<hr>
-
-<h2>4. What Separates Real Value from Experimentation?</h2>
+<!-- ============ QUESTION 4 ============ -->
+<details class="main-section">
+<summary>4. What Separates Real Value from Experimentation?</summary>
 
 <div class="question">What separates organisations generating real, scalable value from those stuck in experimentation?</div>
 
@@ -91,10 +114,13 @@
 <li><span class="highlight">Pipelines, not notebooks</span> — if it only runs on a data scientist's laptop, it's not real</li>
 <li>Automated retraining → evaluation → deployment = production AI, not a prototype</li>
 <li>Model Registry + versioning = repeatable, auditable, promotable</li>
-<li>The gap is always operationalisation — going from "it works in a notebook" to "it runs in production unattended"</li>
+<li>The gap is usually operational — going from "it works in a notebook" to "it runs in production unattended"</li>
+<li><span class="highlight">MLOps + MLflow</span> — experiment tracking, model versioning, automated retraining, drift detection. The discipline that bridges data science and production.</li>
 </ul>
 </div>
 
+<details class="sub-section">
+<summary>📋 Detail & demo links...</summary>
 <div class="detail">
 <ul>
 <li>ML Pipeline: data prep → train → evaluate → register → deploy — fully automated, triggered on schedule or data change</li>
@@ -105,10 +131,12 @@
 <span class="demo-link">Unified Studio → ML Pipelines → DAG view (FeatureEngineering → Train → Register)</span><br>
 <span class="demo-link">Unified Studio → Inference Endpoints → live predictions</span>
 </div>
+</details>
+</details>
 
-<hr>
-
-<h2>5. Competitive Race or Structural Shift?</h2>
+<!-- ============ QUESTION 5 ============ -->
+<details class="main-section">
+<summary>5. Competitive Race or Structural Shift?</summary>
 
 <div class="question">Are we in a competitive race, or a slower structural shift? How should that change pace and type of investment?</div>
 
@@ -124,6 +152,8 @@
 
 <span class="killer-stat">$100/seat/month for 5x productivity. For 65 devs: ~$80k/year in tooling vs millions in equivalent headcount — or streamline headcount for a net saving.</span>
 
+<details class="sub-section">
+<summary>📋 Detail...</summary>
 <div class="detail">
 <ul>
 <li>Long-term costs: inference is getting cheaper every quarter. Training costs are one-off. Tooling is subscription.</li>
@@ -131,10 +161,14 @@
 <li>For Cezanne specifically: AI-native engineering org is a valuation multiplier at exit</li>
 </ul>
 </div>
+</details>
+</details>
 
 <hr>
 
-<h2>6. What Does "Good" Look Like at Scale?</h2>
+<!-- ============ QUESTION 6 ============ -->
+<details class="main-section">
+<summary>6. What Does "Good" Look Like at Scale?</summary>
 
 <div class="question">What does "good" look like when AI is truly embedded — operating model, talent, culture? Key inflection points?</div>
 
@@ -147,8 +181,10 @@
 </ul>
 </div>
 
-<h3>6.1 High-Performing AI-Enabled Product Org</h3>
-
+<!-- 6.1 -->
+<div class="sub-topic">6.1 High-Performing AI-Enabled Product Org</div>
+<details class="sub-section">
+<summary>📋 Detail...</summary>
 <div class="detail">
 <ul>
 <li>Central AI platform team (data + infra) + embedded AI practitioners in squads</li>
@@ -157,9 +193,10 @@
 <li>Common failure: treating AI as a separate initiative instead of embedding in existing workflows</li>
 </ul>
 </div>
+</details>
 
-<h3>6.2 AI-First Product Development Lifecycle</h3>
-
+<!-- 6.2 -->
+<div class="sub-topic">6.2 AI-First Product Development Lifecycle</div>
 <div class="quick-bullets">
 <ul>
 <li>More time in <span class="highlight">analysis & design</span>, less in implementation — specs become the bottleneck/multiplier</li>
@@ -170,6 +207,8 @@
 </ul>
 </div>
 
+<details class="sub-section">
+<summary>📋 Detail...</summary>
 <div class="detail">
 <ul>
 <li>Our lifecycle: Analysis → Contracts/APIs → Implementation (AI-assisted) → Testing (human-in-loop + automated) → Documentation (AI-generated)</li>
@@ -178,9 +217,10 @@
 <li>Quality control: PR review agents that reference requirements and acceptance criteria automatically</li>
 </ul>
 </div>
+</details>
 
-<h3>6.3 Preventing Product Becoming a Bottleneck</h3>
-
+<!-- 6.3 -->
+<div class="sub-topic">6.3 Preventing Product Becoming a Bottleneck</div>
 <div class="quick-bullets">
 <ul>
 <li>When devs go 5x faster, <span class="highlight">POs, BAs, PMs become the constraint</span> — the "middle layer"</li>
@@ -189,6 +229,8 @@
 </ul>
 </div>
 
+<details class="sub-section">
+<summary>📋 Detail...</summary>
 <div class="detail">
 <ul>
 <li>On our project: primary resistance came from POs/BAs/Programme Managers — coordination roles couldn't keep pace</li>
@@ -197,9 +239,10 @@
 <li>Not everyone comes around — plan for it, budget time for it</li>
 </ul>
 </div>
+</details>
 
-<h3>6.4 AI Architecture & Operating Model</h3>
-
+<!-- 6.4 -->
+<div class="sub-topic">6.4 AI Architecture & Operating Model</div>
 <div class="quick-bullets">
 <ul>
 <li>Emerging patterns: RAG for knowledge retrieval, agentic systems for multi-step tasks, structured outputs for reliability</li>
@@ -209,6 +252,8 @@
 </ul>
 </div>
 
+<details class="sub-section">
+<summary>📋 Detail...</summary>
 <div class="detail">
 <ul>
 <li>Pattern: prompt engineering first → structured outputs → tools/RAG → fine-tuning (last resort, highest cost)</li>
@@ -217,9 +262,10 @@
 <li>TTS: depends on use case — ElevenLabs for quality, AWS Polly for cost/scale</li>
 </ul>
 </div>
+</details>
 
-<h3>6.5 Evaluation, Guardrails & Governance at Scale</h3>
-
+<!-- 6.5 -->
+<div class="sub-topic">6.5 Evaluation, Guardrails & Governance at Scale</div>
 <div class="quick-bullets">
 <ul>
 <li>Evals: offline (benchmark datasets) + online (production monitoring) — both required</li>
@@ -228,6 +274,8 @@
 </ul>
 </div>
 
+<details class="sub-section">
+<summary>📋 Detail & demo links...</summary>
 <div class="detail">
 <ul>
 <li>Model Monitor for drift detection — automated, continuous, alerts on threshold breach</li>
@@ -236,9 +284,10 @@
 </ul>
 <span class="demo-link">Model Dashboard → drift monitoring + conformance pack results</span>
 </div>
+</details>
 
-<h3>6.6 Memory, Personalisation & Context Management</h3>
-
+<!-- 6.6 -->
+<div class="sub-topic">6.6 Memory, Personalisation & Context Management</div>
 <div class="quick-bullets">
 <ul>
 <li>Pattern: <span class="highlight">vector store + structured profile + RAG</span> (hybrid approach)</li>
@@ -248,6 +297,8 @@
 </ul>
 </div>
 
+<details class="sub-section">
+<summary>📋 Detail...</summary>
 <div class="detail">
 <ul>
 <li>For Cezanne (multi-tenant HR SaaS): strict tenant isolation is non-negotiable — vector store per org, not shared</li>
@@ -255,9 +306,10 @@
 <li>Pattern: structured profile (role, permissions, preferences) + RAG for relevant docs + short-term conversation memory</li>
 </ul>
 </div>
+</details>
 
-<h3>6.7 Measuring Real AI Impact</h3>
-
+<!-- 6.7 -->
+<div class="sub-topic">6.7 Measuring Real AI Impact</div>
 <div class="quick-bullets">
 <ul>
 <li>Measure <span class="highlight">outcomes, not usage</span> — "200 developers using Copilot" means nothing if velocity hasn't changed</li>
@@ -267,6 +319,8 @@
 </ul>
 </div>
 
+<details class="sub-section">
+<summary>📋 Detail...</summary>
 <div class="detail">
 <ul>
 <li>On our project: tracked PRs/week, lines changed, story points delivered — before/after AI tooling</li>
@@ -274,10 +328,13 @@
 <li>For PE: the metric that matters is output per £ of engineering cost — that's the valuation lever</li>
 </ul>
 </div>
+</details>
 
-<hr>
+</details>
 
-<h2>7. Source of Competitive Advantage</h2>
+<!-- ============ QUESTION 7 ============ -->
+<details class="main-section">
+<summary>7. Source of Competitive Advantage</summary>
 
 <div class="question">Where is the real advantage — tools, data, or teams? How might that change?</div>
 
@@ -290,6 +347,8 @@
 </ul>
 </div>
 
+<details class="sub-section">
+<summary>📋 Detail...</summary>
 <div class="detail">
 <ul>
 <li>Priority use cases for Cezanne: compliance automation (regulation changes → auto-update policies), document generation (contracts, letters), employee self-service (natural language queries over HR data)</li>
@@ -297,10 +356,14 @@
 <li>What failure looks like: 12 months of "AI strategy" with no shipped features, talent attrition, competitors moving faster</li>
 </ul>
 </div>
+</details>
+</details>
 
 <hr>
 
-<h2 style="background: #ff6b35;">Close: The 8-Week Starting Point</h2>
+<!-- ============ CLOSE ============ -->
+<details class="main-section" open>
+<summary style="background: #ff6b35;">Close: The 8-Week Starting Point</summary>
 
 <div class="quick-bullets">
 <ul>
@@ -311,6 +374,7 @@
 </div>
 
 <p style="font-weight: bold; font-size: 15px; color: #1a73e8;">D55 embeds, proves, then enables. Not a permanent dependency.</p>
+</details>
 
 </body>
 </html>
