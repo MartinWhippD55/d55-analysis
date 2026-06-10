@@ -365,6 +365,95 @@
 
 <hr>
 
+<!-- ============ TECHNICAL QUESTIONS ============ -->
+<h2 style="background: #fff; color: #333; font-size: 18px; border-bottom: 3px solid #333;">Technical Questions</h2>
+
+<details class="main-section">
+<summary>Fine-Tuning vs RAG in Regulated Industries</summary>
+
+<div class="question">If we operate in regulated industries, should we fine-tune models or rely on guardrails and RAG?</div>
+
+<div class="quick-bullets">
+<ul>
+<li><span class="highlight">RAG + Guardrails first, fine-tuning only if those aren't enough</span></li>
+<li>RAG is auditable — you can trace exactly which documents informed a response</li>
+<li>RAG is updatable — when regulations change, update the corpus, not the model</li>
+<li>Fine-tuning on sensitive data risks the model <span class="highlight">memorising and leaking</span> that data</li>
+<li>Guardrails handle runtime safety — input validation, output filtering, confidence thresholds</li>
+</ul>
+</div>
+
+<details class="sub-section">
+<summary>📋 When to graduate to fine-tuning...</summary>
+<div class="detail">
+<ul>
+<li>Model consistently gets format/style wrong (e.g. specific regulatory templates)</li>
+<li>Latency matters and RAG retrieval is too slow</li>
+<li>Need reliable domain-specific terminology without prompting every time</li>
+<li>Tool calling reliability — RLVR fine-tuning improves agent action selection</li>
+</ul>
+<p><strong>The risk:</strong> fine-tuned model = black box. Harder to audit "why did it say that?" Version management is heavier — regulatory changes mean retraining + revalidation, not just updating a document.</p>
+<p><strong>Framing:</strong> "We start with RAG and guardrails because they give you transparency, auditability, and fast updates when regulation changes. Fine-tuning is a precision tool for when RAG isn't getting the behaviour right — but it comes with governance overhead."</p>
+</div>
+</details>
+</details>
+
+<details class="main-section">
+<summary>Can we fine-tune in SageMaker and use it in AgentCore?</summary>
+
+<div class="question">If they fine-tuned a model in SageMaker, could we use that model in agentic workflows?</div>
+
+<div class="quick-bullets">
+<ul>
+<li><span class="highlight">Yes — two routes:</span></li>
+<li><strong>Route 1:</strong> Fine-tune in SageMaker → import into Bedrock (Custom Model Import) → AgentCore uses it natively via unified API</li>
+<li><strong>Route 2:</strong> Fine-tune → deploy as SageMaker endpoint → expose via AgentCore Gateway as an MCP-compatible tool</li>
+<li>Newer pattern: fine-tune specifically for <span class="highlight">tool calling reliability</span> using RLVR in SageMaker — makes agents better at picking the right action</li>
+</ul>
+</div>
+
+<details class="sub-section">
+<summary>📋 Detail & references...</summary>
+<div class="detail">
+<ul>
+<li>Bedrock Custom Model Import: import fine-tuned models and use alongside foundation models via single serverless API</li>
+<li>AgentCore Gateway: wraps any API/endpoint as an MCP-compatible tool — agents discover and call tools dynamically</li>
+<li>SageMaker model customization supports: SFT, DPO, RLVR, RLAIF, and multi-turn RL for agentic fine-tuning</li>
+<li>20+ open-weight models + Amazon Nova available for customisation</li>
+</ul>
+</div>
+</details>
+</details>
+
+<details class="main-section">
+<summary>MLflow vs AgentCore — When to talk about which?</summary>
+
+<div class="question">When do we talk about MLflow/MLOps vs agentic tooling vs culture?</div>
+
+<div class="quick-bullets">
+<ul>
+<li><span class="highlight">Three distinct layers:</span></li>
+<li><strong>MLflow / SageMaker Unified Studio</strong> — building, training, versioning, deploying ML models. "How do we build AI reliably?" → data scientists, ML engineers</li>
+<li><strong>Agentic tooling (AgentCore, Copilot, Claude)</strong> — using AI to build software faster. "How do devs use AI day-to-day?" → software engineers</li>
+<li><strong>Culture & operating model</strong> — how the org adapts. Four Fears, roles shifting, lifecycle changes → leadership, PMs, whole org</li>
+</ul>
+</div>
+
+<details class="sub-section">
+<summary>📋 How they connect...</summary>
+<div class="detail">
+<ul>
+<li>MLflow produces models → models get deployed → agents use those models</li>
+<li>Agentic tooling accelerates the work of building the data platform and training the models</li>
+<li>Culture determines whether either gets adopted or stalls in a pilot</li>
+<li>For Cezanne: start with agentic tooling (immediate developer productivity), then build the data/ML platform for AI product features</li>
+</ul>
+</div>
+</details>
+</details>
+
+<hr>
+
 <!-- ============ CLOSE ============ -->
 <details class="main-section">
 <summary style="background: #ff6b35;">Close: The 8-Week Starting Point</summary>
