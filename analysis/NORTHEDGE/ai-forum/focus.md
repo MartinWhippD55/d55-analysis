@@ -139,7 +139,7 @@ This isn't waterfall — it's recognising that when implementation is 5x faster,
 
 MLFlow
 MlOPs
-Vector Store
+Vector Stores
 
 Mindset, People, Process, Technology
 > MSP Implement with Bryt.
@@ -148,7 +148,7 @@ Mindset, People, Process, Technology
 Rhys
 -----------
 Auditing + Compliance for Cloud Trail??
-Compliance and Law.
+Compliance and Law.sorry
 How to show Compliance stuff..
 MLFlow & Mlops
 
