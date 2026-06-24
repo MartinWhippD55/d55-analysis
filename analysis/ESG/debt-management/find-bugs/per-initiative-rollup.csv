@@ -1,0 +1,20 @@
+codename,initiative_key,initiative_url,initiative_summary,total,closed,open,pct_closed
+IP,UBT-13416,https://esg-uk.atlassian.net/browse/UBT-13416,Instalment Plan: Standard Configuration,1,1,0,100%
+IP,UBT-13417,https://esg-uk.atlassian.net/browse/UBT-13417,Instalment Plan: Plan Configuration,10,10,0,100%
+IP,UBT-13418,https://esg-uk.atlassian.net/browse/UBT-13418,Instalment Plan: Load Screen,8,8,0,100%
+IP,UBT-13419,https://esg-uk.atlassian.net/browse/UBT-13419,Instalment Plan: New Plan,13,13,0,100%
+IP,UBT-13420,https://esg-uk.atlassian.net/browse/UBT-13420,Instalment Plan: View Plan,8,8,0,100%
+IP,UBT-13421,https://esg-uk.atlassian.net/browse/UBT-13421,Instalment Plan: Transactions,3,3,0,100%
+IP,UBT-13422,https://esg-uk.atlassian.net/browse/UBT-13422,Instalment Plan: System,15,15,0,100%
+IP,UBT-13423,https://esg-uk.atlassian.net/browse/UBT-13423,Instalment Plan: Communications (Bryt Energy),3,3,0,100%
+IP,UBT-13424,https://esg-uk.atlassian.net/browse/UBT-13424,Instalment Plan: Activities,8,8,0,100%
+DBT,UBT-13473,https://esg-uk.atlassian.net/browse/UBT-13473,Debt Configuration,18,18,0,100%
+DBT,UBT-12542,https://esg-uk.atlassian.net/browse/UBT-12542,Balance Transfer Approval (Circumstances Changed),2,2,0,100%
+DBT,UBT-13504,https://esg-uk.atlassian.net/browse/UBT-13504,Debt Management: Account Management,14,12,2,86%
+DBT,UBT-13505,https://esg-uk.atlassian.net/browse/UBT-13505,Debt Management: Generic Communication Triggers and Logic,0,0,0,n/a
+DBT,UBT-13506,https://esg-uk.atlassian.net/browse/UBT-13506,Debt Management: Auditing,2,1,1,50%
+DBT,UBT-13507,https://esg-uk.atlassian.net/browse/UBT-13507,Debt Management: Load Screen and Stage Steppers,5,4,1,80%
+DBT,UBT-13508,https://esg-uk.atlassian.net/browse/UBT-13508,Debt Management: Overdue Invoices,4,4,0,100%
+DBT,UBT-13509,https://esg-uk.atlassian.net/browse/UBT-13509,Debt Management: Customer Leaves Supply: Debt Path Transition Process,1,1,0,100%
+DBT,UBT-13510,https://esg-uk.atlassian.net/browse/UBT-13510,Debt Management: Debt Events and Communications,1,1,0,100%
+DBT,UBT-13511,https://esg-uk.atlassian.net/browse/UBT-13511,Debt Management: System,11,11,0,100%
