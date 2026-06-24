@@ -122,3 +122,32 @@ The data tells a different story to the one implied in the emails. D55 developer
 - D55 recognised the burden on Damian and Alex — the PR Preparation user story and sub-tasks were created specifically to distribute that initial review burden across the squad (not just Martin)
 - Happy to remove/delete those Jira tickets if they're perceived as inflating throughput — that was never the intent
 - They exist purely for task coordination across the squad
+
+### SDLC Process (actual)
+1. Developer writes code (with AI assistance)
+2. Raise PR and address automated feedback
+3. Internal peer review within D55, prior to merge into feature/debt/main
+4. Self-testing, raising defects and addressing with fixes
+5. System test of initiative
+6. PR preparation tasks (introduced as part of debt epic, to address concerns from previous workstreams)
+7. PR submitted for ESG review
+8. Feedback addressed
+9. Merge to main
+
+### Proactive actions taken
+- **review-pr skill**: Built a manual skill (run via Copilot/Claude) with rulesets distilled from previous PR feedback and ESG's documented Confluence coding standards. Developers run it, collaborate with the agent on output, and address feedback while maintaining human oversight. Not automated — requires deliberate developer engagement.
+- **Comms-Hub refactor**: Proactively worked with Damian on the rules engine refactor. Initial design was SOLID-orthodox (35 classes, CC 90-110). Collaboratively refactored to tree-walking evaluator (3 classes, CC 85-95, net -969 LOC). Contract changed during this work requiring additional code changes and retesting — D55 absorbed this collaboratively.
+- **Interactive documentation**: Documented complex areas (Debt System initiative) with interactive diagrams explaining inner workings for BA and product owner. Cross-referenced code areas and testable assets. BA was delighted with the output.
+- **Test seed data**: Created Titanium-Test-Data repository with seed data scenarios enabling developers and testers to quickly iterate on feature testing.
+
+### Delivery status
+- On track for July release
+- Dependent on ESG PR review to merge changes to main
+- Doing everything possible to front-load preparation before ESG review
+
+### Comms-Hub Rules Engine (evidence of collaboration)
+- Initial design: ~35 classes, SOLID-orthodox, CC 90-110
+- Refactor (with Damian): 3 classes, CC 85-95, -969 LOC net
+- Both designs pass per-method complexity budgets
+- D55 proposed technically sound design, then willingly refactored to align with ESG's preference for simplicity
+- This directly counters the "not listening to feedback" narrative
