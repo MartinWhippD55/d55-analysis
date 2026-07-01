@@ -111,15 +111,15 @@ These are the axes of the radar chart. Each dimension is scored on a 1–5 matur
 
 ## 6. Delivery & Operations
 
-**What we're assessing:** Can they ship AI into production reliably, or does everything die in the notebook?
+**What we're assessing:** Can they ship AI into production reliably, or does everything die in the notebook? Is the development lifecycle adapted for AI-first delivery?
 
 | Score | Level | Description |
 |-------|-------|-------------|
-| 1 | Experimental | AI work stays in notebooks/POCs. Nothing in production. No MLOps. |
-| 2 | Manual | Some models in production but deployed manually. No CI/CD for models. Monitoring is "someone checks it." |
-| 3 | Repeatable | Defined deployment process. Some automation (CI/CD for models, basic monitoring). Rollback possible but painful. |
-| 4 | Automated | Full MLOps pipeline — automated training, testing, deployment, monitoring. Model registry. A/B testing capability. Fast rollback. |
-| 5 | Continuous | Models retrain on fresh data automatically. Feedback loops from production to development. Canary deployments. Self-healing pipelines. Incident response is muscle memory. |
+| 1 | Experimental | AI work stays in notebooks/POCs. Nothing in production. No MLOps. No consideration of how AI changes delivery process. |
+| 2 | Manual | Some models in production but deployed manually. No CI/CD for models. Monitoring is "someone checks it." Traditional agile without adaptation. |
+| 3 | Repeatable | Defined deployment process. Some automation (CI/CD for models, basic monitoring). Rollback possible but painful. Starting to recognise that specs matter more when implementation is fast. |
+| 4 | Automated | Full MLOps pipeline — automated training, testing, deployment, monitoring. Model registry. A/B testing. Design-up-front discipline: more time in analysis/spec, contracts and integration points defined before implementation. AI-assisted delivery (agentic tooling against well-defined specs). |
+| 5 | Continuous | Models retrain on fresh data automatically. Feedback loops from production to development. Canary deployments. Self-healing pipelines. AI-first lifecycle fully embedded: clarity of intent is the performance multiplier. Specs, contracts, and architectural decisions made upfront because garbage specs at 5x speed = garbage 5x faster. |
 
 **Key workshop questions:**
 - How many AI/ML models do you have in production today? How did they get there?
@@ -127,6 +127,8 @@ These are the axes of the radar chart. Each dimension is scored on a 1–5 matur
 - Tell me about the last model that failed in production. What happened? How long to fix?
 - What's the gap between the AI experiments the team is running and what's actually shipping?
 - If I asked "deploy this model to production by Friday" — is that realistic, or laughable?
+- How much time does your team spend in design and specification vs implementation? Has that ratio changed with AI tooling?
+- When devs go faster with AI assistance, where does the bottleneck shift to? (Specs? Reviews? Coordination?)
 
 ---
 
@@ -153,15 +155,28 @@ These are the axes of the radar chart. Each dimension is scored on a 1–5 matur
 
 ## 8. Culture & Adoption
 
-**What we're assessing:** Is AI something the whole business embraces, or is it an ivory tower exercise?
+**What we're assessing:** Is AI something the whole business embraces, or is it an ivory tower exercise? Have resistance patterns been identified and addressed?
+
+**The Four Fears Framework** (diagnostic tool for this dimension):
+
+| | Past/Present Leaning | Future Thinking |
+|---|---|---|
+| **Tasks-oriented** | Loss of Control (Controller) — "I can't manage what I can't understand" | Project Failure (Driver) — "This could go wrong and I'll be accountable" |
+| **People-oriented** | Disruption to Hierarchy (Stabiliser) — "My position/authority is under threat" | Feeling Overshadowed (Influencer) — "If AI does the impressive stuff, what's my value?" |
+
+**The reframe — AI addresses each fear when positioned correctly:**
+- Controllers get more oversight and observability, not less
+- Drivers get faster, cheaper failure — compressed risk
+- Stabilisers who lean in become orchestrators — more valuable
+- Influencers get amplified — AI handles grunt work, they get more stage
 
 | Score | Level | Description |
 |-------|-------|-------------|
-| 1 | Resistant | Scepticism or fear of AI across the business. No visible use. "That's not for us." |
-| 2 | Curious | Interest from pockets of the business. A few champions experimenting. No formal support. |
-| 3 | Supported | Leadership endorses AI adoption. Internal comms and training. Some business teams using AI tools (e.g. copilots, chatbots). |
-| 4 | Embedded | AI tools are part of daily workflows for multiple teams. Non-technical staff use AI confidently. Internal community of practice. |
-| 5 | Transformative | AI fundamentally changes how the business operates. New business models enabled. Continuous innovation from the ground up. Organisation is known for AI capability. |
+| 1 | Resistant | Scepticism or fear of AI across the business. No visible use. "That's not for us." Resistance patterns undiagnosed. |
+| 2 | Curious | Interest from pockets of the business. A few champions experimenting. No formal support. Resistance exists but isn't being addressed. |
+| 3 | Supported | Leadership endorses AI adoption. Internal comms and training. Some business teams using AI tools. Resistance patterns identified (Four Fears diagnosed) but not yet systematically addressed. |
+| 4 | Embedded | AI tools are part of daily workflows for multiple teams. Non-technical staff use AI confidently. Resistance addressed through tailored interventions per role/personality. Community of practice active. Middle layer (POs, BAs, PMs) actively adapting. |
+| 5 | Transformative | AI fundamentally changes how the business operates. New business models enabled. Continuous innovation from the ground up. Organisation attracts talent because of AI culture. All fear patterns resolved — people see AI as amplifier, not threat. |
 
 **Key workshop questions:**
 - How do non-technical staff feel about AI? Excited? Threatened? Indifferent?
@@ -169,6 +184,9 @@ These are the axes of the radar chart. Each dimension is scored on a 1–5 matur
 - What internal communication has gone out about AI in the last 6 months?
 - Is there a community of practice, a Slack channel, a lunch-and-learn series — anything that builds AI literacy?
 - If a frontline employee had an idea for how AI could help their job, what would they do with it? Who would they tell?
+- Where is the resistance coming from? Which roles or personality types are pushing back? (Use Four Fears to diagnose)
+- When devs adopted AI tooling and went faster, did coordination roles (POs, BAs, PMs) keep pace or become a bottleneck?
+- Has anyone left or been moved because they couldn't adapt? How was that handled?
 
 ---
 
@@ -192,6 +210,6 @@ The gap between the two shapes is the opportunity. Each gap maps to D55 service 
 | Tooling & Platform | SageMaker Unified Studio Deployment, Platform Engineering, Developer Productivity |
 | Team & Capability | Embedded Squads, Training & Upskilling, Recruitment Support |
 | Governance, Risk & Compliance | AI Governance Framework, EU AI Act Readiness, Model Risk Assessment |
-| Delivery & Operations | MLOps Implementation, CI/CD for Models, Observability & Monitoring |
+| Delivery & Operations | MLOps Implementation, CI/CD for Models, Observability & Monitoring, AI-First Delivery Lifecycle Workshop |
 | Cost & Value Management | FinOps Programme, Cost Optimisation Review, ROI Measurement Framework |
-| Culture & Adoption | AI Champions Programme, Change Management, AI Literacy Training |
+| Culture & Adoption | AI Champions Programme, Change Management, AI Literacy Training, Four Fears Diagnostic & Intervention |

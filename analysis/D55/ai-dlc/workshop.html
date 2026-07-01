@@ -529,22 +529,24 @@ const dimensions = [
     {
         id: "delivery",
         title: "Delivery & Operations",
-        description: "Can they ship AI into production reliably, or does everything die in the notebook?",
+        description: "Can they ship AI into production reliably? Is the delivery lifecycle adapted for AI-first — where clarity of intent is the performance multiplier?",
         levels: [
-            "Experimental — Work stays in notebooks/POCs, nothing in production",
-            "Manual — Some models in prod, deployed manually, no MLOps",
-            "Repeatable — Defined deployment process, some automation, basic monitoring",
-            "Automated — Full MLOps pipeline, model registry, A/B testing, fast rollback",
-            "Continuous — Auto-retrain, feedback loops, canary deploys, self-healing"
+            "Experimental — Work stays in notebooks/POCs, nothing in production, no process adaptation",
+            "Manual — Some models in prod, deployed manually, no MLOps, traditional process unchanged",
+            "Repeatable — Defined deployment, some automation, starting to recognise specs matter more when build is fast",
+            "Automated — Full MLOps pipeline, design-up-front discipline, contracts defined before build, AI-assisted delivery",
+            "Continuous — Auto-retrain, feedback loops, AI-first lifecycle embedded — clarity of intent is the multiplier"
         ],
         questions: [
             "How many models in production today? How did they get there?",
             "What happens when model performance degrades? How do you know?",
             "Tell me about the last model failure in production. What happened?",
             "What's the gap between experiments running and what's shipping?",
-            "'Deploy this model by Friday' — realistic or laughable?"
+            "'Deploy this model by Friday' — realistic or laughable?",
+            "How much time in design/spec vs implementation? Has that ratio changed with AI tooling?",
+            "When devs go faster with AI, where does the bottleneck shift — specs? Reviews? Coordination?"
         ],
-        services: ["MLOps Implementation", "CI/CD for Models", "Observability & Monitoring", "Spec & Process Review"]
+        services: ["MLOps Implementation", "CI/CD for Models", "Observability & Monitoring", "AI-First Delivery Lifecycle Workshop"]
     },
     {
         id: "cost",
@@ -569,22 +571,25 @@ const dimensions = [
     {
         id: "culture",
         title: "Culture & Adoption",
-        description: "Does the whole business embrace AI, or is it an ivory tower exercise?",
+        description: "Does the whole business embrace AI, or is it an ivory tower exercise? Have resistance patterns been identified and addressed?",
         levels: [
-            "Resistant — Scepticism or fear, no visible use",
-            "Curious — Pockets of interest, a few champions, no formal support",
-            "Supported — Leadership endorses, training exists, some teams using AI tools",
-            "Embedded — AI in daily workflows for multiple teams, community of practice",
-            "Transformative — AI changes how the business operates, new models enabled"
+            "Resistant — Scepticism or fear, no visible use, resistance undiagnosed",
+            "Curious — Pockets of interest, a few champions, resistance exists but unaddressed",
+            "Supported — Leadership endorses, training exists, resistance patterns identified but not systematically addressed",
+            "Embedded — AI in daily workflows, resistance addressed per role, middle layer (POs/BAs/PMs) adapting, community of practice active",
+            "Transformative — AI changes how the business operates, all fear patterns resolved, people see AI as amplifier not threat"
         ],
         questions: [
             "How do non-technical staff feel about AI? Excited? Threatened?",
             "Are there AI tools in use outside the data/tech team?",
             "What internal comms about AI have gone out in the last 6 months?",
             "Is there a community of practice or AI literacy programme?",
-            "If a frontline employee had an AI idea, who would they tell?"
+            "If a frontline employee had an AI idea, who would they tell?",
+            "Where is resistance coming from? Which roles or personality types push back? (Controllers needing oversight? Stabilisers fearing hierarchy change? Drivers worried about risk? Influencers feeling overshadowed?)",
+            "When devs adopted AI and went faster, did coordination roles keep pace or become a bottleneck?",
+            "Has anyone left or been moved because they couldn't adapt? How was that handled?"
         ],
-        services: ["AI Champions Programme", "Change Management", "AI Literacy Training", "Ceremony & Process Changes"]
+        services: ["AI Champions Programme", "Change Management", "AI Literacy Training", "Four Fears Diagnostic & Intervention", "Ceremony & Process Changes"]
     }
 ];
 
@@ -785,6 +790,11 @@ function renderEngagementModels() {
         <h3>How We Can Help</h3>
         <p>Based on your gaps (${gapCount} dimensions, total gap score ${totalGap}), here are the engagement models that fit:</p>
 
+        <div style="background:#0f1117;border:1px solid #475569;border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+            <p style="color:#fcd34d;font-size:0.9rem;font-weight:600;margin-bottom:0.5rem;">💡 The Economics</p>
+            <p style="color:#94a3b8;font-size:0.85rem;">AI developer tooling costs ~£150–200/seat/month and delivers ~5x productivity improvement. For a 50-person engineering team, that's ~£120k/year in tooling for output equivalent to 200+ engineers. The ROI case is straightforward — the real cost is delay, not investment.</p>
+        </div>
+
         <div class="engagement-option ${recommended === 'discovery' ? 'recommended' : ''}">
             <h4>🔍 Discovery & Strategy Session (DSD)</h4>
             <p>A focused discovery engagement to define exactly what needs to be done. The output is a data/AI strategy document — your roadmap, prioritised and costed. You buy this, and it tells you what to build and in what order.</p>
@@ -793,20 +803,21 @@ function renderEngagementModels() {
 
         <div class="engagement-option ${recommended === 'consultancy' ? 'recommended' : ''}">
             <h4>📋 Prescriptive Guidance & Workshops</h4>
-            <p>Targeted workshops and consultancy across your gap areas. We teach your team: how to spec, tooling for devs, compliance (correct region, locked down), changes to ceremonies and process. You choose the modules, we deliver them.</p>
+            <p>Targeted workshops and consultancy across your gap areas. We teach your team: how to spec for AI-first delivery, developer tooling setup, compliance (correct region, locked down), changes to ceremonies and process, and how to handle the middle-layer bottleneck when devs go faster.</p>
             <p class="price">Typical: £5k–£15k per workshop | Pick what you need</p>
-            <p style="color:#94a3b8;font-size:0.85rem;margin-top:0.5rem;">Workshops available: AI Strategy, Developer Tooling, Compliance & Governance, MLOps, Process & Ceremonies, Data Platform, Cost Optimisation</p>
+            <p style="color:#94a3b8;font-size:0.85rem;margin-top:0.5rem;">Modules: AI Strategy | AI-First Delivery Lifecycle | Developer Tooling | Compliance & Governance | MLOps | Process & Ceremonies | Data Platform | Cost Optimisation | Four Fears (Culture & Change)</p>
         </div>
 
         <div class="engagement-option ${recommended === 'embedded' ? 'recommended' : ''}">
             <h4>👥 Embedded Team / Forward Deployed Engineers</h4>
-            <p>We put a team in. Forward deployed engineers working alongside your people — building, shipping, and upskilling as they go. Scope defined by the gaps above. You get x people for n months, with clear deliverables and knowledge transfer built in.</p>
-            <p class="price">Typical: £15k–£25k per engineer/month | Team size based on gap analysis</p>
+            <p>We put a team in. Forward deployed engineers working alongside your people — building, shipping, and upskilling as they go. Structured as an 8-week engagement: <strong>Weeks 1–2</strong> assess codebase, tooling, and adoption barriers. <strong>Weeks 3–6</strong> embed in a squad, apply AI-first delivery on real work, track metrics from day one. <strong>Weeks 7–8</strong> demonstrate improvement with numbers, produce playbooks, deliver rollout plan for other squads.</p>
+            <p class="price">Typical: £15k–£25k per engineer/month | 8-week prove-it model or longer engagement</p>
+            <p style="color:#94a3b8;font-size:0.85rem;margin-top:0.5rem;">D55 embeds, proves, then enables. Not a permanent dependency. Assets and playbooks allow teams to self-serve after we step back.</p>
         </div>
 
         <div class="engagement-option">
             <h4>📦 Runbook & Asset Delivery</h4>
-            <p>We produce a prescriptive runbook — a step-by-step guide your team can follow to close the gaps. The runbook is the asset: it tells you exactly how to get from current state to target state, with decision points and options at each stage.</p>
+            <p>We produce a prescriptive runbook — a step-by-step guide your team can follow to close the gaps. The runbook is the asset: it tells you exactly how to get from current state to target state, with decision points and options at each stage. Not just advice — a playbook.</p>
             <p class="price">Included with Discovery, or standalone from £20k</p>
         </div>
     `;
