@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-DLC Assessment — D55</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f1117;
+            color: #e2e8f0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        header p {
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+        .progress-bar {
+            background: #1e293b;
+            border-radius: 9999px;
+            height: 6px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.4s ease;
+        }
+        .step-indicator {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+        .dimension-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        .dimension-card.active { display: block; }
+        .dimension-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: #f1f5f9;
+        }
+        .dimension-card .description {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        .scoring-section {
+            margin-bottom: 1.5rem;
+        }
+        .scoring-section h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+        }
+        .score-options {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .score-btn {
+            background: #0f1117;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            flex: 1;
+            min-width: 140px;
+            text-align: left;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+        .score-btn:hover {
+            border-color: #60a5fa;
+            background: #1a2332;
+        }
+        .score-btn.selected-current {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.15);
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+        .score-btn.selected-target {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.15);
+            box-shadow: 0 0 0 1px #10b981;
+        }
+        .score-btn .score-num {
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        .questions-panel {
+            background: #0f1117;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+        .questions-panel h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+        }
+        .questions-panel ul {
+            list-style: none;
+            padding: 0;
+        }
+        .questions-panel li {
+            padding: 0.4rem 0;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #1e293b;
+        }
+        .questions-panel li:last-child { border-bottom: none; }
+        .notes-area {
+            margin-top: 1.25rem;
+        }
+        .notes-area textarea {
+            width: 100%;
+            background: #0f1117;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 80px;
+        }
+        .notes-area textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+        }
+        .notes-area label {
+            font-size: 0.85rem;
+            color: #64748b;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        .btn-secondary:hover { background: #475569; }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Results page */
+        #results { display: none; }
+        #results.active { display: block; }
+        .results-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .results-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .chart-container {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .gap-analysis {
+            margin-top: 2rem;
+        }
+        .gap-analysis h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+        }
+        .gap-item {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .gap-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .gap-item-header h4 {
+            font-size: 1rem;
+            color: #f1f5f9;
+        }
+        .gap-badge {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        .gap-high { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+        .gap-medium { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+        .gap-low { background: rgba(34, 197, 94, 0.2); color: #86efac; }
+        .gap-none { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+        .gap-scores {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+        .gap-services h5 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        .service-tag {
+            display: inline-block;
+            background: #0f1117;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            margin: 0.2rem 0.2rem 0.2rem 0;
+        }
+        .engagement-models {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .engagement-models h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #f1f5f9;
+        }
+        .engagement-models > p {
+            color: #94a3b8;
+            margin-bottom: 1.25rem;
+            font-size: 0.9rem;
+        }
+        .engagement-option {
+            background: #0f1117;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .engagement-option h4 {
+            color: #f1f5f9;
+            margin-bottom: 0.4rem;
+        }
+        .engagement-option p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .engagement-option .price {
+            color: #a78bfa;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
+        }
+        .recommended {
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.3);
+        }
+        .recommended::before {
+            content: "Recommended based on your gaps";
+            display: block;
+            font-size: 0.75rem;
+            color: #a78bfa;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .runbook-section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .runbook-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+        }
+        .runbook-phase {
+            border-left: 3px solid #475569;
+            padding-left: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        .runbook-phase.priority-high { border-color: #ef4444; }
+        .runbook-phase.priority-medium { border-color: #f59e0b; }
+        .runbook-phase.priority-low { border-color: #22c55e; }
+        .runbook-phase h4 {
+            color: #f1f5f9;
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+        }
+        .runbook-phase p {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+        @media (max-width: 600px) {
+            .score-options { flex-direction: column; }
+            .score-btn { min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI-DLC Assessment</h1>
+            <p>Understand where you are, where you want to be, and how to get there.</p>
+        </header>
+
+        <div id="assessment">
+            <div class="progress-bar"><div class="fill" id="progress-fill"></div></div>
+            <div class="step-indicator" id="step-indicator"></div>
+
+            <!-- Dimensions will be injected here -->
+            <div id="dimensions-container"></div>
+
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" id="btn-prev" disabled>← Previous</button>
+                <button class="btn btn-primary" id="btn-next">Next →</button>
+            </div>
+        </div>
+
+        <div id="results">
+            <div class="results-header">
+                <h2>Your AI Maturity Profile</h2>
+                <p style="color:#94a3b8;">Here's where you are today vs where you want to be — and what it takes to close the gaps.</p>
+            </div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div> Current State</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Target State</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="radar-chart"></canvas>
+            </div>
+            <div class="gap-analysis" id="gap-analysis"></div>
+            <div class="engagement-models" id="engagement-models"></div>
+            <div class="runbook-section" id="runbook-section"></div>
+        </div>
+    </div>
+
+<script>
+const dimensions = [
+    {
+        id: "strategy",
+        title: "Strategy & Alignment",
+        description: "Is AI adoption tied to business outcomes, or is it experimentation without direction?",
+        levels: [
+            "Ad-hoc — No formal AI strategy, no executive sponsorship",
+            "Exploring — Leadership acknowledges AI, some budget, no clear OKRs",
+            "Defined — Strategy documented, linked to outcomes, sponsor identified",
+            "Integrated — AI in business planning cycle, portfolio prioritised by ROI",
+            "Differentiating — AI is core competitive advantage, adaptive strategy"
+        ],
+        questions: [
+            "Who owns AI in your organisation? Is there an executive sponsor?",
+            "Can you point to a document linking AI initiatives to business outcomes?",
+            "How are AI projects prioritised? What gets funded and why?",
+            "When did the board last discuss AI? What was it about?",
+            "If AI budgets were cut tomorrow, who'd fight for them and with what evidence?"
+        ],
+        services: ["AI Strategy Workshop", "Use Case Prioritisation", "Business Case Development"]
+    },
+    {
+        id: "data",
+        title: "Data Readiness",
+        description: "Is the data foundation in place to support AI workloads at the ambition level?",
+        levels: [
+            "Siloed — Disconnected systems, no catalogue, no quality standards",
+            "Consolidating — Some centralisation underway, patchy quality checks",
+            "Governed — Central platform with catalogue, lineage, ownership, access control",
+            "Optimised — Data products SLA'd, self-serve access, feature stores emerging",
+            "AI-Native — Platform designed for AI: feature stores, vector stores, feedback loops"
+        ],
+        questions: [
+            "Where does your data live today? How many systems for a full picture?",
+            "Do you have a data catalogue? Who maintains it? Do people use it?",
+            "How long to produce a clean joined dataset across customers, transactions, product?",
+            "What's your biggest data quality pain point right now?",
+            "How do you handle PII and sensitive data access?"
+        ],
+        services: ["Data Platform Build", "Data Quality Programme", "Lakehouse Migration", "Data Strategy Discovery"]
+    },
+    {
+        id: "tooling",
+        title: "Tooling & Platform",
+        description: "Is there a coherent platform for building, deploying, and operating AI/ML workloads?",
+        levels: [
+            "Fragmented — Individual tools per project, notebooks on laptops",
+            "Partial — Some shared tooling but no end-to-end platform",
+            "Platform — Defined platform covering dev, training, deployment",
+            "Integrated — Full lifecycle coverage, CI/CD for models, self-serve",
+            "Composable — Modular, extensible, multi-modal, one pane of glass"
+        ],
+        questions: [
+            "How many separate consoles/tools does a practitioner touch in a typical week?",
+            "What's the journey from idea to production? How long, how many hand-offs?",
+            "Who manages the infrastructure? How much time on maintenance vs new work?",
+            "If a new joiner started tomorrow, how long before they're productive?",
+            "What's your biggest frustration with current tooling?"
+        ],
+        services: ["Developer Tooling Setup", "Platform Engineering", "SageMaker Unified Studio Deployment"]
+    },
+    {
+        id: "team",
+        title: "Team & Capability",
+        description: "Right people, right skills — or dependent on heroes and contractors?",
+        levels: [
+            "Absent — No dedicated AI/ML roles, work outsourced entirely",
+            "Emerging — 1-2 specialists, knowledge concentrated, no career path",
+            "Functional — Defined team with clear roles, some cross-training",
+            "Scaled — Multiple squads, internal training programme, low bus-factor",
+            "Pervasive — AI literacy business-wide, CoE feeds into product teams"
+        ],
+        questions: [
+            "How many people work on data/AI full-time vs wearing it as a second hat?",
+            "When a senior data engineer leaves, what breaks? How long to backfill?",
+            "Who's the bottleneck today? What are they spending time on?",
+            "Is there a training or upskilling programme for AI?",
+            "If you could add three roles tomorrow, what would they be?"
+        ],
+        services: ["Embedded Squads", "Training & Upskilling", "Forward Deployed Engineers", "Recruitment Support"]
+    },
+    {
+        id: "governance",
+        title: "Governance, Risk & Compliance",
+        description: "Are guardrails in place to use AI responsibly, or is it the wild west?",
+        levels: [
+            "Absent — No governance, no consideration of bias or regulation",
+            "Aware — Leadership aware of risks, ad-hoc review, no formal policy",
+            "Defined — Policy exists, risk assessment for new use cases, privacy handled",
+            "Operationalised — Governance in dev lifecycle, model cards, bias testing, EU AI Act",
+            "Proactive — Continuous monitoring, automated guardrails, regulatory scanning"
+        ],
+        questions: [
+            "Do you have an AI usage policy? Who wrote, enforces, and has read it?",
+            "Last time someone asked 'should we be doing this?' — what happened?",
+            "How do you document what a model does and what decisions it influences?",
+            "Are you aware of EU AI Act implications for your use cases?",
+            "If a regulator asked 'show me how this decision was made' — could you?"
+        ],
+        services: ["AI Governance Framework", "EU AI Act Readiness", "Compliance Posture Review", "Region & Lockdown Audit"]
+    },
+    {
+        id: "delivery",
+        title: "Delivery & Operations",
+        description: "Can they ship AI into production reliably, or does everything die in the notebook?",
+        levels: [
+            "Experimental — Work stays in notebooks/POCs, nothing in production",
+            "Manual — Some models in prod, deployed manually, no MLOps",
+            "Repeatable — Defined deployment process, some automation, basic monitoring",
+            "Automated — Full MLOps pipeline, model registry, A/B testing, fast rollback",
+            "Continuous — Auto-retrain, feedback loops, canary deploys, self-healing"
+        ],
+        questions: [
+            "How many models in production today? How did they get there?",
+            "What happens when model performance degrades? How do you know?",
+            "Tell me about the last model failure in production. What happened?",
+            "What's the gap between experiments running and what's shipping?",
+            "'Deploy this model by Friday' — realistic or laughable?"
+        ],
+        services: ["MLOps Implementation", "CI/CD for Models", "Observability & Monitoring", "Spec & Process Review"]
+    },
+    {
+        id: "cost",
+        title: "Cost & Value Management",
+        description: "Can they see what AI costs and what value it generates, or is it a black hole?",
+        levels: [
+            "Invisible — Spend buried in general IT, no visibility or ROI measurement",
+            "Aggregated — Total spend known at high level, ROI is anecdotal",
+            "Allocated — Spend attributed to teams/projects, some measured ROI",
+            "Optimised — Active cost management, ROI per initiative, portfolio view",
+            "Value-Driven — Decisions based on proven ROI, CFO is a partner"
+        ],
+        questions: [
+            "Do you know what you spend on AI/data today? Per team? Per project?",
+            "Last time finance asked 'what are we getting for this?' — what was the answer?",
+            "Workloads where spend is suspected too high but can't prove it?",
+            "How do you decide whether to continue, scale, or kill an AI initiative?",
+            "What does the CFO conversation about AI investment look like today?"
+        ],
+        services: ["FinOps Programme", "Cost Optimisation Review", "ROI Measurement Framework"]
+    },
+    {
+        id: "culture",
+        title: "Culture & Adoption",
+        description: "Does the whole business embrace AI, or is it an ivory tower exercise?",
+        levels: [
+            "Resistant — Scepticism or fear, no visible use",
+            "Curious — Pockets of interest, a few champions, no formal support",
+            "Supported — Leadership endorses, training exists, some teams using AI tools",
+            "Embedded — AI in daily workflows for multiple teams, community of practice",
+            "Transformative — AI changes how the business operates, new models enabled"
+        ],
+        questions: [
+            "How do non-technical staff feel about AI? Excited? Threatened?",
+            "Are there AI tools in use outside the data/tech team?",
+            "What internal comms about AI have gone out in the last 6 months?",
+            "Is there a community of practice or AI literacy programme?",
+            "If a frontline employee had an AI idea, who would they tell?"
+        ],
+        services: ["AI Champions Programme", "Change Management", "AI Literacy Training", "Ceremony & Process Changes"]
+    }
+];
+
+// State
+let currentStep = 0;
+const scores = {};
+dimensions.forEach(d => { scores[d.id] = { current: null, target: null, notes: "" }; });
+
+function renderDimensions() {
+    const container = document.getElementById('dimensions-container');
+    container.innerHTML = dimensions.map((dim, i) => `
+        <div class="dimension-card ${i === 0 ? 'active' : ''}" data-step="${i}">
+            <h2>${dim.title}</h2>
+            <p class="description">${dim.description}</p>
+            
+            <div class="scoring-section">
+                <h3>Where are you today?</h3>
+                <div class="score-options" data-dimension="${dim.id}" data-type="current">
+                    ${dim.levels.map((level, li) => `
+                        <button class="score-btn" data-score="${li + 1}">
+                            <span class="score-num">${li + 1}</span>
+                            ${level}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="scoring-section">
+                <h3>Where do you want to be in 12–18 months?</h3>
+                <div class="score-options" data-dimension="${dim.id}" data-type="target">
+                    ${dim.levels.map((level, li) => `
+                        <button class="score-btn" data-score="${li + 1}">
+                            <span class="score-num">${li + 1}</span>
+                            ${level}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="questions-panel">
+                <h3>Discussion prompts</h3>
+                <ul>
+                    ${dim.questions.map(q => `<li>${q}</li>`).join('')}
+                </ul>
+            </div>
+
+            <div class="notes-area">
+                <label for="notes-${dim.id}">Notes from conversation</label>
+                <textarea id="notes-${dim.id}" placeholder="Capture key points, quotes, context..." 
+                    oninput="scores['${dim.id}'].notes = this.value"></textarea>
+            </div>
+        </div>
+    `).join('');
+
+    // Bind score button clicks
+    container.querySelectorAll('.score-options').forEach(group => {
+        const dimId = group.dataset.dimension;
+        const type = group.dataset.type;
+        group.querySelectorAll('.score-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                group.querySelectorAll('.score-btn').forEach(b => b.classList.remove('selected-current', 'selected-target'));
+                btn.classList.add(type === 'current' ? 'selected-current' : 'selected-target');
+                scores[dimId][type] = parseInt(btn.dataset.score);
+            });
+        });
+    });
+}
+
+function updateUI() {
+    // Progress
+    const progress = ((currentStep + 1) / dimensions.length) * 100;
+    document.getElementById('progress-fill').style.width = `${progress}%`;
+    document.getElementById('step-indicator').textContent = `${currentStep + 1} of ${dimensions.length} — ${dimensions[currentStep].title}`;
+
+    // Cards
+    document.querySelectorAll('.dimension-card').forEach((card, i) => {
+        card.classList.toggle('active', i === currentStep);
+    });
+
+    // Buttons
+    document.getElementById('btn-prev').disabled = currentStep === 0;
+    const nextBtn = document.getElementById('btn-next');
+    if (currentStep === dimensions.length - 1) {
+        nextBtn.textContent = 'See Results →';
+    } else {
+        nextBtn.textContent = 'Next →';
+    }
+}
+
+function showResults() {
+    document.getElementById('assessment').style.display = 'none';
+    document.getElementById('results').classList.add('active');
+    renderRadarChart();
+    renderGapAnalysis();
+    renderEngagementModels();
+    renderRunbook();
+}
+
+function renderRadarChart() {
+    const ctx = document.getElementById('radar-chart').getContext('2d');
+    const labels = dimensions.map(d => d.title);
+    const currentData = dimensions.map(d => scores[d.id].current || 1);
+    const targetData = dimensions.map(d => scores[d.id].target || 1);
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Current State',
+                    data: currentData,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#3b82f6',
+                    pointRadius: 4
+                },
+                {
+                    label: 'Target State',
+                    data: targetData,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#10b981',
+                    pointRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 5,
+                    ticks: { stepSize: 1, color: '#64748b', backdropColor: 'transparent' },
+                    grid: { color: '#334155' },
+                    angleLines: { color: '#334155' },
+                    pointLabels: { color: '#94a3b8', font: { size: 11 } }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+function renderGapAnalysis() {
+    const container = document.getElementById('gap-analysis');
+    const gaps = dimensions.map(d => {
+        const current = scores[d.id].current || 1;
+        const target = scores[d.id].target || 1;
+        const gap = target - current;
+        return { ...d, current, target, gap };
+    }).sort((a, b) => b.gap - a.gap);
+
+    container.innerHTML = `<h3>Gap Analysis & Recommended Services</h3>` + gaps.map(g => {
+        let badgeClass = 'gap-none';
+        let badgeText = 'On track';
+        if (g.gap >= 3) { badgeClass = 'gap-high'; badgeText = `Gap: ${g.gap}`; }
+        else if (g.gap === 2) { badgeClass = 'gap-medium'; badgeText = `Gap: ${g.gap}`; }
+        else if (g.gap === 1) { badgeClass = 'gap-low'; badgeText = `Gap: ${g.gap}`; }
+
+        return `
+            <div class="gap-item">
+                <div class="gap-item-header">
+                    <h4>${g.title}</h4>
+                    <span class="gap-badge ${badgeClass}">${badgeText}</span>
+                </div>
+                <div class="gap-scores">
+                    <span>Current: ${g.current}/5</span>
+                    <span>Target: ${g.target}/5</span>
+                </div>
+                ${g.gap > 0 ? `
+                <div class="gap-services">
+                    <h5>Recommended services</h5>
+                    ${g.services.map(s => `<span class="service-tag">${s}</span>`).join('')}
+                </div>` : ''}
+                ${scores[g.id].notes ? `<p style="color:#94a3b8;font-size:0.85rem;margin-top:0.75rem;font-style:italic;">"${scores[g.id].notes}"</p>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function renderEngagementModels() {
+    const container = document.getElementById('engagement-models');
+    const totalGap = dimensions.reduce((sum, d) => sum + Math.max(0, (scores[d.id].target || 1) - (scores[d.id].current || 1)), 0);
+    const maxGap = Math.max(...dimensions.map(d => (scores[d.id].target || 1) - (scores[d.id].current || 1)));
+    const gapCount = dimensions.filter(d => (scores[d.id].target || 1) - (scores[d.id].current || 1) > 0).length;
+
+    // Determine recommended model
+    let recommended = 'discovery';
+    if (totalGap >= 16 || maxGap >= 4) recommended = 'embedded';
+    else if (totalGap >= 8) recommended = 'consultancy';
+
+    container.innerHTML = `
+        <h3>How We Can Help</h3>
+        <p>Based on your gaps (${gapCount} dimensions, total gap score ${totalGap}), here are the engagement models that fit:</p>
+
+        <div class="engagement-option ${recommended === 'discovery' ? 'recommended' : ''}">
+            <h4>🔍 Discovery & Strategy Session (DSD)</h4>
+            <p>A focused discovery engagement to define exactly what needs to be done. The output is a data/AI strategy document — your roadmap, prioritised and costed. You buy this, and it tells you what to build and in what order.</p>
+            <p class="price">Typical: £30k–£50k | Duration: 4–6 weeks</p>
+        </div>
+
+        <div class="engagement-option ${recommended === 'consultancy' ? 'recommended' : ''}">
+            <h4>📋 Prescriptive Guidance & Workshops</h4>
+            <p>Targeted workshops and consultancy across your gap areas. We teach your team: how to spec, tooling for devs, compliance (correct region, locked down), changes to ceremonies and process. You choose the modules, we deliver them.</p>
+            <p class="price">Typical: £5k–£15k per workshop | Pick what you need</p>
+            <p style="color:#94a3b8;font-size:0.85rem;margin-top:0.5rem;">Workshops available: AI Strategy, Developer Tooling, Compliance & Governance, MLOps, Process & Ceremonies, Data Platform, Cost Optimisation</p>
+        </div>
+
+        <div class="engagement-option ${recommended === 'embedded' ? 'recommended' : ''}">
+            <h4>👥 Embedded Team / Forward Deployed Engineers</h4>
+            <p>We put a team in. Forward deployed engineers working alongside your people — building, shipping, and upskilling as they go. Scope defined by the gaps above. You get x people for n months, with clear deliverables and knowledge transfer built in.</p>
+            <p class="price">Typical: £15k–£25k per engineer/month | Team size based on gap analysis</p>
+        </div>
+
+        <div class="engagement-option">
+            <h4>📦 Runbook & Asset Delivery</h4>
+            <p>We produce a prescriptive runbook — a step-by-step guide your team can follow to close the gaps. The runbook is the asset: it tells you exactly how to get from current state to target state, with decision points and options at each stage.</p>
+            <p class="price">Included with Discovery, or standalone from £20k</p>
+        </div>
+    `;
+}
+
+function renderRunbook() {
+    const container = document.getElementById('runbook-section');
+    const gaps = dimensions.map(d => {
+        const current = scores[d.id].current || 1;
+        const target = scores[d.id].target || 1;
+        return { ...d, current, target, gap: target - current };
+    }).filter(g => g.gap > 0).sort((a, b) => b.gap - a.gap);
+
+    if (gaps.length === 0) {
+        container.innerHTML = `<h3>Indicative Runbook</h3><p style="color:#94a3b8;">No gaps identified — you're already where you want to be.</p>`;
+        return;
+    }
+
+    // Group into phases by priority
+    const high = gaps.filter(g => g.gap >= 3);
+    const medium = gaps.filter(g => g.gap === 2);
+    const low = gaps.filter(g => g.gap === 1);
+
+    container.innerHTML = `
+        <h3>Indicative Runbook</h3>
+        <p style="color:#94a3b8;margin-bottom:1.25rem;">Phased approach to close your gaps, ordered by impact. This becomes a detailed deliverable in the Discovery engagement.</p>
+        
+        ${high.length ? `
+        <div class="runbook-phase priority-high">
+            <h4>Phase 1 — Immediate Priority (Months 1–3)</h4>
+            <p>${high.map(g => `<strong>${g.title}</strong> (${g.current}→${g.target}): ${g.services.slice(0, 2).join(', ')}`).join('<br>')}</p>
+        </div>` : ''}
+        
+        ${medium.length ? `
+        <div class="runbook-phase priority-medium">
+            <h4>Phase 2 — Build Momentum (Months 3–6)</h4>
+            <p>${medium.map(g => `<strong>${g.title}</strong> (${g.current}→${g.target}): ${g.services.slice(0, 2).join(', ')}`).join('<br>')}</p>
+        </div>` : ''}
+        
+        ${low.length ? `
+        <div class="runbook-phase priority-low">
+            <h4>Phase 3 — Optimise & Sustain (Months 6–12)</h4>
+            <p>${low.map(g => `<strong>${g.title}</strong> (${g.current}→${g.target}): ${g.services.slice(0, 2).join(', ')}`).join('<br>')}</p>
+        </div>` : ''}
+
+        <div style="margin-top:1.5rem;padding:1rem;background:#0f1117;border:1px solid #334155;border-radius:8px;">
+            <p style="color:#94a3b8;font-size:0.9rem;"><strong style="color:#f1f5f9;">What's next?</strong> This indicative runbook becomes a fully detailed, costed roadmap through our Discovery & Strategy engagement. Each phase is broken down into workstreams with clear deliverables, timelines, and team requirements.</p>
+        </div>
+    `;
+}
+
+// Navigation
+document.getElementById('btn-next').addEventListener('click', () => {
+    if (currentStep < dimensions.length - 1) {
+        currentStep++;
+        updateUI();
+    } else {
+        showResults();
+    }
+});
+
+document.getElementById('btn-prev').addEventListener('click', () => {
+    if (currentStep > 0) {
+        currentStep--;
+        updateUI();
+    }
+});
+
+// Init
+renderDimensions();
+updateUI();
+</script>
+</body>
+</html>
