@@ -3,14 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-DLC Assessment — D55</title>
+    <title>AI Readiness Assessment — D55</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --d55-blue: #0066FF;
+            --d55-purple: #7B2FFF;
+            --d55-cyan: #00E5CC;
+            --d55-dark: #0f1117;
+            --d55-card: #1a1b23;
+            --d55-border: #2a2b35;
+            --d55-text: #e2e8f0;
+            --d55-muted: #94a3b8;
+            --d55-dim: #64748b;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f1117;
-            color: #e2e8f0;
+            background: var(--d55-dark);
+            color: var(--d55-text);
             line-height: 1.6;
             min-height: 100vh;
         }
@@ -23,27 +34,32 @@
             text-align: center;
             margin-bottom: 3rem;
         }
+        .d55-logo {
+            height: 40px;
+            margin-bottom: 1.5rem;
+        }
         header h1 {
             font-size: 2rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            background: linear-gradient(135deg, var(--d55-blue), var(--d55-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 0.5rem;
         }
         header p {
-            color: #94a3b8;
+            color: var(--d55-muted);
             font-size: 1rem;
         }
         .progress-bar {
-            background: #1e293b;
+            background: var(--d55-card);
             border-radius: 9999px;
             height: 6px;
             margin-bottom: 2rem;
             overflow: hidden;
         }
         .progress-bar .fill {
-            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            background: linear-gradient(90deg, var(--d55-blue), var(--d55-purple));
             height: 100%;
             border-radius: 9999px;
             transition: width 0.4s ease;
@@ -55,8 +71,8 @@
             margin-bottom: 1.5rem;
         }
         .dimension-card {
-            background: #1e293b;
-            border: 1px solid #334155;
+            background: var(--d55-card);
+            border: 1px solid var(--d55-border);
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 1.5rem;
@@ -69,7 +85,7 @@
             color: #f1f5f9;
         }
         .dimension-card .description {
-            color: #94a3b8;
+            color: var(--d55-muted);
             margin-bottom: 1.5rem;
             font-size: 0.95rem;
         }
@@ -80,7 +96,7 @@
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: #64748b;
+            color: var(--d55-dim);
             margin-bottom: 0.75rem;
         }
         .score-options {
@@ -89,11 +105,11 @@
             flex-wrap: wrap;
         }
         .score-btn {
-            background: #0f1117;
+            background: var(--d55-dark);
             border: 1px solid #475569;
             border-radius: 8px;
             padding: 0.75rem 1rem;
-            color: #e2e8f0;
+            color: var(--d55-text);
             cursor: pointer;
             flex: 1;
             min-width: 140px;
@@ -102,18 +118,18 @@
             font-size: 0.85rem;
         }
         .score-btn:hover {
-            border-color: #60a5fa;
-            background: #1a2332;
+            border-color: var(--d55-blue);
+            background: #1a1b2e;
         }
         .score-btn.selected-current {
-            border-color: #3b82f6;
-            background: rgba(59, 130, 246, 0.15);
-            box-shadow: 0 0 0 1px #3b82f6;
+            border-color: var(--d55-blue);
+            background: rgba(0, 102, 255, 0.12);
+            box-shadow: 0 0 0 1px var(--d55-blue);
         }
         .score-btn.selected-target {
-            border-color: #10b981;
-            background: rgba(16, 185, 129, 0.15);
-            box-shadow: 0 0 0 1px #10b981;
+            border-color: var(--d55-cyan);
+            background: rgba(0, 229, 204, 0.1);
+            box-shadow: 0 0 0 1px var(--d55-cyan);
         }
         .score-btn .score-num {
             font-weight: 700;
@@ -122,8 +138,8 @@
             margin-bottom: 0.25rem;
         }
         .questions-panel {
-            background: #0f1117;
-            border: 1px solid #334155;
+            background: var(--d55-dark);
+            border: 1px solid var(--d55-border);
             border-radius: 8px;
             padding: 1.25rem;
             margin-top: 1.5rem;
@@ -132,7 +148,7 @@
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: #64748b;
+            color: var(--d55-dim);
             margin-bottom: 0.75rem;
         }
         .questions-panel ul {
@@ -141,9 +157,9 @@
         }
         .questions-panel li {
             padding: 0.4rem 0;
-            color: #94a3b8;
+            color: var(--d55-muted);
             font-size: 0.9rem;
-            border-bottom: 1px solid #1e293b;
+            border-bottom: 1px solid var(--d55-card);
         }
         .questions-panel li:last-child { border-bottom: none; }
         .notes-area {
@@ -151,11 +167,11 @@
         }
         .notes-area textarea {
             width: 100%;
-            background: #0f1117;
-            border: 1px solid #334155;
+            background: var(--d55-dark);
+            border: 1px solid var(--d55-border);
             border-radius: 8px;
             padding: 0.75rem;
-            color: #e2e8f0;
+            color: var(--d55-text);
             font-family: inherit;
             font-size: 0.9rem;
             resize: vertical;
@@ -163,11 +179,11 @@
         }
         .notes-area textarea:focus {
             outline: none;
-            border-color: #60a5fa;
+            border-color: var(--d55-blue);
         }
         .notes-area label {
             font-size: 0.85rem;
-            color: #64748b;
+            color: var(--d55-dim);
             display: block;
             margin-bottom: 0.5rem;
         }
@@ -191,7 +207,7 @@
         }
         .btn-secondary:hover { background: #475569; }
         .btn-primary {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            background: linear-gradient(135deg, var(--d55-blue), var(--d55-purple));
             color: white;
         }
         .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
@@ -213,7 +229,7 @@
             margin-bottom: 0.5rem;
         }
         .chart-container {
-            background: #1e293b;
+            background: var(--d55-card);
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 2rem;
@@ -233,7 +249,7 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 0.9rem;
-            color: #94a3b8;
+            color: var(--d55-muted);
         }
         .legend-dot {
             width: 12px;
@@ -249,8 +265,8 @@
             color: #f1f5f9;
         }
         .gap-item {
-            background: #1e293b;
-            border: 1px solid #334155;
+            background: var(--d55-card);
+            border: 1px solid var(--d55-border);
             border-radius: 10px;
             padding: 1.25rem;
             margin-bottom: 1rem;
@@ -291,7 +307,7 @@
         }
         .service-tag {
             display: inline-block;
-            background: #0f1117;
+            background: var(--d55-dark);
             border: 1px solid #475569;
             border-radius: 6px;
             padding: 0.3rem 0.6rem;
@@ -300,8 +316,8 @@
             margin: 0.2rem 0.2rem 0.2rem 0;
         }
         .engagement-models {
-            background: #1e293b;
-            border: 1px solid #334155;
+            background: var(--d55-card);
+            border: 1px solid var(--d55-border);
             border-radius: 12px;
             padding: 2rem;
             margin-top: 2rem;
@@ -312,13 +328,13 @@
             color: #f1f5f9;
         }
         .engagement-models > p {
-            color: #94a3b8;
+            color: var(--d55-muted);
             margin-bottom: 1.25rem;
             font-size: 0.9rem;
         }
         .engagement-option {
-            background: #0f1117;
-            border: 1px solid #334155;
+            background: var(--d55-dark);
+            border: 1px solid var(--d55-border);
             border-radius: 8px;
             padding: 1.25rem;
             margin-bottom: 0.75rem;
@@ -332,28 +348,28 @@
             font-size: 0.9rem;
         }
         .engagement-option .price {
-            color: #a78bfa;
+            color: var(--d55-cyan);
             font-weight: 600;
             font-size: 0.85rem;
             margin-top: 0.4rem;
         }
         .recommended {
-            border-color: #a78bfa;
-            box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.3);
+            border-color: var(--d55-purple);
+            box-shadow: 0 0 0 1px rgba(123, 47, 255, 0.3);
         }
         .recommended::before {
             content: "Recommended based on your gaps";
             display: block;
             font-size: 0.75rem;
-            color: #a78bfa;
+            color: var(--d55-purple);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 0.5rem;
             font-weight: 600;
         }
         .runbook-section {
-            background: #1e293b;
-            border: 1px solid #334155;
+            background: var(--d55-card);
+            border: 1px solid var(--d55-border);
             border-radius: 12px;
             padding: 2rem;
             margin-top: 2rem;
@@ -389,7 +405,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>AI-DLC Assessment</h1>
+            <img src="assets/logo/D55_LOGO_WHITE (2).png" alt="D55" class="d55-logo">
+            <h1>AI Readiness Assessment</h1>
             <p>Understand where you are, where you want to be, and how to get there.</p>
         </header>
 
@@ -412,8 +429,8 @@
                 <p style="color:#94a3b8;">Here's where you are today vs where you want to be — and what it takes to close the gaps.</p>
             </div>
             <div class="legend">
-                <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div> Current State</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Target State</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#0066FF;"></div> Current State</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#00E5CC;"></div> Target State</div>
             </div>
             <div class="chart-container">
                 <canvas id="radar-chart"></canvas>
@@ -702,19 +719,19 @@ function renderRadarChart() {
                 {
                     label: 'Current State',
                     data: currentData,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderColor: '#0066FF',
+                    backgroundColor: 'rgba(0, 102, 255, 0.1)',
                     borderWidth: 2,
-                    pointBackgroundColor: '#3b82f6',
+                    pointBackgroundColor: '#0066FF',
                     pointRadius: 4
                 },
                 {
                     label: 'Target State',
                     data: targetData,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderColor: '#00E5CC',
+                    backgroundColor: 'rgba(0, 229, 204, 0.08)',
                     borderWidth: 2,
-                    pointBackgroundColor: '#10b981',
+                    pointBackgroundColor: '#00E5CC',
                     pointRadius: 4
                 }
             ]
@@ -726,8 +743,8 @@ function renderRadarChart() {
                     min: 0,
                     max: 5,
                     ticks: { stepSize: 1, color: '#64748b', backdropColor: 'transparent' },
-                    grid: { color: '#334155' },
-                    angleLines: { color: '#334155' },
+                    grid: { color: '#2a2b35' },
+                    angleLines: { color: '#2a2b35' },
                     pointLabels: { color: '#94a3b8', font: { size: 11 } }
                 }
             },
