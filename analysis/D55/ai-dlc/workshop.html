@@ -74,20 +74,20 @@
             background: var(--d55-card);
             border: 1px solid var(--d55-border);
             border-radius: 12px;
-            padding: 2rem;
+            padding: 2.5rem;
             margin-bottom: 1.5rem;
             display: none;
         }
         .dimension-card.active { display: block; }
         .dimension-card h2 {
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             margin-bottom: 0.5rem;
             color: #f1f5f9;
         }
         .dimension-card .description {
             color: var(--d55-muted);
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
         }
         .scoring-section {
             margin-bottom: 1.5rem;
@@ -108,14 +108,14 @@
             background: var(--d55-dark);
             border: 1px solid #475569;
             border-radius: 8px;
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.25rem;
             color: var(--d55-text);
             cursor: pointer;
             flex: 1;
-            min-width: 140px;
-            text-align: left;
+            min-width: 100px;
+            text-align: center;
             transition: all 0.2s;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
         .score-btn:hover {
             border-color: var(--d55-blue);
@@ -133,33 +133,44 @@
         }
         .score-btn .score-num {
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.4rem;
             display: block;
             margin-bottom: 0.25rem;
+        }
+        .score-btn .score-label {
+            font-size: 0.85rem;
+            color: var(--d55-muted);
+            display: block;
+        }
+        .score-btn:hover .score-label,
+        .score-btn.selected-current .score-label,
+        .score-btn.selected-target .score-label {
+            color: var(--d55-text);
         }
         .questions-panel {
             background: var(--d55-dark);
             border: 1px solid var(--d55-border);
             border-radius: 8px;
-            padding: 1.25rem;
-            margin-top: 1.5rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
         }
         .questions-panel h3 {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--d55-dim);
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
         }
         .questions-panel ul {
             list-style: none;
             padding: 0;
         }
         .questions-panel li {
-            padding: 0.4rem 0;
+            padding: 0.6rem 0;
             color: var(--d55-muted);
-            font-size: 0.9rem;
+            font-size: 1rem;
             border-bottom: 1px solid var(--d55-card);
+            line-height: 1.5;
         }
         .questions-panel li:last-child { border-bottom: none; }
         .notes-area {
@@ -170,12 +181,12 @@
             background: var(--d55-dark);
             border: 1px solid var(--d55-border);
             border-radius: 8px;
-            padding: 0.75rem;
+            padding: 1rem;
             color: var(--d55-text);
             font-family: inherit;
-            font-size: 0.9rem;
+            font-size: 1rem;
             resize: vertical;
-            min-height: 80px;
+            min-height: 120px;
         }
         .notes-area textarea:focus {
             outline: none;
@@ -627,24 +638,32 @@ function renderDimensions() {
             <div class="scoring-section">
                 <h3>Where are you today?</h3>
                 <div class="score-options" data-dimension="${dim.id}" data-type="current">
-                    ${dim.levels.map((level, li) => `
-                        <button class="score-btn" data-score="${li + 1}">
+                    ${dim.levels.map((level, li) => {
+                        const parts = level.split(/\s*\u2014\s*/);
+                        const label = parts[0];
+                        const tooltip = parts.slice(1).join(' — ');
+                        return `
+                        <button class="score-btn" data-score="${li + 1}" title="${tooltip}">
                             <span class="score-num">${li + 1}</span>
-                            ${level}
-                        </button>
-                    `).join('')}
+                            <span class="score-label">${label}</span>
+                        </button>`;
+                    }).join('')}
                 </div>
             </div>
 
             <div class="scoring-section">
                 <h3>Where do you want to be in 12–18 months?</h3>
                 <div class="score-options" data-dimension="${dim.id}" data-type="target">
-                    ${dim.levels.map((level, li) => `
-                        <button class="score-btn" data-score="${li + 1}">
+                    ${dim.levels.map((level, li) => {
+                        const parts = level.split(/\s*\u2014\s*/);
+                        const label = parts[0];
+                        const tooltip = parts.slice(1).join(' — ');
+                        return `
+                        <button class="score-btn" data-score="${li + 1}" title="${tooltip}">
                             <span class="score-num">${li + 1}</span>
-                            ${level}
-                        </button>
-                    `).join('')}
+                            <span class="score-label">${label}</span>
+                        </button>`;
+                    }).join('')}
                 </div>
             </div>
 
