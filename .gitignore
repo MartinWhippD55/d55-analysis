@@ -1,3 +1,2 @@
-# Playwright MCP logs
-.playwright-mcp/*.log
-.playwright-mcp/*.yml
+# Playwright MCP artifacts
+.playwright-mcp/
