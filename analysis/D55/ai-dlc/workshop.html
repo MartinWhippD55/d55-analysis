@@ -889,6 +889,47 @@ function renderRunbook() {
 
 // Navigation
 document.getElementById('btn-next').addEventListener('click', () => {
+    const dim = dimensions[currentStep];
+    const currentScore = scores[dim.id].current;
+    const targetScore = scores[dim.id].target;
+
+    // Validate both scores are selected
+    if (currentScore === null || targetScore === null) {
+        // Show validation message
+        let msg = document.getElementById('validation-msg');
+        if (!msg) {
+            msg = document.createElement('div');
+            msg.id = 'validation-msg';
+            msg.style.cssText = 'color: #f87171; text-align: center; margin-top: 1rem; font-size: 0.9rem; font-weight: 500;';
+            document.querySelector('.nav-buttons').before(msg);
+        }
+        if (currentScore === null && targetScore === null) {
+            msg.textContent = 'Please select both a current state and a target state score before continuing.';
+        } else if (currentScore === null) {
+            msg.textContent = 'Please select a current state score before continuing.';
+        } else {
+            msg.textContent = 'Please select a target state score before continuing.';
+        }
+        return;
+    }
+
+    // Validate target >= current
+    if (targetScore < currentScore) {
+        let msg = document.getElementById('validation-msg');
+        if (!msg) {
+            msg = document.createElement('div');
+            msg.id = 'validation-msg';
+            msg.style.cssText = 'color: #f87171; text-align: center; margin-top: 1rem; font-size: 0.9rem; font-weight: 500;';
+            document.querySelector('.nav-buttons').before(msg);
+        }
+        msg.textContent = 'Target state should be equal to or higher than current state.';
+        return;
+    }
+
+    // Clear validation message
+    const msg = document.getElementById('validation-msg');
+    if (msg) msg.remove();
+
     if (currentStep < dimensions.length - 1) {
         currentStep++;
         updateUI();
@@ -898,6 +939,10 @@ document.getElementById('btn-next').addEventListener('click', () => {
 });
 
 document.getElementById('btn-prev').addEventListener('click', () => {
+    // Clear validation message when going back
+    const msg = document.getElementById('validation-msg');
+    if (msg) msg.remove();
+
     if (currentStep > 0) {
         currentStep--;
         updateUI();
