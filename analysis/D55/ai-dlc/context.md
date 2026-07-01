@@ -8,10 +8,11 @@ This builds on earlier work done for the NORTHEDGE ai-forum (see `analysis/NORTH
 
 ## Concept
 
+- **Focus:** How to use AI within the development lifecycle — NOT general AI maturity or AI product use cases. The use case IS AI-assisted development.
 - **Format:** ~1 hour session with a prospective customer
-- **Input:** Structured fact-finding questions across AI adoption dimensions
+- **Input:** Structured fact-finding questions across 8 dimensions of AI-enabled engineering readiness
 - **Output:** Radar chart showing current maturity vs desired state, plus a roadmap/runbook of what needs to happen to close the gap
-- **Commercial model:** Workshop is free; the roadmap output naturally identifies paid service opportunities (consulting, implementation, managed services)
+- **Commercial model:** Workshop is free; the roadmap output naturally identifies paid service opportunities (consulting, implementation, embedded engineers)
 
 ## How It Drives Revenue
 
@@ -111,4 +112,4 @@ The radar chart gap analysis drives a recommendation into one (or more) of these
 | 2026-07-01 | Initial concept agreed — free workshop, radar chart output, drives paid services | Rhys + Martin |
 | 2026-07-01 | Use SUS service catalogue and value prop canvas as structural examples | Rhys |
 | 2026-07-01 | Engagement models: DSD (pure consultancy, ~£50k), Workshops (modular, ~£5-15k each), Embedded team (FDEs, per engineer/month), Runbook asset | Rhys + Martin |
-| 2026-07-01 | Interactive HTML assessment tool created with radar chart + gap analysis + engagement recommendations | Martin |
+| 2026-07-01 | Rhys feedback: the use case IS AI DLC — not general AI maturity, not AI product use cases. It's specifically "how do we use AI for development?" Dimensions reshaped accordingly. | Rhys |

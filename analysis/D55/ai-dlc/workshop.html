@@ -444,172 +444,173 @@
 <script>
 const dimensions = [
     {
-        id: "strategy",
-        title: "Strategy & Alignment",
-        description: "Is AI adoption tied to business outcomes, or is it experimentation without direction?",
+        id: "leadership",
+        title: "Leadership & Mandate",
+        description: "Is there executive sponsorship for AI-assisted development, or are developers going rogue with tools?",
         levels: [
-            "Ad-hoc — No formal AI strategy, no executive sponsorship",
-            "Exploring — Leadership acknowledges AI, some budget, no clear OKRs",
-            "Defined — Strategy documented, linked to outcomes, sponsor identified",
-            "Integrated — AI in business planning cycle, portfolio prioritised by ROI",
-            "Differentiating — AI is core competitive advantage, adaptive strategy"
+            "Absent \u2014 No leadership acknowledgement of AI-assisted development",
+            "Aware \u2014 Leadership knows devs are experimenting, no formal position or budget",
+            "Endorsed \u2014 Executive sponsor, budget allocated, adoption encouraged but optional",
+            "Mandated \u2014 AI-assisted dev is the expected way of working, KPIs exist, investment proven",
+            "Strategic \u2014 AI-native engineering is a stated competitive advantage, board visibility"
         ],
         questions: [
-            "Who owns AI in your organisation? Is there an executive sponsor?",
-            "Can you point to a document linking AI initiatives to business outcomes?",
-            "How are AI projects prioritised? What gets funded and why?",
-            "When did the board last discuss AI? What was it about?",
-            "If AI budgets were cut tomorrow, who'd fight for them and with what evidence?"
+            "Who made the decision to adopt AI dev tooling? Is there an executive sponsor?",
+            "Is AI-assisted development optional, encouraged, or mandated?",
+            "Has the investment case been made to finance/board?",
+            "How does the board/PE see AI-assisted development \u2014 cost play, velocity play, or valuation play?",
+            "Is AI-native engineering part of your talent/recruitment messaging?"
         ],
-        services: ["AI Strategy Workshop", "Use Case Prioritisation", "Business Case Development"]
-    },
-    {
-        id: "data",
-        title: "Data Readiness",
-        description: "Is the data foundation in place to support AI workloads at the ambition level?",
-        levels: [
-            "Siloed — Disconnected systems, no catalogue, no quality standards",
-            "Consolidating — Some centralisation underway, patchy quality checks",
-            "Governed — Central platform with catalogue, lineage, ownership, access control",
-            "Optimised — Data products SLA'd, self-serve access, feature stores emerging",
-            "AI-Native — Platform designed for AI: feature stores, vector stores, feedback loops"
-        ],
-        questions: [
-            "Where does your data live today? How many systems for a full picture?",
-            "Do you have a data catalogue? Who maintains it? Do people use it?",
-            "How long to produce a clean joined dataset across customers, transactions, product?",
-            "What's your biggest data quality pain point right now?",
-            "How do you handle PII and sensitive data access?"
-        ],
-        services: ["Data Platform Build", "Data Quality Programme", "Lakehouse Migration", "Data Strategy Discovery"]
+        services: ["AI-First Strategy Workshop", "Investment Case Development", "Board Presentation Support"]
     },
     {
         id: "tooling",
-        title: "Tooling & Platform",
-        description: "Is there a coherent platform for building, deploying, and operating AI/ML workloads?",
+        title: "Developer Tooling & Adoption",
+        description: "Are developers actually using AI tools effectively, or are licences gathering dust?",
         levels: [
-            "Fragmented — Individual tools per project, notebooks on laptops",
-            "Partial — Some shared tooling but no end-to-end platform",
-            "Platform — Defined platform covering dev, training, deployment",
-            "Integrated — Full lifecycle coverage, CI/CD for models, self-serve",
-            "Composable — Modular, extensible, multi-modal, one pane of glass"
+            "None \u2014 No AI developer tooling in use",
+            "Experimenting \u2014 Some devs using ad-hoc, no consistency or support",
+            "Provisioned \u2014 Enterprise licences deployed, usage patchy across teams",
+            "Effective \u2014 AI embedded in daily workflow, shared configs and skills, meaningful productivity gain",
+            "Advanced \u2014 Agentic workflows standard, custom MCP servers, AI is a pair-programming partner"
         ],
         questions: [
-            "How many separate consoles/tools does a practitioner touch in a typical week?",
-            "What's the journey from idea to production? How long, how many hand-offs?",
-            "Who manages the infrastructure? How much time on maintenance vs new work?",
-            "If a new joiner started tomorrow, how long before they're productive?",
-            "What's your biggest frustration with current tooling?"
+            "What AI developer tools are in use? (Copilot, Claude, Cursor, Kiro?)",
+            "What percentage of developers use them daily vs occasionally vs never?",
+            "Do developers report meaningful productivity gains? Can they quantify?",
+            "Is there a standard configuration new joiners get, or everyone rolls their own?",
+            "Are there shared skills/playbooks or MCP connections to your systems (Jira, GitHub, DBs)?",
+            "What\u2019s the gap between your best AI-assisted dev and your least engaged?"
         ],
-        services: ["Developer Tooling Setup", "Platform Engineering", "SageMaker Unified Studio Deployment"]
+        services: ["AI Tooling Rollout", "Standard Configuration Build", "MCP Server Setup", "Knowledgebase Creation"]
     },
     {
-        id: "team",
-        title: "Team & Capability",
-        description: "Right people, right skills — or dependent on heroes and contractors?",
+        id: "specs",
+        title: "Specification & Design",
+        description: "When implementation goes 5x faster, the bottleneck shifts to clarity of intent. Has the org adapted?",
         levels: [
-            "Absent — No dedicated AI/ML roles, work outsourced entirely",
-            "Emerging — 1-2 specialists, knowledge concentrated, no career path",
-            "Functional — Defined team with clear roles, some cross-training",
-            "Scaled — Multiple squads, internal training programme, low bus-factor",
-            "Pervasive — AI literacy business-wide, CoE feeds into product teams"
+            "Traditional \u2014 No change to specs despite AI tooling. Requirements vague or verbal.",
+            "Recognising \u2014 Awareness that AI needs better specs, but no systematic change",
+            "Adapting \u2014 Spec templates exist, contracts defined before build, some teams investing more in analysis",
+            "Disciplined \u2014 AI-first lifecycle: more time in design, less in build. Specs consumed by humans AND AI",
+            "Optimised \u2014 Specs are first-class artefacts. AI assists spec generation. Quality measured and correlated to output"
         ],
         questions: [
-            "How many people work on data/AI full-time vs wearing it as a second hat?",
-            "When a senior data engineer leaves, what breaks? How long to backfill?",
-            "Who's the bottleneck today? What are they spending time on?",
-            "Is there a training or upskilling programme for AI?",
-            "If you could add three roles tomorrow, what would they be?"
+            "How much time in design/spec vs implementation? Has that ratio changed since AI tooling?",
+            "When a dev starts work, what do they start with \u2014 a Jira ticket, a spec, or a conversation?",
+            "Has output quality changed since AI adoption \u2014 better or worse?",
+            "\u2018Garbage specs at 5x speed = garbage 5x faster\u2019 \u2014 does that resonate?",
+            "Are integration points and APIs defined before implementation, or discovered during?",
+            "Are specs written in a way AI tools can consume them?"
         ],
-        services: ["Embedded Squads", "Training & Upskilling", "Forward Deployed Engineers", "Recruitment Support"]
+        services: ["AI-First Delivery Lifecycle Workshop", "Spec Template Development", "Contract-First Design Coaching"]
+    },
+    {
+        id: "process",
+        title: "Delivery Process & Ceremonies",
+        description: "Have sprints, standups, and ways of working adapted to the new velocity \u2014 or is the process the bottleneck?",
+        levels: [
+            "Unchanged \u2014 Same ceremonies, same cadence, same roles despite devs being 3-5x faster",
+            "Straining \u2014 Cracks appearing. Stories done faster than POs write them. Review queues growing.",
+            "Adjusting \u2014 Some conscious adaptation. Shorter sprints, streamlined reviews. But ad-hoc.",
+            "Redesigned \u2014 Process deliberately reshaped. Faster cycles. AI-assisted review. Coordination roles redefined.",
+            "Continuous \u2014 Near-continuous delivery. Ceremonies minimal. AI handles routine coordination."
+        ],
+        questions: [
+            "Have your ceremonies or delivery cadence changed since AI tooling adoption?",
+            "Where are the bottlenecks now? If devs are faster, what\u2019s the new constraint?",
+            "How long does a PR sit in review? Has that changed?",
+            "Are POs/BAs able to keep pace with demand for well-specified work?",
+            "Are you using AI for any coordination tasks (review, linking, status)?",
+            "What\u2019s your release cadence? Has it changed?"
+        ],
+        services: ["Process Redesign Workshop", "Ceremony Adaptation", "Continuous Flow Implementation"]
+    },
+    {
+        id: "testing",
+        title: "Testing & Quality",
+        description: "Is testing adapted for AI-generated code \u2014 or is the test strategy unchanged?",
+        levels: [
+            "Unchanged \u2014 Same manual testing as pre-AI. No AI-assisted test generation.",
+            "Basic \u2014 AI generates some unit tests alongside code. Not systematic.",
+            "Integrated \u2014 AI code has same coverage requirements. Automated regression. AI-assisted test data.",
+            "Comprehensive \u2014 AI testing in CI/CD. Human-in-the-loop at integration points. Evidence-based confidence.",
+            "Continuous \u2014 Tests from specs automatically. Mutation testing standard. Feedback from prod to coverage."
+        ],
+        questions: [
+            "How do you validate AI-generated code? Is there a specific process?",
+            "What\u2019s your automated test coverage? Has it changed since AI adoption?",
+            "Do you trust AI-generated code the same as human-written?",
+            "Are tests generated alongside code, or separately?",
+            "Have you seen new categories of bugs from AI-generated code?",
+            "Is there human-in-the-loop validation at integration points?"
+        ],
+        services: ["Test Automation Strategy", "AI-Assisted QA Setup", "Playwright Regression Implementation"]
     },
     {
         id: "governance",
-        title: "Governance, Risk & Compliance",
-        description: "Are guardrails in place to use AI responsibly, or is it the wild west?",
+        title: "Governance, Security & Compliance",
+        description: "Are AI development tools used safely \u2014 or is sensitive data leaking into prompts with no audit trail?",
         levels: [
-            "Absent — No governance, no consideration of bias or regulation",
-            "Aware — Leadership aware of risks, ad-hoc review, no formal policy",
-            "Defined — Policy exists, risk assessment for new use cases, privacy handled",
-            "Operationalised — Governance in dev lifecycle, model cards, bias testing, EU AI Act",
-            "Proactive — Continuous monitoring, automated guardrails, regulatory scanning"
+            "Unmanaged \u2014 No policy. Devs pasting prod data into ChatGPT. No audit trail.",
+            "Aware \u2014 Informal guidance exists. No technical controls.",
+            "Controlled \u2014 AI policy exists. Approved tool list. Enterprise agreements. Correct region.",
+            "Enforced \u2014 DLP in place. Code provenance tracked. EU AI Act classification done.",
+            "Embedded \u2014 Governance automated and frictionless. Real-time DLP. Compliance-as-code."
         ],
         questions: [
-            "Do you have an AI usage policy? Who wrote, enforces, and has read it?",
-            "Last time someone asked 'should we be doing this?' — what happened?",
-            "How do you document what a model does and what decisions it influences?",
-            "Are you aware of EU AI Act implications for your use cases?",
-            "If a regulator asked 'show me how this decision was made' — could you?"
+            "Do you have a policy on what data can/can\u2019t be used with AI tools?",
+            "Are your AI tools on enterprise agreements with data protection guarantees?",
+            "Can you trace which code was AI-generated vs human-written?",
+            "If a regulator asked \u2018how do you govern AI in your dev process\u2019 \u2014 what would you show?",
+            "Are there DLP controls preventing sensitive data reaching AI endpoints?",
+            "What\u2019s your supply chain risk posture for AI dependencies?"
         ],
-        services: ["AI Governance Framework", "EU AI Act Readiness", "Compliance Posture Review", "Region & Lockdown Audit"]
+        services: ["AI Usage Policy", "DLP Implementation", "EU AI Act Classification", "Code Provenance Tooling"]
     },
     {
-        id: "delivery",
-        title: "Delivery & Operations",
-        description: "Can they ship AI into production reliably? Is the delivery lifecycle adapted for AI-first — where clarity of intent is the performance multiplier?",
+        id: "team",
+        title: "Team Adaptation & Skills",
+        description: "Are people adapting \u2014 or are coordination roles becoming bottlenecks and resistance blocking adoption?",
         levels: [
-            "Experimental — Work stays in notebooks/POCs, nothing in production, no process adaptation",
-            "Manual — Some models in prod, deployed manually, no MLOps, traditional process unchanged",
-            "Repeatable — Defined deployment, some automation, starting to recognise specs matter more when build is fast",
-            "Automated — Full MLOps pipeline, design-up-front discipline, contracts defined before build, AI-assisted delivery",
-            "Continuous — Auto-retrain, feedback loops, AI-first lifecycle embedded — clarity of intent is the multiplier"
+            "Resistant \u2014 Significant resistance. Senior engineers undermined. Coordination roles threatened.",
+            "Mixed \u2014 Some enthusiasts, some holdouts. No training. Middle layer feeling pressure.",
+            "Training \u2014 Formal upskilling programme. Resistance identified. Some coordination roles adapting.",
+            "Adapted \u2014 Majority effective with AI. Coordination roles redefined. New joiners AI-first from day one.",
+            "Native \u2014 AI-assisted dev is the culture. Attracts talent. Everyone uses AI in their role."
         ],
         questions: [
-            "How many models in production today? How did they get there?",
-            "What happens when model performance degrades? How do you know?",
-            "Tell me about the last model failure in production. What happened?",
-            "What's the gap between experiments running and what's shipping?",
-            "'Deploy this model by Friday' — realistic or laughable?",
-            "How much time in design/spec vs implementation? Has that ratio changed with AI tooling?",
-            "When devs go faster with AI, where does the bottleneck shift — specs? Reviews? Coordination?"
+            "Where is resistance coming from? Which roles or personality types push back?",
+            "When devs went faster, did POs/BAs/PMs keep pace or become the bottleneck?",
+            "Is there a training programme specifically for AI-assisted development?",
+            "Who\u2019s your biggest AI champion? Who\u2019s your biggest blocker?",
+            "Has anyone left or been moved because they couldn\u2019t adapt?",
+            "How long for a new joiner to become productive with AI tooling?"
         ],
-        services: ["MLOps Implementation", "CI/CD for Models", "Observability & Monitoring", "AI-First Delivery Lifecycle Workshop"]
+        services: ["Four Fears Diagnostic & Intervention", "Upskilling Programme", "Role Redefinition Coaching"]
     },
     {
-        id: "cost",
-        title: "Cost & Value Management",
-        description: "Can they see what AI costs and what value it generates, or is it a black hole?",
+        id: "metrics",
+        title: "Metrics & ROI",
+        description: "Can you prove AI-assisted development is working \u2014 with numbers, not vibes?",
         levels: [
-            "Invisible — Spend buried in general IT, no visibility or ROI measurement",
-            "Aggregated — Total spend known at high level, ROI is anecdotal",
-            "Allocated — Spend attributed to teams/projects, some measured ROI",
-            "Optimised — Active cost management, ROI per initiative, portfolio view",
-            "Value-Driven — Decisions based on proven ROI, CFO is a partner"
+            "Unmeasured \u2014 No metrics on impact. \u2018It feels faster\u2019 but no evidence.",
+            "Anecdotal \u2014 Individual testimonials. Cannot make the case to finance.",
+            "Tracked \u2014 Key metrics tracked (cycle time, PRs, deploys, defects). Before/after available.",
+            "Proven \u2014 ROI quantified. Cost per feature known. Productivity per \u00a3 measured. Case made to board.",
+            "Optimised \u2014 Continuous measurement drives improvement. Output per \u00a3 is a primary KPI."
         ],
         questions: [
-            "Do you know what you spend on AI/data today? Per team? Per project?",
-            "Last time finance asked 'what are we getting for this?' — what was the answer?",
-            "Workloads where spend is suspected too high but can't prove it?",
-            "How do you decide whether to continue, scale, or kill an AI initiative?",
-            "What does the CFO conversation about AI investment look like today?"
+            "How do you know AI-assisted development is working? What evidence?",
+            "If the CFO asked \u2018what are we getting for AI tooling spend?\u2019 \u2014 what would you say?",
+            "What metrics do you track? (Cycle time, deploys, PRs, defects?)",
+            "Have you quantified the ROI in \u00a3 terms?",
+            "What would it take to make the case for doubling the investment?",
+            "Is \u2018output per \u00a3 of engineering cost\u2019 something your board/PE tracks?"
         ],
-        services: ["FinOps Programme", "Cost Optimisation Review", "ROI Measurement Framework"]
-    },
-    {
-        id: "culture",
-        title: "Culture & Adoption",
-        description: "Does the whole business embrace AI, or is it an ivory tower exercise? Have resistance patterns been identified and addressed?",
-        levels: [
-            "Resistant — Scepticism or fear, no visible use, resistance undiagnosed",
-            "Curious — Pockets of interest, a few champions, resistance exists but unaddressed",
-            "Supported — Leadership endorses, training exists, resistance patterns identified but not systematically addressed",
-            "Embedded — AI in daily workflows, resistance addressed per role, middle layer (POs/BAs/PMs) adapting, community of practice active",
-            "Transformative — AI changes how the business operates, all fear patterns resolved, people see AI as amplifier not threat"
-        ],
-        questions: [
-            "How do non-technical staff feel about AI? Excited? Threatened?",
-            "Are there AI tools in use outside the data/tech team?",
-            "What internal comms about AI have gone out in the last 6 months?",
-            "Is there a community of practice or AI literacy programme?",
-            "If a frontline employee had an AI idea, who would they tell?",
-            "Where is resistance coming from? Which roles or personality types push back? (Controllers needing oversight? Stabilisers fearing hierarchy change? Drivers worried about risk? Influencers feeling overshadowed?)",
-            "When devs adopted AI and went faster, did coordination roles keep pace or become a bottleneck?",
-            "Has anyone left or been moved because they couldn't adapt? How was that handled?"
-        ],
-        services: ["AI Champions Programme", "Change Management", "AI Literacy Training", "Four Fears Diagnostic & Intervention", "Ceremony & Process Changes"]
+        services: ["Measurement Framework Setup", "ROI Dashboard", "Investment Case Packaging"]
     }
 ];
-
 // State
 let currentStep = 0;
 const scores = {};

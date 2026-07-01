@@ -1,6 +1,6 @@
 # AI-DLC Workshop — Assessment Dimensions
 
-These are the axes of the radar chart. Each dimension is scored on a 1–5 maturity scale for both **current state** and **desired state** (target within 12–18 months). The gap between the two drives the roadmap.
+These are the axes of the radar chart. Each dimension assesses a specific aspect of **AI-enabled engineering readiness** — how effectively the organisation uses AI within its development lifecycle. This is not a general "AI maturity" assessment. The use case IS AI for development.
 
 ## Scoring Guidance for Facilitators
 
@@ -8,235 +8,219 @@ These are the axes of the radar chart. Each dimension is scored on a 1–5 matur
 - **Go-deeper questions** — use when conversation flows, score is ambiguous, or time allows.
 - **Calibration examples** — provided per dimension. Use these to validate scoring: "that sounds like a Level 3 to me — does that resonate?"
 - **When between levels** — score the lower. More credible to understate than overstate.
-- **When split within a dimension** (e.g., Level 4 on data quality but Level 2 on catalogue) — score the dominant pattern and note the split in your write-up.
+- **When split within a dimension** (e.g., Level 4 on one sub-aspect but Level 2 on another) — score the dominant pattern and note the split in your write-up.
 - **Let the prospect self-score first** — then validate or gently challenge. Their perception vs reality is valuable data.
 - **Disagreement between attendees is gold** — don't resolve it, capture it. It reveals internal alignment gaps.
 
 ---
 
-## 1. Strategy & Alignment
+## 1. Leadership & Mandate
 
-**What we're assessing:** Is AI adoption tied to business outcomes, or is it experimentation without direction?
+**What we're assessing:** Is there executive sponsorship and organisational commitment to AI-assisted development, or are developers going rogue with tools?
 
 | Score | Level | Description |
 |-------|-------|-------------|
-| 1 | Ad-hoc | No formal AI strategy. Pockets of interest but no executive sponsorship or budget. |
-| 2 | Exploring | Leadership acknowledges AI opportunity. Some budget allocated but no clear OKRs or success criteria tied to AI. |
-| 3 | Defined | AI strategy documented and linked to 2–3 business outcomes. Executive sponsor identified. Budget ring-fenced. |
-| 4 | Integrated | AI initiatives are part of the business planning cycle. Portfolio of use cases prioritised by ROI. Regular board-level reporting. |
-| 5 | Differentiating | AI is a core competitive advantage. Strategy is adaptive — continuously reprioritised based on outcomes. AI P&L visible. |
+| 1 | Absent | No leadership acknowledgement of AI-assisted development. Developers may be using tools on their own with no mandate or budget. |
+| 2 | Aware | Leadership knows developers are experimenting with AI tooling. No formal position, no budget, no policy — just awareness. |
+| 3 | Endorsed | Executive sponsor identified. Budget allocated for AI dev tooling. Organisational position: "we want this." But adoption is still optional/organic. |
+| 4 | Mandated | AI-assisted development is the expected way of working. Tooling provided and supported. KPIs exist. Investment case proven for at least one team. |
+| 5 | Strategic | AI-native engineering is a stated competitive advantage. Board-level visibility. Actively marketed to talent. Continuous investment in tooling and process evolution. |
 
 **Calibration examples:**
-- Level 2: "Our CTO mentions AI in town halls but there's no written strategy or dedicated budget"
-- Level 3: "We have an AI strategy doc linked to 3 business outcomes, a named sponsor, and a ring-fenced budget — but it's not yet part of the regular planning cycle"
-- Level 4: "AI initiatives are prioritised alongside everything else in quarterly planning, with ROI-based scoring"
+- Level 2: "A few devs use Copilot on personal accounts. CTO knows but hasn't taken a position."
+- Level 3: "CTO bought enterprise Copilot licences last quarter. Everyone's encouraged to use it but there's no measurement."
+- Level 4: "AI tooling is standard for all engineers. We track productivity metrics. The investment case has been presented to the board."
 
 **Key workshop questions:**
 
 ★ Must-ask:
-- Who owns AI in your organisation? Is there an executive sponsor?
-- How are AI projects prioritised today? What gets funded, what doesn't, and why?
-- If AI budgets were cut tomorrow, who would fight for them and with what evidence?
+- Who made the decision to adopt AI dev tooling? Is there an executive sponsor?
+- Is AI-assisted development optional, encouraged, or mandated?
+- Has the investment case for AI tooling been made to finance/board?
 
-Go deeper (if time allows):
-- Can you point to a document that links AI initiatives to specific business outcomes?
-- When did the board last discuss AI? What was the conversation about?
+Go deeper:
+- If AI tooling budgets were cut tomorrow, who would fight for them?
+- How does the board/PE see AI-assisted development — cost play, velocity play, or valuation play?
+- Is AI-native engineering part of your talent/recruitment messaging?
 
 ---
 
-## 2. Data Readiness
+## 2. Developer Tooling & Adoption
 
-**What we're assessing:** Is the data foundation in place to support AI workloads at the ambition level?
+**What we're assessing:** Are developers actually using AI tools effectively, or are licences gathering dust?
 
 | Score | Level | Description |
 |-------|-------|-------------|
-| 1 | Siloed | Data lives in disconnected systems. No catalogue, no lineage, no consistent quality standards. |
-| 2 | Consolidating | Some centralisation effort underway (warehouse/lakehouse). Basic quality checks exist but coverage is patchy. |
-| 3 | Governed | Central data platform with catalogue, lineage, and ownership. Quality monitored. Access controlled. Most analytical workloads served. |
-| 4 | Optimised | Data products defined and SLA'd. Self-serve access for analysts and data scientists. Real-time and batch coexist. Feature stores emerging. |
-| 5 | AI-Native | Data platform designed for AI workloads. Feature stores, vector stores, retrieval pipelines, and feedback loops are production-grade. Data flywheel spinning. |
+| 1 | None | No AI developer tooling in use. No Copilot, no Claude, no agentic IDEs. |
+| 2 | Experimenting | Some developers using AI tools ad-hoc (free tiers, personal accounts). No consistency, no shared configuration, no support. |
+| 3 | Provisioned | Enterprise licences deployed. Most developers have access to AI-assisted coding tools. Some using effectively, others barely touching them. |
+| 4 | Effective | AI tooling embedded in daily workflow for the majority. Shared configurations, skills/playbooks, and MCP servers in use. Developers report meaningful productivity improvement. |
+| 5 | Advanced | Agentic workflows standard. Developers working with AI on specs, not just code generation. Custom tooling (MCP servers, skills, knowledge bases) tuned to the codebase. AI is a pair-programming partner, not just autocomplete. |
 
 **Calibration examples:**
-- Level 2: "We have a Snowflake warehouse for BI but data quality is inconsistent and there's no formal catalogue"
-- Level 3: "Central lakehouse with dbt transformations, basic data catalogue, defined ownership per domain"
-- Level 4: "Self-serve data products with SLAs, real-time and batch coexist, feature store in early use"
+- Level 2: "Maybe 30% of devs use Copilot. Some love it, some ignore it. No shared setup."
+- Level 3: "Everyone has Copilot Enterprise. Usage is patchy — some teams use it heavily, others barely."
+- Level 4: "Standard IDE setup includes Copilot + Claude. We have shared skills files and MCP connections to Jira/GitHub. Devs say they can't imagine going back."
 
 **Key workshop questions:**
 
 ★ Must-ask:
-- Where does your data live today? How many separate systems would we need to touch to get a full picture?
-- If I asked for a clean, joined dataset across customers, transactions, and product — how long would that take to produce?
-- What's your biggest data quality pain point right now?
+- What AI developer tools are in use today? (Copilot, Claude, Cursor, Kiro, other?)
+- What percentage of developers use them daily vs occasionally vs never?
+- Do developers report meaningful productivity gains? Can they quantify?
 
-Go deeper (if time allows):
-- Do you have a data catalogue? Who maintains it? Do people actually use it?
-- How do you handle PII and sensitive data access? Is it policy-driven or ad-hoc?
-- Do you have legacy systems that would need migration or integration before AI workloads are viable?
+Go deeper:
+- Is there a standard configuration/setup that new joiners get, or does everyone roll their own?
+- Are there shared skills, playbooks, or MCP servers that connect AI tools to your systems (Jira, GitHub, databases)?
+- What's the gap between your best AI-assisted developer and your least engaged? What explains it?
+- How long does onboarding take with AI tooling vs without?
 
 ---
 
-## 3. Tooling & Platform
+## 3. Specification & Design Process
 
-**What we're assessing:** Is there a coherent platform for building, deploying, and operating AI/ML workloads?
+**What we're assessing:** Has the organisation recognised that when implementation goes 5x faster, the bottleneck shifts to clarity of intent — and adapted accordingly?
 
 | Score | Level | Description |
 |-------|-------|-------------|
-| 1 | Fragmented | Individual tools chosen per project. No shared infrastructure. Notebooks on laptops. |
-| 2 | Partial | Some shared tooling (e.g. a BI tool, a notebook server) but no end-to-end platform. Lots of hand-offs between environments. |
-| 3 | Platform | A defined platform exists covering development, training, and deployment. Shared compute, shared storage, consistent access patterns. |
-| 4 | Integrated | Platform covers the full lifecycle — experimentation through to production monitoring. CI/CD for models. Infrastructure as code. Self-serve provisioning. |
-| 5 | Composable | Platform is modular and extensible. Teams can bring new tools without breaking governance. Multi-modal (SQL, Python, GenAI). One pane of glass for cost and governance. |
+| 1 | Traditional | No change to specification process despite AI tooling. Requirements are vague, verbal, or buried in Jira tickets. |
+| 2 | Recognising | Some awareness that "AI needs better specs" but no systematic change. Individual developers compensating by writing their own specs before prompting. |
+| 3 | Adapting | Formal recognition that design-up-front matters more. Spec templates exist. Integration points and contracts defined before implementation. Some teams investing more time in analysis. |
+| 4 | Disciplined | AI-first delivery lifecycle in operation: more time in analysis/design, less in implementation. Specs are written to be consumed by both humans and AI. Contracts and APIs defined upfront. Architectural decisions documented before build. |
+| 5 | Optimised | Specs are first-class engineering artefacts. AI assists in spec generation from requirements. Continuous feedback loop: poor specs caught early by AI-generated test failures. Spec quality directly correlated with output quality — and measured. |
 
 **Calibration examples:**
-- Level 2: "We have a notebook server and a BI tool but devs manually copy models to production VMs"
-- Level 3: "SageMaker Studio for ML work, shared S3 buckets, consistent IAM — but deployment is still scripted, not CI/CD"
-- Level 4: "Full platform: SageMaker + CodePipeline + IaC, self-serve provisioning, new joiners productive in days"
+- Level 2: "Our best devs write detailed prompts before they start. Most don't — they just tab-complete."
+- Level 3: "We introduced spec templates last quarter. Teams that use them ship faster. Not everyone uses them yet."
+- Level 4: "Every piece of work starts with a spec and contract review. AI tools work against those specs. We've seen quality go up and rework go down."
 
 **Key workshop questions:**
 
 ★ Must-ask:
-- How many separate consoles, tools, or environments does a data/AI practitioner touch in a typical week?
-- What's the journey from "I have an idea" to "it's running in production"? How long, how many hand-offs?
-- If a new joiner started tomorrow, how long before they're productive on the platform?
+- How much time does the team spend in design/specification vs implementation? Has that ratio changed since adopting AI tooling?
+- When a developer starts a piece of work, what do they start with? A Jira ticket? A spec? A conversation?
+- Has the quality of output changed since AI adoption — for better or worse?
 
-Go deeper (if time allows):
-- Who manages the infrastructure underneath your AI/data workloads? How much of their time goes to maintenance vs new work?
-- What's your biggest frustration with the current tooling?
-- Are your developers using AI-assisted development tools (Copilot, Claude, agentic IDEs)? What's been the experience?
+Go deeper:
+- "Garbage specs at 5x speed = garbage 5x faster." Does that resonate?
+- Are integration points and APIs defined before implementation starts, or discovered during?
+- Who writes the specs? Has that role changed?
+- Are specs written in a way that AI tools can consume them (structured, unambiguous)?
 
 ---
 
-## 4. Team & Capability
+## 4. Delivery Process & Ceremonies
 
-**What we're assessing:** Do they have the right people with the right skills, or are they dependent on heroes and contractors?
+**What we're assessing:** Have sprints, standups, reviews, and ways of working adapted to the new velocity — or is the process unchanged and becoming a bottleneck?
 
 | Score | Level | Description |
 |-------|-------|-------------|
-| 1 | Absent | No dedicated AI/ML roles. Data work done by generalists or outsourced entirely. |
-| 2 | Emerging | 1–2 data/ML specialists. Knowledge concentrated in individuals. No career path or training programme. |
-| 3 | Functional | Defined data/AI team with clear roles (engineers, scientists, analysts). Some cross-training. Recruitment pipeline exists. |
-| 4 | Scaled | Multiple squads with embedded AI capability. Internal training/upskilling programme. Knowledge sharing culture. Low bus-factor risk. |
-| 5 | Pervasive | AI literacy across the business. Non-technical staff use AI tools daily. Centre of excellence feeds capability into product teams. Talent is a magnet, not a problem. |
+| 1 | Unchanged | Same agile ceremonies, same cadence, same roles — despite developers being 3-5x faster. Process hasn't noticed the change. |
+| 2 | Straining | Cracks appearing. Sprint capacity calculations wrong. Stories completed faster than POs can write them. PR review queues growing. Coordination roles feeling pressure. |
+| 3 | Adjusting | Some conscious adaptation. Sprint length may have shortened. Review processes streamlined. Some ceremony changes. But ad-hoc, not systematic. |
+| 4 | Redesigned | Delivery process deliberately reshaped for AI-assisted development. Faster cycles. Continuous flow replacing batch sprints. PR review adapted (AI-assisted review, different standards for AI-generated code). Coordination roles redefined. |
+| 5 | Continuous | Near-continuous delivery. Ceremonies minimal and focused on alignment, not status. AI handles routine coordination (auto-generated specs from requirements, auto-linked PRs, auto-updated boards). Humans focus on decisions, not process. |
 
 **Calibration examples:**
-- Level 2: "One data scientist who does everything — if she leaves, we're back to square one"
-- Level 3: "Team of 6 (2 engineers, 2 scientists, 2 analysts) with defined roles and a grad pipeline"
-- Level 4: "3 squads with embedded ML capability, internal training programme, knowledge sharing culture"
+- Level 2: "Devs finish stories in 2 days but wait 3 days for review. POs are writing the next sprint's tickets while the current one's still running."
+- Level 3: "We moved to 1-week sprints and added mid-sprint reviews. PR reviews are faster now — we use an AI review agent for first pass."
+- Level 4: "We've ditched fixed sprints for continuous flow. AI generates draft specs from epics. Human reviews focus on intent and edge cases, not boilerplate."
 
 **Key workshop questions:**
 
 ★ Must-ask:
-- How many people work on data and AI full-time? How many wear it as a second hat?
-- When a senior data engineer leaves, what breaks? How long to backfill effectively?
-- Who's the bottleneck in the team today? What are they spending their time on?
+- Have your ceremonies or delivery cadence changed since AI tooling adoption?
+- Where are the bottlenecks now? (If devs are faster, what's the new constraint?)
+- How long does a PR sit in review? Has that changed?
 
-Go deeper (if time allows):
-- Is there a training or upskilling programme for AI? Who's been through it?
-- If you could add three roles tomorrow, what would they be and why?
-- When devs adopted AI tooling and went faster, did coordination roles (POs, BAs, PMs) keep pace or become the constraint?
+Go deeper:
+- Are POs/BAs able to keep up with the demand for well-specified work?
+- Has sprint velocity metrics become meaningless now that output per developer has changed?
+- Are you using AI for any coordination tasks (review, linking, status updates)?
+- What's your release cadence? Has it changed?
 
 ---
 
-## 5. Governance, Risk & Compliance
+## 5. Testing & Quality Assurance
 
-**What we're assessing:** Are guardrails in place to use AI responsibly and securely? Covers policy, regulation, and the security posture specific to AI workloads.
+**What we're assessing:** Is testing adapted for AI-generated code — or is the test strategy the same as before?
 
 | Score | Level | Description |
 |-------|-------|-------------|
-| 1 | Absent | No AI governance framework. No consideration of bias, explainability, security, or regulatory requirements. Data leakage risk from AI tools unmanaged. |
-| 2 | Aware | Leadership aware of AI risks. Some ad-hoc review of models before deployment. No formal policy. AI tooling used without data loss prevention controls. |
-| 3 | Defined | AI governance policy exists. Risk assessment for new AI use cases. Data privacy handled. Basic model documentation. AI tools approved and provisioned centrally. Workloads running in correct region. Access locked down. |
-| 4 | Operationalised | Governance embedded in the development lifecycle. Model cards, bias testing, explainability tooling in use. Audit trail for decisions. EU AI Act posture understood. AI-specific security controls: prompt injection mitigation, output filtering, data classification for LLM context, supply chain risk for AI dependencies assessed. |
-| 5 | Proactive | Continuous monitoring of deployed models for drift, fairness, and compliance. Automated guardrails (input validation, output filtering, confidence thresholds). Regulatory horizon scanning. Governance enables speed rather than blocking it. Red-teaming for adversarial AI risks. GenAI safety playbook in production. |
+| 1 | Unchanged | Same manual testing approach as pre-AI. No AI-assisted test generation. No automated regression for AI-generated code. |
+| 2 | Basic | AI tools generate some unit tests alongside code. Developer-driven, not systematic. No specific QA process for AI-generated code. |
+| 3 | Integrated | AI-generated code has the same test coverage requirements as human code. Some automated regression (e.g., Playwright MCP for UI). Test data generation assisted by AI. |
+| 4 | Comprehensive | AI-assisted testing integrated into CI/CD. Human-in-the-loop validation at integration points. Regression suites auto-maintained. Confidence in AI-generated code is evidence-based, not assumed. |
+| 5 | Continuous | Full test automation with AI. Tests generated from specs automatically. Mutation testing and property-based testing standard. Quality gates differentiate between AI-generated and human code where needed. Feedback loop from production issues to test coverage. |
 
 **Calibration examples:**
-- Level 2: "We use ChatGPT but there's no policy on what data you can paste in"
-- Level 3: "We have an AI policy, approved tools list, and data is classified — but governance is a gate, not embedded in the workflow"
-- Level 4: "Every model has a model card, we've done our EU AI Act risk classification, and AI security is part of our threat model"
+- Level 2: "Copilot writes unit tests if you ask. Some devs do, some don't. No policy."
+- Level 3: "All code needs 80% coverage regardless of who (or what) wrote it. We use Playwright for regression on key flows."
+- Level 4: "AI generates tests from our spec documents. CI won't pass without them. We have a human review gate before anything touches production."
 
 **Key workshop questions:**
 
 ★ Must-ask:
-- Do you have an AI usage policy? Who wrote it, who enforces it, who's read it?
-- Are you aware of the EU AI Act and its implications for your use cases? What's your current posture?
-- If a regulator asked tomorrow "show me how this AI decision was made" — could you?
+- How do you validate AI-generated code? Is there a specific process?
+- What's your automated test coverage? Has it changed since AI adoption?
+- Do you trust AI-generated code the same as human-written code?
 
-Go deeper (if time allows):
-- When was the last time someone asked "should we be doing this?" about an AI use case? What happened?
-- How do you document what a model does, what data it uses, and what decisions it influences?
-- What controls exist around data leakage from AI tools? (e.g., can developers paste production data into ChatGPT/Copilot?)
-- Have you assessed AI-specific security risks — prompt injection, model exfiltration, adversarial inputs?
-- Are AI workloads running in the correct region? Is access locked down and auditable?
-- What's your supply chain risk posture for AI dependencies (model providers, embedding APIs, third-party tools)?
+Go deeper:
+- Are tests generated alongside code, or as a separate step?
+- Who reviews AI-generated code before it merges? Same bar as human code?
+- Have you seen new categories of bugs from AI-generated code?
+- Is there human-in-the-loop validation at integration points?
 
 ---
 
-## 6. Delivery & Operations
+## 6. Governance, Security & Compliance
 
-**What we're assessing:** Can they ship AI into production reliably, or does everything die in the notebook? Is the development lifecycle adapted for AI-first delivery?
+**What we're assessing:** Are AI development tools used safely — or is sensitive data leaking into prompts, code generated without audit trail, and compliance unaddressed?
 
 | Score | Level | Description |
 |-------|-------|-------------|
-| 1 | Experimental | AI work stays in notebooks/POCs. Nothing in production. No MLOps. No consideration of how AI changes delivery process. |
-| 2 | Manual | Some models in production but deployed manually. No CI/CD for models. Monitoring is "someone checks it." Traditional agile without adaptation. |
-| 3 | Repeatable | Defined deployment process. Some automation (CI/CD for models, basic monitoring). Rollback possible but painful. Starting to recognise that specs matter more when implementation is fast. |
-| 4 | Automated | Full MLOps pipeline — automated training, testing, deployment, monitoring. Model registry. A/B testing. Design-up-front discipline: more time in analysis/spec, contracts and integration points defined before implementation. AI-assisted delivery (agentic tooling against well-defined specs). |
-| 5 | Continuous | Models retrain on fresh data automatically. Feedback loops from production to development. Canary deployments. Self-healing pipelines. AI-first lifecycle fully embedded: clarity of intent is the performance multiplier. Specs, contracts, and architectural decisions made upfront because garbage specs at 5x speed = garbage 5x faster. |
+| 1 | Unmanaged | No policy on AI tool usage. Developers pasting production data into ChatGPT. No audit trail on AI-generated code. No consideration of IP, data leakage, or compliance. |
+| 2 | Aware | Leadership knows there are risks. Informal guidance ("don't paste customer data"). No formal policy, no technical controls, no audit. |
+| 3 | Controlled | AI usage policy exists and is communicated. Approved tool list. Enterprise agreements in place (data not used for training). Workloads in correct region. Basic access controls. |
+| 4 | Enforced | Technical controls in place: DLP for AI tools, approved model endpoints, audit trail on AI-generated code. Code provenance tracked. EU AI Act classification done (if applicable). Regular compliance reviews. |
+| 5 | Embedded | Governance is automated and frictionless. Real-time DLP, automatic code provenance, compliance-as-code. Security red-teaming includes AI-specific threats (prompt injection, model exfiltration). Governance enables speed rather than blocking it. |
 
 **Calibration examples:**
-- Level 2: "We have one model in prod — someone SSHs into a box and runs a script to update it"
-- Level 3: "We have a CI/CD pipeline for model training and a basic monitoring dashboard — but rollback is painful"
-- Level 4: "Full MLOps: automated retraining, model registry, A/B testing, canary deploys. Design-up-front discipline means specs are the bottleneck, not implementation"
+- Level 2: "We told people not to paste customer data into ChatGPT. No idea if they listened."
+- Level 3: "Enterprise Copilot agreement in place — data excluded from training. Policy published. Tools run in EU region."
+- Level 4: "DLP prevents sensitive data reaching AI tools. All AI-generated code flagged in git. Quarterly compliance review covers AI usage."
 
 **Key workshop questions:**
 
 ★ Must-ask:
-- How many AI/ML models do you have in production today? How did they get there?
-- What's the gap between the AI experiments the team is running and what's actually shipping?
-- How much time does your team spend in design/spec vs implementation? Has that ratio changed with AI tooling?
+- Do you have a policy on what data can and can't be used with AI tools?
+- Are your AI tools running on enterprise agreements with data protection guarantees?
+- Can you trace which code was AI-generated vs human-written?
 
-Go deeper (if time allows):
-- What happens when a model's performance degrades? How do you know, and what do you do?
-- Tell me about the last model that failed in production. What happened? How long to fix?
-- If I asked "deploy this model to production by Friday" — is that realistic, or laughable?
-- When devs go faster with AI assistance, where does the bottleneck shift to — specs? Reviews? Coordination?
+Go deeper:
+- If a regulator asked "how do you govern AI in your development process" — what would you show them?
+- Are there DLP controls preventing sensitive data from reaching AI tool endpoints?
+- Have you classified your AI usage under EU AI Act risk categories?
+- What's your supply chain risk posture for AI dependencies (model providers, APIs)?
 
 ---
 
-## 7. Cost & Value Management
+## 7. Team Adaptation & Skills
 
-**What we're assessing:** Can they see what AI costs them and what value it's generating, or is it a black hole?
+**What we're assessing:** Are people adapting to AI-assisted development — or are coordination roles becoming bottlenecks and resistance patterns blocking adoption?
 
 | Score | Level | Description |
 |-------|-------|-------------|
-| 1 | Invisible | AI/data spend is buried in a general IT bill. No visibility, no allocation, no ROI measurement. |
-| 2 | Aggregated | Total AI/data spend is known at a high level. No per-project or per-team breakdown. ROI is anecdotal. |
-| 3 | Allocated | Spend attributed to teams or projects. Budget owners identified. Some use cases have measured ROI. |
-| 4 | Optimised | Active cost management — right-sizing, spot/savings plans, architecture choices driven by cost. ROI measured per initiative. Portfolio-level view. |
-| 5 | Value-Driven | Investment decisions based on proven ROI data. Continuous optimisation. Clear link between spend and business outcomes. CFO is a partner, not a blocker. |
+| 1 | Resistant | Significant resistance to AI tooling. Senior engineers feel undermined. Coordination roles threatened. No training or support. |
+| 2 | Mixed | Some enthusiastic adopters, some holdouts. No formal training. Knowledge concentrated in champions. Middle layer (POs/BAs/PMs) starting to feel pressure but not adapting. |
+| 3 | Training | Formal training/upskilling programme exists. Resistance patterns identified. Some coordination roles actively adapting (e.g., POs learning to write better specs). Champions supported. |
+| 4 | Adapted | Majority of team working effectively with AI. Coordination roles redefined (POs as spec owners, BAs as prompt engineers for requirements). Resistance addressed through tailored interventions. New joiners onboarded with AI-first from day one. |
+| 5 | Native | AI-assisted development is the culture, not a change programme. Team attracts talent because of AI-native ways of working. Continuous skill evolution. Everyone — not just developers — uses AI in their role. |
 
 **Calibration examples:**
-- Level 2: "We know roughly what we spend on SageMaker in total but can't split it by team or project"
-- Level 3: "Spend tagged by team using AWS cost allocation tags. A few projects have ROI calculated."
-- Level 4: "Active FinOps practice: savings plans in place, right-sizing reviews quarterly, ROI measured per initiative and reported to finance"
-
-**Key workshop questions:**
-
-★ Must-ask:
-- Do you know what you spend on AI and data today? Per team? Per project?
-- Last time finance asked "what are we getting for this AI investment?" — what was the answer?
-- How do you decide whether to continue, scale, or kill an AI initiative?
-
-Go deeper (if time allows):
-- Are there workloads where you suspect spend is too high but can't prove it?
-- What does the conversation with the CFO about AI investment look like today?
-- AI tooling costs ~£150–200/seat/month for ~5x developer productivity — have you done this maths for your team size?
-
----
-
-## 8. Culture & Adoption
-
-**What we're assessing:** Is AI something the whole business embraces, or is it an ivory tower exercise? Have resistance patterns been identified and addressed?
+- Level 2: "Our best devs love it. Some seniors refuse. POs are complaining they can't write tickets fast enough."
+- Level 3: "We ran a workshop on AI-assisted development. Most engineers engaged. POs are starting to write structured specs. Still some holdouts."
+- Level 4: "Everyone uses AI daily. POs write specs in a format AI can consume. New joiners are productive in days, not weeks. The senior who was resistant left — the rest adapted."
 
 **The Four Fears Framework** (diagnostic tool for this dimension):
 
@@ -251,34 +235,50 @@ Go deeper (if time allows):
 - Stabilisers who lean in become orchestrators — more valuable
 - Influencers get amplified — AI handles grunt work, they get more stage
 
+**Key workshop questions:**
+
+★ Must-ask:
+- Where is resistance coming from? Which roles or personality types push back?
+- When devs went faster, did coordination roles (POs, BAs, PMs) keep pace or become the bottleneck?
+- Is there a training/upskilling programme specifically for AI-assisted development?
+
+Go deeper:
+- Who's your biggest AI champion? Who's your biggest blocker? What's the difference?
+- Has anyone left or been moved because they couldn't adapt?
+- How long does it take a new joiner to become productive with AI tooling?
+- Are non-engineering roles (POs, QA, BA) using AI in their work too?
+
+---
+
+## 8. Metrics & ROI
+
+**What we're assessing:** Can you prove AI-assisted development is working — with numbers, not vibes?
+
 | Score | Level | Description |
 |-------|-------|-------------|
-| 1 | Resistant | Scepticism or fear of AI across the business. No visible use. "That's not for us." Resistance patterns undiagnosed. |
-| 2 | Curious | Interest from pockets of the business. A few champions experimenting. No formal support. Resistance exists but isn't being addressed. |
-| 3 | Supported | Leadership endorses AI adoption. Internal comms and training. Some business teams using AI tools. Resistance patterns identified (Four Fears diagnosed) but not yet systematically addressed. |
-| 4 | Embedded | AI tools are part of daily workflows for multiple teams. Non-technical staff use AI confidently. Resistance addressed through tailored interventions per role/personality. Community of practice active. Middle layer (POs, BAs, PMs) actively adapting. |
-| 5 | Transformative | AI fundamentally changes how the business operates. New business models enabled. Continuous innovation from the ground up. Organisation attracts talent because of AI culture. All fear patterns resolved — people see AI as amplifier, not threat. |
+| 1 | Unmeasured | No metrics on AI-assisted development impact. "It feels faster" but no evidence. |
+| 2 | Anecdotal | Individual testimonials. Some developers say "I'm 3x faster." No systematic measurement. Cannot make the case to finance. |
+| 3 | Tracked | Key metrics tracked: deployment frequency, cycle time, PR throughput, defect rate. Before/after comparison available. Investment case can be articulated. |
+| 4 | Proven | ROI quantified and reported. Cost per feature known. Productivity per £ of engineering spend measured. The case is made to finance/board/PE with hard data. |
+| 5 | Optimised | Continuous measurement drives continuous improvement. Metrics inform tooling choices, process changes, and investment decisions. Output per £ of engineering cost is a primary KPI. AI tooling ROI is a competitive/valuation talking point. |
 
 **Calibration examples:**
-- Level 2: "A few engineers use Copilot but leadership hasn't acknowledged it and there's no policy"
-- Level 3: "CEO did a town hall on AI, we rolled out Copilot licences, and a few business teams use ChatGPT for drafts — but resistance from middle management is visible"
-- Level 4: "Multiple teams using AI daily, community of practice running, PO/BA/PM roles actively adapting their processes, resistance patterns identified and being addressed"
+- Level 2: "A few devs say they're much faster. My gut says it's working. I can't prove it to the CFO."
+- Level 3: "We track cycle time, PRs/week, and deployment frequency. All improved ~40% since AI tooling rollout. I can show a before/after."
+- Level 4: "We know it costs £200/seat/month and delivers approximately 3-5x productivity. For our 50 engineers, that's £120k/year for output we'd otherwise need 150-250 engineers to achieve. The board has seen this."
 
 **Key workshop questions:**
 
 ★ Must-ask:
-- How do non-technical staff feel about AI? Excited? Threatened? Indifferent?
-- Where is resistance coming from? Which roles or personality types are pushing back?
-- When devs adopted AI and went faster, did coordination roles (POs, BAs, PMs) keep pace or become a bottleneck?
+- How do you know AI-assisted development is working? What evidence do you have?
+- If the CFO asked "what are we getting for the AI tooling spend?" — what would you say?
+- What metrics do you track? (Cycle time, deployment frequency, PRs, defect rate, etc.)
 
-Go deeper (if time allows):
-- Are there AI tools in use outside of the data/tech team? Which ones? How did they get there?
-- What internal communication has gone out about AI in the last 6 months?
-- Is there a community of practice, a Slack channel, a lunch-and-learn series — anything that builds AI literacy?
-- If a frontline employee had an idea for how AI could help their job, what would they do with it? Who would they tell?
-- Has anyone left or been moved because they couldn't adapt? How was that handled?
-
-**Four Fears diagnostic** (use during this dimension to diagnose resistance patterns — see facilitator's guide for details).
+Go deeper:
+- Have you quantified the ROI in £ terms?
+- Do you measure individual or team productivity? Both?
+- What would it take to make the case for doubling the investment?
+- Is "output per £ of engineering cost" something your board/PE tracks?
 
 ---
 
@@ -286,8 +286,8 @@ Go deeper (if time allows):
 
 The output is an 8-axis radar chart with two overlays:
 
-- **Blue (Current State):** Where the customer is today (scored 1–5 per dimension)
-- **Green (Target State):** Where they want to be in 12–18 months
+- **Blue (Current State):** Where the organisation is today (scored 1–5 per dimension)
+- **Cyan (Target State):** Where they want to be in 12–18 months
 
 The gap between the two shapes is the opportunity. Each gap maps to D55 service offerings.
 
@@ -297,11 +297,11 @@ The gap between the two shapes is the opportunity. Each gap maps to D55 service 
 
 | Dimension | Example D55 Services |
 |-----------|---------------------|
-| Strategy & Alignment | AI Strategy Workshop, Use Case Prioritisation, Business Case Development |
-| Data Readiness | Data Platform Build, Data Quality Programme, Lakehouse Migration, Legacy Integration & Extraction |
-| Tooling & Platform | SageMaker Unified Studio Deployment, Platform Engineering, Developer Productivity, AI Tooling Rollout |
-| Team & Capability | Embedded Squads, Training & Upskilling, Recruitment Support, Forward Deployed Engineers |
-| Governance, Risk & Compliance | AI Governance Framework, EU AI Act Readiness, AI Security Review, Region & Access Lockdown |
-| Delivery & Operations | MLOps Implementation, CI/CD for Models, Observability & Monitoring, AI-First Delivery Lifecycle Workshop |
-| Cost & Value Management | FinOps Programme, Cost Optimisation Review, ROI Measurement Framework |
-| Culture & Adoption | AI Champions Programme, Change Management, AI Literacy Training, Four Fears Diagnostic & Intervention |
+| Leadership & Mandate | AI-First Strategy Workshop, Investment Case Development, Board Presentation Support |
+| Developer Tooling & Adoption | AI Tooling Rollout, Standard Configuration Build, MCP Server Setup, Knowledgebase Creation |
+| Specification & Design | AI-First Delivery Lifecycle Workshop, Spec Template Development, Contract-First Design Coaching |
+| Delivery Process & Ceremonies | Process Redesign Workshop, Ceremony Adaptation, Continuous Flow Implementation |
+| Testing & Quality | Test Automation Strategy, AI-Assisted QA Setup, Playwright Regression Implementation |
+| Governance, Security & Compliance | AI Usage Policy, DLP Implementation, EU AI Act Classification, Code Provenance Tooling |
+| Team Adaptation & Skills | Four Fears Diagnostic & Intervention, Upskilling Programme, Role Redefinition Coaching |
+| Metrics & ROI | Measurement Framework Setup, ROI Dashboard, Investment Case Packaging |
