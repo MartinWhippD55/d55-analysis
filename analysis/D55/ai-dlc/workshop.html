@@ -78,7 +78,20 @@
             margin-bottom: 1.5rem;
             display: none;
         }
-        .dimension-card.active { display: block; }
+        .dimension-card.active {
+            display: block;
+            animation: fadeSlideIn 0.4s ease forwards;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
         .dimension-card h2 {
             font-size: 1.6rem;
             margin-bottom: 0.5rem;
@@ -230,7 +243,10 @@
 
         /* Results page */
         #results { display: none; }
-        #results.active { display: block; }
+        #results.active {
+            display: block;
+            animation: fadeSlideIn 0.5s ease forwards;
+        }
         .results-header {
             text-align: center;
             margin-bottom: 2rem;
@@ -953,8 +969,10 @@ document.getElementById('btn-next').addEventListener('click', () => {
     if (currentStep < dimensions.length - 1) {
         currentStep++;
         updateUI();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
         showResults();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 });
 
@@ -966,6 +984,7 @@ document.getElementById('btn-prev').addEventListener('click', () => {
     if (currentStep > 0) {
         currentStep--;
         updateUI();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 });
 
