@@ -241,11 +241,20 @@ Implement a template management system within the BrytAdminPortal enabling busin
   - [ ] 9.2 Implement TemplateEditComponent
     - Form for name and description with validation (required fields, duplicate name error display)
     - Section list showing ordered sections with add/remove/reorder
+    - Version badge per section showing current version number (e.g., "v3")
     - Add section options: new section, existing shared section, T&C section
     - Section click opens SectionEditorComponent modal
-    - Version history button per section (opens version list panel)
+    - Version history button per section (opens SectionVersionHistoryComponent)
     - Template change log panel (collapsible, shows chronological changes)
     - _Requirements: 2.1, 2.3, 2.4, 3.1, 3.2, 3.3, 6.1, 6.2, 6.3, 6.4, 6.5, 16.2, 17.2, 17.3_
+
+  - [ ] 9.2a Implement SectionVersionHistoryComponent
+    - Display current version at top (highlighted) with version number, timestamp, user, and [View in Designer] button
+    - List previous versions ordered newest first with version number, timestamp, user
+    - [Preview] button opens the historical version in the Section Editor as read-only
+    - [Revert] button calls revert API (creates a new version from the selected historical version), then refreshes the list
+    - Accessible via the "History" button on each section row in TemplateEditComponent
+    - _Requirements: 16.2, 16.3, 16.4_
 
   - [ ] 9.3 Implement RulesConfigComponent
     - Visual tree editor for specification pattern (recursive node rendering)
