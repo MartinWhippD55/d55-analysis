@@ -1,32 +1,25 @@
 """
 Generate BRYT Contract Note Rework presentation using D55 template.
-Creates an exec-level deck walking through the 5 estimates with high-level figures.
+Slim exec-level deck: 8 slides total.
 """
 from pptx import Presentation
-from pptx.util import Inches, Pt, Emu
+from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
-from copy import deepcopy
 
 # Load D55 template
 template_path = 'analysis/D55/ai-dlc/assets/powerpoint/D55_Deck_Visual_NO ANIMATION Template (1).pptx'
 prs = Presentation(template_path)
 
-# Print available layouts for reference
-print("Available slide layouts:")
-for i, layout in enumerate(prs.slide_layouts):
-    print(f"  {i}: {layout.name}")
-
-# Remove all existing slides (we'll build from scratch using the layouts)
+# Remove all existing slides
 while len(prs.slides) > 0:
     rId = prs.slides._sldIdLst[0].rId
     prs.part.drop_rel(rId)
     del prs.slides._sldIdLst[0]
 
-# Helper functions
+# Helpers
 def add_slide(layout_idx):
-    layout = prs.slide_layouts[layout_idx]
-    return prs.slides.add_slide(layout)
+    return prs.slides.add_slide(prs.slide_layouts[layout_idx])
 
 def clear_placeholders(slide):
     for ph in slide.placeholders:
@@ -43,81 +36,48 @@ def set_text(text_frame, text, size=18, bold=False, color=None, alignment=PP_ALI
     if color:
         run.font.color.rgb = color
 
+def add_body_lines(text_frame, lines, size=13):
+    text_frame.clear()
+    for i, line in enumerate(lines):
+        p = text_frame.paragraphs[0] if i == 0 else text_frame.add_paragraph()
+        run = p.add_run()
+        run.text = line
+        run.font.size = Pt(size)
+        if line.startswith("~") or line.startswith("Estimate:") or line.startswith("Total:"):
+            run.font.bold = True
+            run.font.size = Pt(size + 2)
+
 # ============================================================
 # SLIDE 1: Title
 # ============================================================
-slide = add_slide(0)  # 1_Title layout
-clear_placeholders(slide)
-# Use placeholders from title layout
-for ph in slide.placeholders:
-    if ph.placeholder_format.idx == 0:  # Title
-        set_text(ph.text_frame, "BRYT Energy\nContract Note Rework", size=28, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
-    elif ph.placeholder_format.idx == 1:  # Subtitle area
-        set_text(ph.text_frame, "Estimate Overview", size=16, color=RGBColor(0xFF, 0xFF, 0xFF))
-    elif "date" in str(ph.placeholder_format.idx).lower() or ph.placeholder_format.idx == 10:
-        set_text(ph.text_frame, "July 2026", size=12, color=RGBColor(0xFF, 0xFF, 0xFF))
-
-# ============================================================
-# SLIDE 2: Overview / Contents
-# ============================================================
-slide = add_slide(4)  # 1_Content layout
+slide = add_slide(0)  # 1_Title
 clear_placeholders(slide)
 for ph in slide.placeholders:
     if ph.placeholder_format.idx == 0:
-        set_text(ph.text_frame, "Overview", size=24, bold=True)
+        set_text(ph.text_frame, "Contract Note Rework", size=32, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
     elif ph.placeholder_format.idx == 1:
-        tf = ph.text_frame
-        tf.clear()
-        lines = [
-            "Rework of the BRYT contract note system across 5 estimates:",
-            "",
-            "1. PDF / Template Management — Self-service template editor",
-            "2. DocuSign Integration — Automated e-signature flow",
-            "3. Training & Data Sources — Enablement + extensibility",
-            "4. Bespoke Contracts — Custom one-off contract notes",
-            "5. Comparison Audit — Detect PDF tampering before sending",
-            "",
-            "Total: ~58 developer days (45 required + 13 optional)"
-        ]
-        for i, line in enumerate(lines):
-            if i == 0:
-                p = tf.paragraphs[0]
-            else:
-                p = tf.add_paragraph()
-            run = p.add_run()
-            run.text = line
-            run.font.size = Pt(14)
-            if line.startswith("Total:"):
-                run.font.bold = True
+        set_text(ph.text_frame, "Estimate Playback", size=18, color=RGBColor(0xFF, 0xFF, 0xFF))
 
 # ============================================================
-# SLIDE 3: Summary Table
+# SLIDE 2: Summary Table
 # ============================================================
-slide = add_slide(18)  # Table SLIDE layout
+slide = add_slide(17)  # Table SLIDE
 clear_placeholders(slide)
 for ph in slide.placeholders:
     if ph.placeholder_format.idx == 0:
         set_text(ph.text_frame, "Estimate Summary", size=24, bold=True)
 
-# Add table
-from pptx.util import Inches
-rows, cols = 8, 4
-left = Inches(0.8)
-top = Inches(2.0)
-width = Inches(8.4)
-height = Inches(3.5)
+rows, cols = 8, 3
+left, top, width, height = Inches(1.0), Inches(2.0), Inches(8.0), Inches(3.2)
 table_shape = slide.shapes.add_table(rows, cols, left, top, width, height)
 table = table_shape.table
 
-# Set column widths
-table.columns[0].width = Inches(3.5)
+table.columns[0].width = Inches(4.5)
 table.columns[1].width = Inches(1.8)
-table.columns[2].width = Inches(1.5)
-table.columns[3].width = Inches(1.6)
+table.columns[2].width = Inches(1.7)
 
 # Headers
-headers = ['Estimate', 'Required (days)', 'Optional', 'Total']
-for col_idx, h in enumerate(headers):
+for col_idx, h in enumerate(['Estimate', 'Days (req)', 'Days (total)']):
     cell = table.cell(0, col_idx)
     cell.text = h
     for p in cell.text_frame.paragraphs:
@@ -127,15 +87,14 @@ for col_idx, h in enumerate(headers):
     cell.fill.solid()
     cell.fill.fore_color.rgb = RGBColor(0x1F, 0x4E, 0x79)
 
-# Data rows
 data = [
-    ('1. PDF / Template Management', '9.0', '4.5', '13.5'),
-    ('2. DocuSign Integration', '4.1', '3.0', '7.1'),
-    ('3a. Training & Enablement', '8.0', '0', '8.0'),
-    ('3b. Data Source Extensibility', '6.4', '2.5', '8.9'),
-    ('4. Bespoke Contracts', '4.8', '3.0', '7.8'),
-    ('5. Comparison Audit', '12.4', '0', '12.4'),
-    ('TOTAL', '44.6', '13.0', '57.6'),
+    ('1. PDF / Template Management', '9.0', '13.5'),
+    ('2. DocuSign Integration', '4.1', '7.1'),
+    ('3a. Training & Enablement', '8.0', '8.0'),
+    ('3b. Data Source Extensibility', '6.4', '8.9'),
+    ('4. Bespoke Contracts', '4.8', '7.8'),
+    ('5. Comparison Audit', '12.4', '12.4'),
+    ('TOTAL', '44.6', '57.6'),
 ]
 
 for row_idx, row_data in enumerate(data, 1):
@@ -148,288 +107,134 @@ for row_idx, row_data in enumerate(data, 1):
                 p.font.bold = True
 
 # ============================================================
-# SLIDE 4: Est 1 - PDF/Template Management
+# SLIDE 3: Est 1
 # ============================================================
-slide = add_slide(7)  # 1_Section Slide
-clear_placeholders(slide)
-for ph in slide.placeholders:
-    if ph.placeholder_format.idx == 0:
-        set_text(ph.text_frame, "01", size=48, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
-    elif ph.placeholder_format.idx == 1:
-        set_text(ph.text_frame, "PDF / Template\nManagement", size=28, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
-
-# ============================================================
-# SLIDE 5: Est 1 Detail
-# ============================================================
-slide = add_slide(4)  # Content layout
+slide = add_slide(3)  # 1_Content
 clear_placeholders(slide)
 for ph in slide.placeholders:
     if ph.placeholder_format.idx == 0:
         set_text(ph.text_frame, "Est 1: PDF / Template Management", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
-        tf = ph.text_frame
-        tf.clear()
-        lines = [
-            "Replace the current developer-dependent SVG/HTML pipeline with a",
-            "visual, self-service template management system.",
+        add_body_lines(ph.text_frame, [
+            "~13.5 days",
             "",
-            "Key deliverables:",
-            "• Template CRUD with priority-based selection rules",
-            "• Visual section editor (pdf-me Designer embedded in Angular)",
-            "• Shared/reusable sections (headers, footers, T&Cs)",
-            "• Rules engine for automated template matching",
-            "• Render pipeline (Lambda: section render + PDF stitch)",
-            "• Version history with revert capability",
+            "Self-service template editor replacing the current developer-dependent pipeline.",
             "",
-            "Estimate: 13.5 days (9.0 required + 4.5 optional testing)",
-        ]
-        for i, line in enumerate(lines):
-            p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-            run = p.add_run()
-            run.text = line
-            run.font.size = Pt(13)
-            if line.startswith("Estimate:"):
-                run.font.bold = True
+            "Visual section editor (pdf-me) embedded in the Admin Portal",
+            "Rules engine for automated template selection (first-match-wins)",
+            "Shared sections for headers, footers, T&Cs",
+            "Render pipeline: section render + PDF stitch (Lambda)",
+            "Version history with revert on all sections",
+        ])
 
 # ============================================================
-# SLIDE 6: Est 2 - DocuSign
+# SLIDE 4: Est 2
 # ============================================================
-slide = add_slide(7)  # Section Slide
-clear_placeholders(slide)
-for ph in slide.placeholders:
-    if ph.placeholder_format.idx == 0:
-        set_text(ph.text_frame, "02", size=48, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
-    elif ph.placeholder_format.idx == 1:
-        set_text(ph.text_frame, "DocuSign\nIntegration", size=28, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
-
-# ============================================================
-# SLIDE 7: Est 2 Detail
-# ============================================================
-slide = add_slide(4)  # Content layout
+slide = add_slide(3)
 clear_placeholders(slide)
 for ph in slide.placeholders:
     if ph.placeholder_format.idx == 0:
         set_text(ph.text_frame, "Est 2: DocuSign Integration", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
-        tf = ph.text_frame
-        tf.clear()
-        lines = [
-            "Automated e-signature pipeline: PDF rendered → sent for signing →",
-            "signed copy stored back in Salesforce.",
+        add_body_lines(ph.text_frame, [
+            "~7.1 days",
             "",
-            "Key deliverables:",
-            "• Automated S3 trigger (PDF created → DocuSign flow starts)",
-            "• Salesforce customer lookup (contact details for signing)",
-            "• DocuSign JWT auth + envelope creation",
-            "• Webhook handler (signed PDF → S3 + Salesforce attachment)",
-            "• DynamoDB envelope tracking for debugging",
+            "Automated e-signature: PDF rendered > sent for signing > signed copy to Salesforce.",
             "",
-            "Estimate: 7.1 days (4.1 required + 3.0 optional testing)",
-        ]
-        for i, line in enumerate(lines):
-            p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-            run = p.add_run()
-            run.text = line
-            run.font.size = Pt(13)
-            if line.startswith("Estimate:"):
-                run.font.bold = True
+            "S3 trigger fires when contract note PDF is generated",
+            "Customer details fetched from Salesforce (via BrytNumber)",
+            "DocuSign envelope created + signing email sent automatically",
+            "Webhook receives completion > stores signed PDF in S3 + Salesforce",
+        ])
 
 # ============================================================
-# SLIDE 8: Est 3 - Training & Data Sources
+# SLIDE 5: Est 3
 # ============================================================
-slide = add_slide(7)  # Section Slide
-clear_placeholders(slide)
-for ph in slide.placeholders:
-    if ph.placeholder_format.idx == 0:
-        set_text(ph.text_frame, "03", size=48, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
-    elif ph.placeholder_format.idx == 1:
-        set_text(ph.text_frame, "Training &\nData Sources", size=28, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
-
-# ============================================================
-# SLIDE 9: Est 3 Detail
-# ============================================================
-slide = add_slide(4)  # Content layout
+slide = add_slide(3)
 clear_placeholders(slide)
 for ph in slide.placeholders:
     if ph.placeholder_format.idx == 0:
         set_text(ph.text_frame, "Est 3: Training & Data Sources", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
-        tf = ph.text_frame
-        tf.clear()
-        lines = [
-            "Two sub-deliverables: enablement assets + data source extensibility.",
+        add_body_lines(ph.text_frame, [
+            "~16.9 days (8.0 + 8.9)",
             "",
-            "3a. Training & Enablement (8 days):",
-            "• Quick-start guide, how-to guides, data field reference",
-            "• Rules engine cheat sheet, troubleshooting guide",
-            "• Screen recordings (optional, post-build)",
+            "3a. Training & Enablement (8 days)",
+            "Quick-start guide, how-to guides, field reference, cheat sheets",
             "",
-            "3b. Data Source Extensibility (8.9 days):",
-            "• Glue Data Catalog discovery via SageMaker Unified Studio",
-            "• Template-level data source attachment",
-            "• Athena enrichment at render time (keyed on BrytNumber)",
-            "• Field browser in Section Editor",
-            "",
-            "Combined estimate: 16.9 days",
-        ]
-        for i, line in enumerate(lines):
-            p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-            run = p.add_run()
-            run.text = line
-            run.font.size = Pt(13)
-            if line.startswith("Combined"):
-                run.font.bold = True
+            "3b. Data Source Extensibility (8.9 days)",
+            "Subscribe data sources in SageMaker Unified Studio",
+            "Auto-discovered via Glue Catalog, attached to templates",
+            "Athena enrichment at render time (keyed on BrytNumber)",
+            "Fields appear in the section editor for drag-and-drop use",
+        ])
 
 # ============================================================
-# SLIDE 10: Est 4 - Bespoke Contracts
+# SLIDE 6: Est 4
 # ============================================================
-slide = add_slide(7)  # Section Slide
-clear_placeholders(slide)
-for ph in slide.placeholders:
-    if ph.placeholder_format.idx == 0:
-        set_text(ph.text_frame, "04", size=48, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
-    elif ph.placeholder_format.idx == 1:
-        set_text(ph.text_frame, "Bespoke\nContracts", size=28, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
-
-# ============================================================
-# SLIDE 11: Est 4 Detail
-# ============================================================
-slide = add_slide(4)  # Content layout
+slide = add_slide(3)
 clear_placeholders(slide)
 for ph in slide.placeholders:
     if ph.placeholder_format.idx == 0:
         set_text(ph.text_frame, "Est 4: Bespoke Contracts", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
-        tf = ph.text_frame
-        tf.clear()
-        lines = [
-            "Custom contract notes for VIP customers or non-standard terms.",
-            "Pipeline skips these; users create them manually in the portal.",
+        add_body_lines(ph.text_frame, [
+            "~7.8 days",
             "",
-            "Key deliverables:",
-            "• Pipeline skip for bespoke-flagged customers (Salesforce field)",
-            "• Bespoke contract list (pending, draft, rendered statuses)",
-            "• Editor with clone-from-template or start-from-scratch",
-            "• On-demand render (Save & Render button)",
-            "• Manual DocuSign trigger (Send via DocuSign button)",
-            "• Contract data reference panel + version history",
+            "One-off contract notes for VIP/non-standard customers.",
             "",
-            "Estimate: 7.8 days (4.8 required + 3.0 optional testing)",
-        ]
-        for i, line in enumerate(lines):
-            p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-            run = p.add_run()
-            run.text = line
-            run.font.size = Pt(13)
-            if line.startswith("Estimate:"):
-                run.font.bold = True
+            "Pipeline skips bespoke-flagged customers automatically",
+            "Users create bespoke contracts (clone from template or scratch)",
+            "Same section editor + shared sections as standard templates",
+            "On-demand render (Save & Render) + manual DocuSign trigger",
+            "Full version history and render history per document",
+        ])
 
 # ============================================================
-# SLIDE 12: Est 5 - Comparison Audit
+# SLIDE 7: Est 5
 # ============================================================
-slide = add_slide(7)  # Section Slide
-clear_placeholders(slide)
-for ph in slide.placeholders:
-    if ph.placeholder_format.idx == 0:
-        set_text(ph.text_frame, "05", size=48, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
-    elif ph.placeholder_format.idx == 1:
-        set_text(ph.text_frame, "Comparison\nAudit", size=28, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
-
-# ============================================================
-# SLIDE 13: Est 5 Detail
-# ============================================================
-slide = add_slide(4)  # Content layout
+slide = add_slide(3)
 clear_placeholders(slide)
 for ph in slide.placeholders:
     if ph.placeholder_format.idx == 0:
         set_text(ph.text_frame, "Est 5: Comparison Audit", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
-        tf = ph.text_frame
-        tf.clear()
-        lines = [
-            "Detect whether contract note PDFs are being manually edited",
-            "between rendering and sending to customers.",
+        add_body_lines(ph.text_frame, [
+            "~12.4 days",
             "",
-            "Key deliverables:",
-            "• Step Function pipeline (batch processing)",
-            "• Microsoft Graph API integration (fetch sent PDFs from Outlook)",
-            "• AWS Bedrock comparison (AI-powered diff analysis)",
-            "• S3 results storage (Athena-queryable, date-partitioned)",
-            "• Prompt iteration (3-5 cycles to refine output quality)",
-            "• Spreadsheet reporting for BRYT",
+            "Detect PDF tampering: compare rendered original vs what was actually sent.",
             "",
-            "Estimate: 12.4 days (includes prompt iteration budget)",
+            "Step Function batch pipeline (ad-hoc, e.g. monthly)",
+            "Fetches sent PDFs from Outlook via Microsoft Graph API",
+            "AI comparison via AWS Bedrock (identifies differences)",
+            "Results queryable via Athena, delivered as spreadsheet",
             "",
-            "Dependency: Requires Graph API access (M365 admin approval)",
-        ]
-        for i, line in enumerate(lines):
-            p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-            run = p.add_run()
-            run.text = line
-            run.font.size = Pt(13)
-            if line.startswith("Estimate:") or line.startswith("Dependency:"):
-                run.font.bold = True
+            "Dependency: Requires M365 admin to grant Graph API access",
+        ])
 
 # ============================================================
-# SLIDE 14: Open Questions
+# SLIDE 8: Next Steps
 # ============================================================
-slide = add_slide(4)  # Content layout
-clear_placeholders(slide)
-for ph in slide.placeholders:
-    if ph.placeholder_format.idx == 0:
-        set_text(ph.text_frame, "Open Questions", size=22, bold=True)
-    elif ph.placeholder_format.idx == 1:
-        tf = ph.text_frame
-        tf.clear()
-        lines = [
-            "Key items requiring client confirmation before/during implementation:",
-            "",
-            "• Multi-party signing (customer only, or BRYT rep + TPI too)?",
-            "• DocuSign account — new setup required (no existing account found)",
-            "• Email branding — DocuSign standard emails acceptable?",
-            "• Admin Portal status UI — needed, or backend-only?",
-            "• Salesforce object mapping for customersalesforceref",
-            "• Voided envelopes / resend / reminders — out of scope?",
-            "• DocuSign for bespoke contracts — manual trigger acceptable?",
-            "• Bespoke flag mechanism in Salesforce",
-            "• Graph API access for Outlook mail search (M365 admin)",
-            "• Mailbox identification + email correlation method",
-        ]
-        for i, line in enumerate(lines):
-            p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-            run = p.add_run()
-            run.text = line
-            run.font.size = Pt(12)
-
-# ============================================================
-# SLIDE 15: Next Steps
-# ============================================================
-slide = add_slide(4)  # Content layout
+slide = add_slide(3)
 clear_placeholders(slide)
 for ph in slide.placeholders:
     if ph.placeholder_format.idx == 0:
         set_text(ph.text_frame, "Next Steps", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
-        tf = ph.text_frame
-        tf.clear()
-        lines = [
-            "1. Resolve open questions (client confirmation needed)",
-            "2. Prioritise estimates (sequential or parallel delivery)",
-            "3. Confirm optional scope (testing tasks — recommended)",
-            "4. Begin implementation from Estimate 1",
+        add_body_lines(ph.text_frame, [
+            "Total: ~58 developer days",
             "",
-            "Estimates are designed to be delivered sequentially,",
-            "each building on the previous. However, Est 5 (Comparison",
-            "Audit) can run independently at any time.",
-        ]
-        for i, line in enumerate(lines):
-            p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-            run = p.add_run()
-            run.text = line
-            run.font.size = Pt(14)
+            "Resolve open questions (11 items for client confirmation)",
+            "Prioritise delivery order (estimates are sequential by default)",
+            "Confirm optional scope (testing tasks, recommended)",
+            "Begin implementation from Estimate 1",
+            "",
+            "Detailed specs, wireframes, and task breakdowns available",
+            "on request for each estimate.",
+        ])
 
 # Save
-output_path = 'analysis/BRYT/contract-note/BRYT Contract Note Rework - Estimates.pptx'
+output_path = 'analysis/BRYT/contract-note/outputs/BRYT Contract Note Rework - Estimates.pptx'
 prs.save(output_path)
-print(f"\nPresentation saved to: {output_path}")
-print(f"Total slides: {len(prs.slides)}")
+print(f"Presentation saved: {output_path}")
+print(f"Slides: {len(prs.slides)}")
