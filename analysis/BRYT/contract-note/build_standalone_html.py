@@ -4,7 +4,7 @@ Build standalone HTML presentation with embedded base64 images.
 import base64
 
 # Encode assets
-with open('analysis/BRYT/contract-note/outputs/d55-logo-white.png', 'rb') as f:
+with open('analysis/BRYT/contract-note/assets/d55-logo-white.png', 'rb') as f:
     logo_b64 = base64.b64encode(f.read()).decode()
 
 with open('analysis/BRYT/contract-note/assets/D55_TEAMS_BACKGROUND_No_LOGO.jpg', 'rb') as f:

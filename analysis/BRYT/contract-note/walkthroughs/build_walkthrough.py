@@ -356,7 +356,7 @@ p, li {{ orphans: 2; widows: 2; }}
 # ---------------------------------------------------------------------------
 
 def build_html(doc: dict) -> str:
-    logo_uri = _b64_uri(OUTPUTS / "d55-logo-white.png")
+    logo_uri = _b64_uri(ASSETS / "d55-logo-white.png")
     bg_uri = _b64_uri(ASSETS / "D55_TEAMS_BACKGROUND_No_LOGO.jpg")
     bryt_uri = _b64_uri(ASSETS / "bryt-energy.png")
 
