@@ -19,3 +19,11 @@ Questions that need answers from BRYT before or during implementation.
 |---|----------|---------|--------|
 | 7 | Should bespoke contract notes also flow through DocuSign (via a manual "Send via DocuSign" button)? | Assumption: yes, reuse the same DocuSign integration from Estimate 2 but triggered manually from the bespoke contract UI rather than automatically. | 🔴 Open |
 | 8 | How is a customer identified as requiring a bespoke contract? | Assumption: a Salesforce field (e.g., `requires_bespoke_contract`) flags the customer. Pipeline skips these entirely. | 🔴 Open |
+
+## Estimate 5 - System Comparison
+
+| # | Question | Context | Status |
+|---|----------|---------|--------|
+| 9 | Can BRYT provide an Azure AD app registration with Mail.Read (or Mail.ReadBasic) permission for the Microsoft Graph API? | Required to search Outlook sent mail and retrieve PDF attachments for comparison against the rendered originals. This is the critical dependency for Estimate 5. | 🔴 Open |
+| 10 | Which mailbox(es) are contract notes sent from? | Need to know which user/shared mailbox to search. May be a single shared mailbox or multiple individual users. | 🔴 Open |
+| 11 | How do we correlate a sent email to a specific contract note? | Assumption: subject line or attachment filename contains the offer reference (e.g., "OP-56412"). Needs confirmation. | 🔴 Open |
