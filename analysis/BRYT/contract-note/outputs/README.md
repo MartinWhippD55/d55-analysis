@@ -43,6 +43,13 @@ Per-estimate technical walkthrough documents — the detailed companion to the e
 
 All five estimates now have walkthrough documents.
 
+### Data Model
+
+| File | Description |
+|------|-------------|
+| `data-model.pdf` | DynamoDB table & record reference across Estimates 1-4. Each record rendered with its PK/SK key pattern, attribute table, and GSIs. |
+| `data-model.html` | Standalone HTML source for the above. |
+
 ## API Specification
 
 An OpenAPI 3.1 spec for the Admin Portal API surface (Estimates 1 + 3b + 4, plus the Estimate 2 DocuSign webhook) lives in `analysis/BRYT/contract-note/api/`:

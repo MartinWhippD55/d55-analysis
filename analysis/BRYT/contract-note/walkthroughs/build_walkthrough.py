@@ -185,6 +185,61 @@ def render_pipeline(block):
     )
 
 
+def render_entities(block):
+    """DynamoDB entity/record definitions: key-pattern cards + attribute tables."""
+    heading = f'<h2>{esc(block["heading"])}</h2>' if block.get("heading") else ""
+    intro = _para_list([block["intro"]]) if block.get("intro") else ""
+    table_label = ""
+    if block.get("table"):
+        table_label = f'<div class="table-name">Table: <code>{esc(block["table"])}</code></div>'
+
+    cards = ""
+    for ent in block["entities"]:
+        keys = f'<span class="key"><span class="key-label">PK</span><code>{esc(ent["pk"])}</code></span>'
+        if ent.get("sk"):
+            keys += f'<span class="key"><span class="key-label">SK</span><code>{esc(ent["sk"])}</code></span>'
+        note = f'<p class="entity-note">{esc(ent["note"])}</p>' if ent.get("note") else ""
+        rows = ""
+        for attr in ent["attributes"]:
+            name, typ, desc = attr
+            rows += (
+                f'<tr><td><code>{esc(name)}</code></td>'
+                f'<td class="type">{esc(typ)}</td><td>{esc(desc)}</td></tr>'
+            )
+        table = (
+            '<table class="data-table attr-table">'
+            '<thead><tr><th>Attribute</th><th>Type</th><th>Description</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table>'
+        )
+        cards += (
+            '<div class="entity">'
+            f'<h3>{esc(ent["name"])}</h3>'
+            f'<div class="keys">{keys}</div>{note}{table}</div>'
+        )
+
+    gsi_html = ""
+    if block.get("gsi"):
+        grows = ""
+        for g in block["gsi"]:
+            grows += (
+                f'<tr><td>{esc(g["name"])}</td>'
+                f'<td><code>{esc(g["pk"])}</code></td>'
+                f'<td><code>{esc(g.get("sk", "-"))}</code></td>'
+                f'<td>{esc(g.get("enables", ""))}</td></tr>'
+            )
+        gsi_html = (
+            '<div class="gsi-block"><h3>Global Secondary Indexes</h3>'
+            '<table class="data-table"><thead><tr>'
+            '<th>Index</th><th>GSI PK</th><th>GSI SK</th><th>Enables</th>'
+            f'</tr></thead><tbody>{grows}</tbody></table></div>'
+        )
+
+    return (
+        f'<section class="block block-entities">{heading}{intro}{table_label}'
+        f'{cards}{gsi_html}</section>'
+    )
+
+
 RENDERERS = {
     "section": render_section,
     "table": render_table,
@@ -193,6 +248,7 @@ RENDERERS = {
     "screens": render_screens,
     "layers": render_layers,
     "pipeline": render_pipeline,
+    "entities": render_entities,
 }
 
 
@@ -326,6 +382,32 @@ figure.flow {{ margin: 12px 0 6px; page-break-inside: avoid; }}
 }}
 .pipeline .step-arrow {{ color: #5dade2; font-size: 11pt; align-self: center; }}
 
+/* Entity (DynamoDB record) definitions */
+.table-name {{ font-size: 10pt; color: #23232f; margin-bottom: 14px; }}
+.table-name code {{ background: #1a0a3e; color: #d7ecfa; padding: 2px 8px; border-radius: 3px; font-size: 9.5pt; }}
+.entity {{
+    border: 1px solid #d8d8e6; border-radius: 6px; padding: 12px 14px;
+    margin-bottom: 14px; page-break-inside: avoid; background: #fcfcfe;
+}}
+.entity h3 {{ margin-bottom: 8px; }}
+.entity .keys {{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }}
+.entity .key {{
+    display: inline-flex; align-items: stretch; border-radius: 4px; overflow: hidden;
+    border: 1px solid #5dade2; font-size: 9pt;
+}}
+.entity .key-label {{
+    background: #5dade2; color: #fff; font-weight: 700; padding: 3px 8px;
+    display: flex; align-items: center;
+}}
+.entity .key code {{ padding: 3px 9px; color: #1a0a3e; background: #eaf4fb; display: flex; align-items: center; }}
+.entity .entity-note {{ font-size: 9.5pt; color: #55556a; margin-bottom: 8px; }}
+code {{ font-family: 'Consolas', 'Monaco', monospace; }}
+table.attr-table {{ font-size: 9pt; }}
+table.attr-table td code {{ font-size: 8.5pt; color: #0a4a8c; }}
+table.attr-table td.type {{ color: #6a6a80; font-style: italic; white-space: nowrap; }}
+.gsi-block {{ margin-top: 6px; page-break-inside: avoid; }}
+.gsi-block table code {{ font-size: 8.5pt; color: #0a4a8c; }}
+
 .section-break {{ page-break-before: always; }}
 
 /* Page-break control: keep headings with their content, avoid awkward splits */
@@ -434,7 +516,7 @@ def main():
     doc = content.DOC
 
     html = build_html(doc)
-    slug = f"estimate-{doc['estimate']}-walkthrough"
+    slug = doc.get("slug") or f"estimate-{doc['estimate']}-walkthrough"
     html_path = OUTPUTS / f"{slug}.html"
     html_path.write_text(html, encoding="utf-8")
     print(f"HTML written: {html_path}  ({len(html) / 1024:.0f} KB)")
