@@ -7,7 +7,7 @@ import base64
 with open('analysis/BRYT/contract-note/outputs/d55-logo-white.png', 'rb') as f:
     logo_b64 = base64.b64encode(f.read()).decode()
 
-with open('analysis/BRYT/contract-note/outputs/d55-bg.jpg', 'rb') as f:
+with open('analysis/BRYT/contract-note/assets/D55_TEAMS_BACKGROUND_No_LOGO.jpg', 'rb') as f:
     bg_b64 = base64.b64encode(f.read()).decode()
 
 with open('analysis/BRYT/contract-note/assets/bryt-energy.png', 'rb') as f:
@@ -67,11 +67,12 @@ html = f'''<!DOCTYPE html>
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(26,10,62,0.85) 0%, rgba(28,20,88,0.7) 50%, rgba(10,74,140,0.6) 100%);
+            background: linear-gradient(135deg, rgba(26,10,62,0.8) 0%, rgba(28,20,88,0.6) 50%, rgba(10,74,140,0.5) 100%);
             z-index: 0;
         }}
         .slide-title > * {{ position: relative; z-index: 1; }}
         .slide-title .slide-number {{ position: absolute; bottom: 16px; right: 24px; z-index: 1; }}
+        .slide-title .logo {{ position: absolute; top: 24px; right: 28px; height: 44px; z-index: 1; }}
         .slide-title h1 {{
             font-size: 44px;
             font-weight: 700;
@@ -92,6 +93,13 @@ html = f'''<!DOCTYPE html>
         }}
         .slide-title .presenter .name {{ font-size: 16px; font-weight: 600; }}
         .slide-title .presenter .role {{ font-size: 13px; opacity: 0.6; margin-top: 2px; }}
+        .slide-title .bryt-logo {{
+            position: absolute;
+            bottom: 40px;
+            right: 56px;
+            height: 40px;
+            z-index: 1;
+        }}
 
         /* Content slides */
         .slide-content h2 {{
@@ -175,8 +183,10 @@ html = f'''<!DOCTYPE html>
 
 <!-- SLIDE 1: Title -->
 <div class="slide slide-title">
+    <img src="{logo_uri}" class="logo" alt="D55">
+    <img src="{bryt_uri}" class="bryt-logo" alt="BRYT Energy">
     <h1>Contract Note Rework</h1>
-    <h2>Estimate Playback &mdash; BRYT Energy</h2>
+    <h2>Estimate Playback</h2>
     <div class="presenter">
         <div class="name">D55 Consulting</div>
         <div class="role">July 2026</div>
