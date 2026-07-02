@@ -24,16 +24,18 @@ Client-facing deliverables for the BRYT Energy contract note rework project. Con
 | `01-bespoke-list.png` | Wireframe: Bespoke contract notes list (Est 4). |
 | `02-bespoke-editor.png` | Wireframe: Bespoke contract editor with reference panel (Est 4). |
 
-## Still TODO
+## PDF Walkthroughs
 
-### PDF Walkthroughs
-For estimates with UI changes (1, 3b, 4), we want to produce PDF documents that:
-- Walk through each screen with annotated mockups
-- Explain user interactions and workflows
-- Provide context on the data model behind each screen
-- Include the flow diagrams where relevant
+Per-estimate technical walkthrough documents — the detailed companion to the exec-level presentation. Each one explains the background context, how the solution works, key design decisions, an annotated screen-by-screen tour (interactions + the data model behind each screen), and a delivery breakdown.
 
-These would be the detailed companion to the exec-level presentation — something you'd hand to a product owner or technical lead for review.
+| File | Description |
+|------|-------------|
+| `estimate-1-walkthrough.pdf` | Estimate 1: PDF / Template Management. Full walkthrough with architecture + pipeline diagrams, all 6 screen mockups annotated, rules engine explainer, and data model. |
+| `estimate-1-walkthrough.html` | Standalone HTML source for the above (embedded base64 images). |
+
+### Still TODO
+
+- Walkthroughs for Estimates 2 (DocuSign), 3b (Data Sources), and 4 (Bespoke Contracts) — reuse the same generator by adding a content module per estimate.
 
 ## Scripts
 
@@ -46,11 +48,13 @@ All scripts are in `analysis/BRYT/contract-note/`. Run from the repo root.
 | `read_estimates.py` | Reads the current spreadsheet and prints the updated figures to the console. Useful after manual edits to verify totals. | `python analysis/BRYT/contract-note/read_estimates.py` |
 | `build_standalone_html.py` | Generates the standalone HTML presentation with embedded base64 images (D55 + Bryt logos, background). Output: `outputs/presentation-preview.html`. | `python analysis/BRYT/contract-note/build_standalone_html.py` |
 | `generate_presentation.py` | Generates the .pptx PowerPoint file using python-pptx and the D55 template. | `python analysis/BRYT/contract-note/generate_presentation.py` |
+| `walkthroughs/build_walkthrough.py` | Reusable engine that renders a per-estimate walkthrough (branded HTML + PDF) from a content module. Add `--no-pdf` to skip PDF rendering. | `python analysis/BRYT/contract-note/walkthroughs/build_walkthrough.py estimate_01` |
 
 ### Dependencies
 
 ```
-pip install openpyxl python-pptx
+pip install openpyxl python-pptx playwright
+python -m playwright install chromium   # one-time, for PDF walkthrough rendering
 ```
 
 ### Workflow
