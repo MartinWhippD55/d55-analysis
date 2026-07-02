@@ -34,7 +34,7 @@ html = f'''<!DOCTYPE html>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{ font-family: 'Inter', sans-serif; background: #0d0d1a; padding: 40px; }}
+        body {{ font-family: 'Inter', sans-serif; background: #0d0d1a; padding: 24px; }}
         .slide {{
             width: 960px;
             height: 540px;
@@ -320,6 +320,25 @@ html = f'''<!DOCTYPE html>
     <div class="note">Detailed specs, wireframes, and task breakdowns available on request for each estimate.</div>
     <span class="slide-number">8 / 8</span>
 </div>
+
+<script>
+    // Auto-scale slides to fill the viewport width (preserving 16:9),
+    // reproducing a comfortable zoom by default. Capped so it stays sensible
+    // on very wide screens.
+    (function () {{
+        var SLIDE_WIDTH = 960;
+        var MAX_ZOOM = 1.9;
+        var PADDING = 48; // 24px each side (matches body padding * 2)
+        function fit() {{
+            var avail = document.documentElement.clientWidth - PADDING;
+            var zoom = Math.min(avail / SLIDE_WIDTH, MAX_ZOOM);
+            if (zoom < 0.5) zoom = 0.5;
+            document.body.style.zoom = zoom;
+        }}
+        window.addEventListener('resize', fit);
+        fit();
+    }})();
+</script>
 
 </body>
 </html>'''
