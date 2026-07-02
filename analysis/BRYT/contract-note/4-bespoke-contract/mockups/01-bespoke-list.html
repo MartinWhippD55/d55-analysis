@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bespoke Contract Notes - Wireframe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Architects Daughter', 'Comic Sans MS', cursive; background: #fff; padding: 32px; font-size: 15px; color: #333; }
+        .wireframe-label { position: fixed; top: 8px; right: 32px; font-size: 11px; color: #bbb; border: 1px dashed #ccc; padding: 4px 10px; border-radius: 3px; }
+        .container { max-width: 1200px; margin: 0 auto; border: 2px solid #333; border-radius: 6px; transform: rotate(-0.3deg); }
+        .header { padding: 18px 24px; border-bottom: 2px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; font-weight: 400; }
+        .btn { background: #fff; color: #333; border: 2px solid #333; padding: 8px 18px; font-size: 15px; font-family: inherit; cursor: pointer; border-radius: 4px; }
+        .btn-sm { border: 1.5px solid #555; background: #fff; padding: 5px 12px; font-size: 13px; font-family: inherit; cursor: pointer; border-radius: 3px; }
+        .btn-primary { border-color: #2a6; color: #2a6; }
+        .btn-docusign { border-color: #46c; color: #46c; }
+        .content { padding: 24px; }
+        .filters { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
+        .filters label { font-size: 13px; color: #888; }
+        .filters select { font-family: inherit; font-size: 14px; padding: 6px 12px; border: 1.5px solid #555; border-radius: 3px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; font-size: 13px; color: #888; padding: 8px 12px; border-bottom: 2px solid #333; font-weight: 400; }
+        td { padding: 12px; border-bottom: 1px solid #ddd; font-size: 14px; }
+        .status { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 12px; }
+        .status-pending { background: #fff3e0; color: #e65100; border: 1px solid #ffcc02; }
+        .status-draft { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+        .status-rendered { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .status-failed { background: #fbe9e7; color: #c62828; border: 1px solid #ef9a9a; }
+        .actions { display: flex; gap: 6px; }
+        .highlight-row { background: #fffde7; }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="container">
+        <div class="header">
+            <h1>Bespoke Contract Notes</h1>
+        </div>
+        <div class="content">
+            <div class="filters">
+                <label>Filter by status:</label>
+                <select>
+                    <option>All</option>
+                    <option>Pending</option>
+                    <option>Draft</option>
+                    <option>Rendered</option>
+                    <option>Failed</option>
+                </select>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>BrytNumber</th>
+                        <th>Offer Ref</th>
+                        <th>Status</th>
+                        <th>Modified</th>
+                        <th>User</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="highlight-row">
+                        <td>ACME INDUSTRIES LTD</td>
+                        <td>BRYT004521</td>
+                        <td>OP-58901</td>
+                        <td><span class="status status-pending">pending</span></td>
+                        <td>2026-07-01</td>
+                        <td>&mdash;</td>
+                        <td class="actions">
+                            <button class="btn-sm btn-primary">Create Bespoke</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>GOSPORT BOROUGH COUNCIL</td>
+                        <td>BRYT002618</td>
+                        <td>OP-56412</td>
+                        <td><span class="status status-rendered">rendered</span></td>
+                        <td>2026-06-28</td>
+                        <td>Amina Ali</td>
+                        <td class="actions">
+                            <button class="btn-sm">Edit</button>
+                            <button class="btn-sm">&#x2B07; PDF</button>
+                            <button class="btn-sm btn-docusign">Send DocuSign</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>MERIDIAN HEALTHCARE</td>
+                        <td>BRYT003890</td>
+                        <td>OP-57234</td>
+                        <td><span class="status status-draft">draft</span></td>
+                        <td>2026-06-25</td>
+                        <td>Jodie Reaney</td>
+                        <td class="actions">
+                            <button class="btn-sm">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>SOUTHAMPTON FC</td>
+                        <td>BRYT001456</td>
+                        <td>OP-55890</td>
+                        <td><span class="status status-rendered">rendered</span></td>
+                        <td>2026-06-20</td>
+                        <td>Amina Ali</td>
+                        <td class="actions">
+                            <button class="btn-sm">Edit</button>
+                            <button class="btn-sm">&#x2B07; PDF</button>
+                            <button class="btn-sm" style="color: #2a6; border-color: #2a6;">&#x2713; Signed</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>PINNACLE LOGISTICS</td>
+                        <td>BRYT005102</td>
+                        <td>OP-59012</td>
+                        <td><span class="status status-failed">failed</span></td>
+                        <td>2026-06-18</td>
+                        <td>Jodie Reaney</td>
+                        <td class="actions">
+                            <button class="btn-sm">Edit</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

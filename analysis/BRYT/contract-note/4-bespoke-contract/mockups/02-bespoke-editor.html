@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bespoke Contract Editor - Wireframe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Architects Daughter', 'Comic Sans MS', cursive; background: #fff; padding: 32px; font-size: 15px; color: #333; }
+        .wireframe-label { position: fixed; top: 8px; right: 32px; font-size: 11px; color: #bbb; border: 1px dashed #ccc; padding: 4px 10px; border-radius: 3px; }
+        .container { max-width: 1300px; margin: 0 auto; border: 2px solid #333; border-radius: 6px; transform: rotate(-0.3deg); }
+        .header { padding: 18px 24px; border-bottom: 2px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; font-weight: 400; }
+        .header-actions { display: flex; gap: 10px; }
+        .btn { background: #fff; color: #333; border: 2px solid #333; padding: 8px 18px; font-size: 15px; font-family: inherit; cursor: pointer; border-radius: 4px; }
+        .btn-render { border-color: #2a6; color: #2a6; font-weight: bold; }
+        .btn-docusign { border-color: #46c; color: #46c; }
+        .btn-sm { border: 1.5px solid #555; background: #fff; padding: 5px 12px; font-size: 13px; font-family: inherit; cursor: pointer; border-radius: 3px; }
+        .content { display: flex; }
+        .left-panel { width: 260px; padding: 20px; border-right: 1.5px dashed #aaa; }
+        .centre-panel { flex: 1; padding: 20px; border-right: 1.5px dashed #aaa; }
+        .right-panel { width: 300px; padding: 20px; }
+        .info-row { margin-bottom: 12px; }
+        .info-row label { display: block; font-size: 11px; color: #888; margin-bottom: 2px; }
+        .info-row .value { font-size: 14px; }
+        .section-heading { font-size: 14px; color: #888; margin-bottom: 12px; border-bottom: 1px dashed #ccc; padding-bottom: 8px; }
+        .section-list { list-style: none; }
+        .section-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px solid #aaa; border-radius: 4px; margin-bottom: 8px; }
+        .section-item .drag { color: #999; font-size: 18px; }
+        .section-item .num { font-size: 14px; border: 1.5px solid #333; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .section-item .name { flex: 1; font-size: 14px; }
+        .section-item .badge { font-size: 11px; color: #888; border: 1px solid #bbb; padding: 2px 6px; border-radius: 3px; }
+        .section-item .actions { display: flex; gap: 4px; }
+        .add-section { display: flex; gap: 10px; margin-top: 14px; }
+        .ref-panel { border: 1px dashed #ccc; border-radius: 4px; padding: 12px; max-height: 400px; overflow-y: auto; }
+        .ref-group { margin-bottom: 12px; }
+        .ref-group-title { font-size: 12px; color: #666; font-weight: bold; margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+        .ref-field { font-size: 11px; color: #555; margin-bottom: 2px; display: flex; justify-content: space-between; }
+        .ref-field .field-name { color: #333; }
+        .ref-field .field-value { color: #888; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .search-box { width: 100%; border: 1.5px solid #555; padding: 6px 10px; font-family: inherit; font-size: 13px; border-radius: 3px; margin-bottom: 12px; }
+        .render-history { margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 14px; }
+        .render-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+        .render-item .ver { font-weight: bold; }
+        .render-item .info { flex: 1; color: #666; }
+        .render-item .dl { color: #46c; cursor: pointer; }
+        .status-bar { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 4px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: #2e7d32; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="container">
+        <div class="header">
+            <h1>Bespoke: GOSPORT BOROUGH COUNCIL</h1>
+            <div class="header-actions">
+                <button class="btn btn-render">&#x25B6; Save &amp; Render</button>
+                <button class="btn btn-docusign">&#x2709; Send via DocuSign</button>
+            </div>
+        </div>
+        <div class="content">
+            <div class="left-panel">
+                <div class="info-row">
+                    <label>Customer</label>
+                    <span class="value">GOSPORT BOROUGH COUNCIL</span>
+                </div>
+                <div class="info-row">
+                    <label>BrytNumber</label>
+                    <span class="value">BRYT002618</span>
+                </div>
+                <div class="info-row">
+                    <label>Offer Reference</label>
+                    <span class="value">OP-56412</span>
+                </div>
+                <div class="info-row">
+                    <label>Status</label>
+                    <span class="value" style="color: #2a6;">&#x2713; Rendered (v2)</span>
+                </div>
+                <div class="info-row">
+                    <label>Cloned from</label>
+                    <span class="value">Pure Certainty HH</span>
+                </div>
+                <div class="info-row">
+                    <label>Created by</label>
+                    <span class="value">Amina Ali</span>
+                </div>
+                <div class="info-row">
+                    <label>Last modified</label>
+                    <span class="value">2026-06-28 14:32</span>
+                </div>
+
+                <div class="render-history">
+                    <div class="section-heading">Render History</div>
+                    <div class="render-item">
+                        <span class="ver">v2</span>
+                        <span class="info">Jun 28, 14:32 - Amina</span>
+                        <span class="dl">&#x2B07; PDF</span>
+                    </div>
+                    <div class="render-item">
+                        <span class="ver">v1</span>
+                        <span class="info">Jun 25, 10:15 - Amina</span>
+                        <span class="dl">&#x2B07; PDF</span>
+                    </div>
+                </div>
+            </div>
+            <div class="centre-panel">
+                <div class="status-bar">
+                    <span>&#x2713; Last render successful &mdash; v2 &mdash; Jun 28 14:32</span>
+                    <button class="btn-sm">&#x2B07; Download PDF</button>
+                </div>
+                <div class="section-heading">Sections (drag to reorder)</div>
+                <ul class="section-list">
+                    <li class="section-item">
+                        <span class="drag">&#x22EE;&#x22EE;</span>
+                        <span class="num">1</span>
+                        <span class="name">Header</span>
+                        <span class="badge">shared</span>
+                        <span class="badge">v3</span>
+                        <div class="actions">
+                            <button class="btn-sm">Edit</button>
+                            <button class="btn-sm">History</button>
+                            <button class="btn-sm">Remove</button>
+                        </div>
+                    </li>
+                    <li class="section-item">
+                        <span class="drag">&#x22EE;&#x22EE;</span>
+                        <span class="num">2</span>
+                        <span class="name">Custom Summary</span>
+                        <span class="badge">v4</span>
+                        <div class="actions">
+                            <button class="btn-sm">Edit</button>
+                            <button class="btn-sm">History</button>
+                            <button class="btn-sm">Remove</button>
+                        </div>
+                    </li>
+                    <li class="section-item">
+                        <span class="drag">&#x22EE;&#x22EE;</span>
+                        <span class="num">3</span>
+                        <span class="name">VIP Pricing</span>
+                        <span class="badge">v2</span>
+                        <div class="actions">
+                            <button class="btn-sm">Edit</button>
+                            <button class="btn-sm">History</button>
+                            <button class="btn-sm">Remove</button>
+                        </div>
+                    </li>
+                    <li class="section-item">
+                        <span class="drag">&#x22EE;&#x22EE;</span>
+                        <span class="num">4</span>
+                        <span class="name">Custom T&amp;Cs</span>
+                        <span class="badge">v1</span>
+                        <div class="actions">
+                            <button class="btn-sm">Edit</button>
+                            <button class="btn-sm">History</button>
+                            <button class="btn-sm">Remove</button>
+                        </div>
+                    </li>
+                </ul>
+                <div class="add-section">
+                    <button class="btn">+ New Section</button>
+                    <button class="btn">+ Add Shared Section</button>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="section-heading">Contract Data Reference</div>
+                <input type="text" class="search-box" placeholder="Search fields...">
+                <div class="ref-panel">
+                    <div class="ref-group">
+                        <div class="ref-group-title">Offer Details</div>
+                        <div class="ref-field"><span class="field-name">offerid</span><span class="field-value">47931</span></div>
+                        <div class="ref-field"><span class="field-name">offername</span><span class="field-value">GOSPORT BC - HH</span></div>
+                        <div class="ref-field"><span class="field-name">producttype</span><span class="field-value">Fixed</span></div>
+                        <div class="ref-field"><span class="field-name">productname</span><span class="field-value">Pure Certainty HH</span></div>
+                        <div class="ref-field"><span class="field-name">contractstartdate</span><span class="field-value">2025-09-19</span></div>
+                        <div class="ref-field"><span class="field-name">contractenddate</span><span class="field-value">2026-03-31</span></div>
+                    </div>
+                    <div class="ref-group">
+                        <div class="ref-group-title">Customer</div>
+                        <div class="ref-field"><span class="field-name">customername</span><span class="field-value">GOSPORT BOROUG...</span></div>
+                        <div class="ref-field"><span class="field-name">customerreference</span><span class="field-value">BRYT002618</span></div>
+                        <div class="ref-field"><span class="field-name">customertype</span><span class="field-value">Limited Company</span></div>
+                        <div class="ref-field"><span class="field-name">registeredpostcode</span><span class="field-value">PO12 1EB</span></div>
+                    </div>
+                    <div class="ref-group">
+                        <div class="ref-group-title">Pricing</div>
+                        <div class="ref-field"><span class="field-name">totalconsumptionmsp</span><span class="field-value">3681.74</span></div>
+                        <div class="ref-field"><span class="field-name">numberofmpans</span><span class="field-value">1</span></div>
+                        <div class="ref-field"><span class="field-name">paymentermsdays</span><span class="field-value">28</span></div>
+                    </div>
+                    <div class="ref-group">
+                        <div class="ref-group-title">MPANs</div>
+                        <div class="ref-field"><span class="field-name">mpan</span><span class="field-value">2000058045455</span></div>
+                        <div class="ref-field"><span class="field-name">metertype</span><span class="field-value">HH</span></div>
+                        <div class="ref-field"><span class="field-name">capacitykva</span><span class="field-value">100</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
