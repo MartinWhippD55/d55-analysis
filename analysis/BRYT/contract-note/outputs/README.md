@@ -32,10 +32,12 @@ Per-estimate technical walkthrough documents — the detailed companion to the e
 |------|-------------|
 | `estimate-1-walkthrough.pdf` | Estimate 1: PDF / Template Management. Full walkthrough with architecture + pipeline diagrams, all 6 screen mockups annotated, rules engine explainer, and data model. |
 | `estimate-1-walkthrough.html` | Standalone HTML source for the above (embedded base64 images). |
+| `estimate-2-walkthrough.pdf` | Estimate 2: DocuSign Integration. Headless e-signature pipeline — send/completion phase flows, both DocuSign sequence diagrams, external integrations, open questions, and data model. |
+| `estimate-2-walkthrough.html` | Standalone HTML source for the above (embedded base64 images). |
 
 ### Still TODO
 
-- Walkthroughs for Estimates 2 (DocuSign), 3b (Data Sources), and 4 (Bespoke Contracts) — reuse the same generator by adding a content module per estimate.
+- Walkthroughs for Estimates 3b (Data Sources) and 4 (Bespoke Contracts) — reuse the same generator by adding a content module per estimate.
 
 ## Scripts
 
