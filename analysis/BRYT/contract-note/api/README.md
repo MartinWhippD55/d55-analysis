@@ -7,6 +7,8 @@ OpenAPI 3.1 specification for the BRYT Contract Note Admin Portal API.
 | File | Description |
 |------|-------------|
 | `contract-note-api.yaml` | OpenAPI 3.1 spec. 26 paths, 38 operations, 35 schemas. |
+| `contract-note-api.html` | Fully self-contained Redoc rendering — spec and runtime both inlined, no network needed. Just open it in a browser. |
+| `build_html.py` | Regenerates the standalone HTML from the YAML (inlines the Redoc runtime + spec). |
 
 ## Scope
 
@@ -37,7 +39,18 @@ python -c "from openapi_spec_validator import validate_spec; import yaml; from p
 
 ## View
 
-Paste the YAML into [editor.swagger.io](https://editor.swagger.io), or render locally with Redoc/Swagger UI, e.g.:
+The easiest option is to open `contract-note-api.html` directly in any browser — it is fully self-contained (spec + Redoc runtime inlined) and needs no server or internet connection.
+
+To regenerate that HTML after editing the YAML:
+
+```
+pip install pyyaml
+python analysis/BRYT/contract-note/api/build_html.py
+```
+
+The builder downloads the Redoc runtime once (cached locally as `_redoc.js`, gitignored) and inlines it along with the spec.
+
+Alternatively, paste the YAML into [editor.swagger.io](https://editor.swagger.io), or preview with Redocly:
 
 ```
 npx @redocly/cli preview-docs analysis/BRYT/contract-note/api/contract-note-api.yaml

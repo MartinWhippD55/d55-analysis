@@ -1,0 +1,4 @@
+# Cached Redoc runtime, re-downloaded by build_html.py when absent
+_redoc.js
+__pycache__/
+*.pyc
