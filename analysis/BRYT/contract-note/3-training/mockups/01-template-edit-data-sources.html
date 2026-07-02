@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Template with Data Sources - Wireframe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Architects Daughter', 'Comic Sans MS', cursive; background: #fff; padding: 32px; font-size: 15px; color: #333; }
+        .wireframe-label { position: fixed; top: 8px; right: 32px; font-size: 11px; color: #bbb; border: 1px dashed #ccc; padding: 4px 10px; border-radius: 3px; }
+        .container { max-width: 1200px; margin: 0 auto; border: 2px solid #333; border-radius: 6px; transform: rotate(-0.3deg); }
+        .header { padding: 18px 24px; border-bottom: 2px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; font-weight: 400; }
+        .btn { background: #fff; color: #333; border: 2px solid #333; padding: 8px 18px; font-size: 15px; font-family: inherit; cursor: pointer; border-radius: 4px; }
+        .btn-sm { border: 1.5px solid #555; background: #fff; padding: 5px 12px; font-size: 13px; font-family: inherit; cursor: pointer; border-radius: 3px; }
+        .btn-danger { border-color: #c44; color: #c44; }
+        .content { display: flex; }
+        .left-panel { width: 280px; padding: 24px; border-right: 1.5px dashed #aaa; }
+        .centre-panel { flex: 1; padding: 24px; border-right: 1.5px dashed #aaa; }
+        .right-panel { width: 280px; padding: 24px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; color: #888; margin-bottom: 4px; }
+        .form-group input, .form-group textarea { width: 100%; border: 1.5px solid #555; padding: 8px 12px; font-family: inherit; font-size: 14px; border-radius: 3px; }
+        .form-group textarea { height: 60px; resize: none; }
+        .section-list { list-style: none; }
+        .section-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1.5px solid #aaa; border-radius: 4px; margin-bottom: 8px; }
+        .section-item .drag { color: #999; font-size: 18px; }
+        .section-item .num { font-size: 14px; border: 1.5px solid #333; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .section-item .name { flex: 1; font-size: 15px; }
+        .section-item .badge { font-size: 11px; color: #888; border: 1px solid #bbb; padding: 2px 6px; border-radius: 3px; }
+        .section-item .actions { display: flex; gap: 6px; }
+        .add-section { display: flex; gap: 10px; margin-top: 16px; }
+        .section-heading { font-size: 14px; color: #888; margin-bottom: 12px; border-bottom: 1px dashed #ccc; padding-bottom: 8px; }
+        .ds-list { list-style: none; margin-top: 12px; }
+        .ds-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1.5px solid #aaa; border-radius: 4px; margin-bottom: 8px; background: #f9f9ff; }
+        .ds-item .ds-icon { font-size: 16px; }
+        .ds-item .ds-name { flex: 1; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px; }
+        .ds-item .ds-cols { font-size: 11px; color: #888; }
+        .ds-item .ds-remove { font-size: 13px; color: #c44; cursor: pointer; border: 1px solid #c44; padding: 2px 8px; border-radius: 3px; }
+        .ds-dep { font-size: 11px; color: #666; margin-top: 4px; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="container">
+        <div class="header">
+            <h1>Edit Template: Pure Certainty HH</h1>
+            <button class="btn">Save Changes</button>
+        </div>
+        <div class="content">
+            <div class="left-panel">
+                <div class="form-group">
+                    <label>Template Name</label>
+                    <input type="text" value="Pure Certainty HH">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea>Fixed HH contract for commercial customers</textarea>
+                </div>
+            </div>
+            <div class="centre-panel">
+                <div class="section-heading">Sections (drag to reorder)</div>
+                <ul class="section-list">
+                    <li class="section-item">
+                        <span class="drag">&#x22EE;&#x22EE;</span>
+                        <span class="num">1</span>
+                        <span class="name">Header</span>
+                        <span class="badge">shared</span>
+                        <div class="actions">
+                            <button class="btn-sm">Edit in Designer</button>
+                            <button class="btn-sm">Remove</button>
+                        </div>
+                    </li>
+                    <li class="section-item">
+                        <span class="drag">&#x22EE;&#x22EE;</span>
+                        <span class="num">2</span>
+                        <span class="name">Contract Summary</span>
+                        <div class="actions">
+                            <button class="btn-sm">Edit in Designer</button>
+                            <button class="btn-sm">Remove</button>
+                        </div>
+                    </li>
+                    <li class="section-item">
+                        <span class="drag">&#x22EE;&#x22EE;</span>
+                        <span class="num">3</span>
+                        <span class="name">Pricing Table</span>
+                        <div class="actions">
+                            <button class="btn-sm">Edit in Designer</button>
+                            <button class="btn-sm">Remove</button>
+                        </div>
+                    </li>
+                    <li class="section-item">
+                        <span class="drag">&#x22EE;&#x22EE;</span>
+                        <span class="num">4</span>
+                        <span class="name">Credit Summary</span>
+                        <span class="badge">shared</span>
+                        <div class="actions">
+                            <button class="btn-sm">Edit in Designer</button>
+                            <button class="btn-sm">Remove</button>
+                        </div>
+                    </li>
+                    <li class="section-item">
+                        <span class="drag">&#x22EE;&#x22EE;</span>
+                        <span class="num">5</span>
+                        <span class="name">Standard T&amp;Cs v6.4</span>
+                        <span class="badge">shared</span>
+                        <div class="actions">
+                            <button class="btn-sm">Edit in Designer</button>
+                            <button class="btn-sm">Remove</button>
+                        </div>
+                    </li>
+                </ul>
+                <div class="add-section">
+                    <button class="btn">+ New Section</button>
+                    <button class="btn">+ Add Shared Section</button>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="section-heading">Data Sources</div>
+                <ul class="ds-list">
+                    <li class="ds-item">
+                        <span class="ds-icon">&#x1F4CA;</span>
+                        <span class="ds-name">credit_data</span>
+                        <span class="ds-cols">3 cols</span>
+                        <span class="ds-remove">&#x2715;</span>
+                    </li>
+                    <li class="ds-item">
+                        <span class="ds-icon">&#x1F4CA;</span>
+                        <span class="ds-name">consumption_forecast</span>
+                        <span class="ds-cols">5 cols</span>
+                        <span class="ds-remove">&#x2715;</span>
+                    </li>
+                </ul>
+                <div class="ds-dep">&#x26A0; "Credit Summary" section requires credit_data</div>
+                <button class="btn" style="margin-top: 16px;">+ Attach Data Source</button>
+
+                <div class="section-heading" style="margin-top: 32px;">Available Fields Preview</div>
+                <div style="font-size: 12px; color: #666; border: 1px dashed #ccc; padding: 10px; border-radius: 4px;">
+                    <strong>credit_data:</strong><br>
+                    &nbsp;&nbsp;credit_score (int)<br>
+                    &nbsp;&nbsp;credit_grade (string)<br>
+                    &nbsp;&nbsp;credit_limit (double)<br><br>
+                    <strong>consumption_forecast:</strong><br>
+                    &nbsp;&nbsp;forecast_annual_kwh (double)<br>
+                    &nbsp;&nbsp;forecast_peak_kw (double)<br>
+                    &nbsp;&nbsp;forecast_method (string)<br>
+                    &nbsp;&nbsp;forecast_date (date)<br>
+                    &nbsp;&nbsp;confidence_pct (int)
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
