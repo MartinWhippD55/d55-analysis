@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rules Configuration - Wireframe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Architects Daughter', 'Comic Sans MS', cursive; background: #fff; padding: 32px; font-size: 15px; color: #333; }
+        .wireframe-label { position: fixed; top: 8px; right: 32px; font-size: 11px; color: #bbb; border: 1px dashed #ccc; padding: 4px 10px; border-radius: 3px; }
+        .container { max-width: 1100px; margin: 0 auto; border: 2px solid #333; border-radius: 6px; transform: rotate(-0.2deg); }
+        .header { padding: 18px 24px; border-bottom: 2px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; font-weight: 400; }
+        .btn { background: #fff; color: #333; border: 2px solid #333; padding: 8px 18px; font-size: 15px; font-family: inherit; cursor: pointer; border-radius: 4px; }
+        .btn-sm { border: 1.5px solid #555; background: #fff; padding: 5px 12px; font-size: 13px; font-family: inherit; cursor: pointer; border-radius: 3px; }
+        .content { display: flex; }
+        .tree-panel { flex: 1; padding: 24px; border-right: 1.5px dashed #aaa; }
+        .edit-panel { width: 300px; padding: 24px; }
+        .tree-heading { font-size: 14px; color: #888; margin-bottom: 16px; border-bottom: 1px dashed #ccc; padding-bottom: 8px; }
+        .tree-node { margin-left: 24px; padding: 8px 0; position: relative; }
+        .tree-node::before { content: ''; position: absolute; left: -16px; top: 0; bottom: 0; border-left: 1.5px solid #aaa; }
+        .tree-node::after { content: ''; position: absolute; left: -16px; top: 20px; width: 12px; border-top: 1.5px solid #aaa; }
+        .tree-root { margin-left: 0; }
+        .tree-root::before, .tree-root::after { display: none; }
+        .node-label { display: inline-block; border: 1.5px solid #333; padding: 6px 14px; border-radius: 4px; font-size: 14px; background: #f9f9f9; }
+        .node-label.operator { font-weight: 400; background: #fff; }
+        .node-label.selected { border-color: #333; background: #eee; border-width: 2.5px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 13px; color: #888; margin-bottom: 4px; }
+        .form-group select, .form-group input { width: 100%; border: 1.5px solid #555; padding: 8px 12px; font-family: inherit; font-size: 14px; border-radius: 3px; background: #fff; }
+        .controls { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+        .footer { padding: 14px 24px; border-top: 2px solid #333; display: flex; gap: 10px; justify-content: flex-end; }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="container">
+        <div class="header">
+            <h1>Rules: Standard Fixed</h1>
+        </div>
+        <div class="content">
+            <div class="tree-panel">
+                <div class="tree-heading">Specification Tree</div>
+                <div class="tree-root">
+                    <div class="node-label operator">AND</div>
+                    <div class="tree-node">
+                        <div class="node-label selected">EQUALS: producttype = "Fixed"</div>
+                    </div>
+                    <div class="tree-node">
+                        <div class="node-label operator">OR</div>
+                        <div class="tree-node">
+                            <div class="node-label">EQUALS: metertype = "NHH"</div>
+                        </div>
+                        <div class="tree-node">
+                            <div class="node-label">IN: tcrband IN ["01", "02", "03"]</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn-sm">+ Logical Operator</button>
+                    <button class="btn-sm">+ Comparison</button>
+                    <button class="btn-sm">Delete Node</button>
+                </div>
+            </div>
+            <div class="edit-panel">
+                <div class="tree-heading">Edit Selected Node</div>
+                <div class="form-group">
+                    <label>Field</label>
+                    <input type="text" value="producttype">
+                </div>
+                <div class="form-group">
+                    <label>Operator</label>
+                    <select><option>EQUALS</option><option>LESS_THAN</option><option>MORE_THAN</option><option>IN</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Value</label>
+                    <input type="text" value="Fixed">
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <button class="btn">Save Rule</button>
+            <button class="btn">Cancel</button>
+        </div>
+    </div>
+</body>
+</html>

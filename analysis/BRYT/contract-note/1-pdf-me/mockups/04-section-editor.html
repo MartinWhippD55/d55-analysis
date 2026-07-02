@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section Editor - Wireframe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Architects Daughter', 'Comic Sans MS', cursive; background: rgba(0,0,0,0.3); padding: 32px; font-size: 15px; color: #333; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .wireframe-label { position: fixed; top: 8px; right: 32px; font-size: 11px; color: #bbb; border: 1px dashed #ccc; padding: 4px 10px; border-radius: 3px; background: #fff; }
+        .modal { width: 1050px; background: #fff; border: 2px solid #333; border-radius: 6px; transform: rotate(-0.2deg); }
+        .modal-header { padding: 16px 24px; border-bottom: 2px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 18px; font-weight: 400; }
+        .btn { background: #fff; color: #333; border: 2px solid #333; padding: 8px 18px; font-size: 15px; font-family: inherit; cursor: pointer; border-radius: 4px; }
+        .modal-body { display: flex; height: 500px; }
+        .toolbar { width: 120px; padding: 16px; border-right: 1.5px dashed #aaa; display: flex; flex-direction: column; gap: 8px; }
+        .tool-btn { border: 1.5px solid #555; background: #fff; padding: 10px; font-size: 13px; font-family: inherit; cursor: pointer; border-radius: 3px; text-align: center; }
+        .canvas { flex: 1; padding: 20px; position: relative; background: #fafafa; border-right: 1.5px dashed #aaa; }
+        .canvas-label { position: absolute; top: 8px; left: 12px; font-size: 11px; color: #aaa; }
+        .pdf-page { width: 100%; height: 100%; border: 1.5px solid #bbb; background: #fff; position: relative; }
+        .field-box { position: absolute; border: 1.5px dashed #555; padding: 6px 10px; font-size: 12px; background: rgba(255,255,255,0.9); cursor: move; }
+        .field-box.selected { border: 2px solid #333; background: #eee; }
+        .properties { width: 220px; padding: 16px; }
+        .prop-heading { font-size: 13px; color: #888; margin-bottom: 12px; border-bottom: 1px dashed #ccc; padding-bottom: 6px; }
+        .prop-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; }
+        .prop-row label { color: #888; }
+        .prop-row input { width: 80px; border: 1.5px solid #555; padding: 4px 8px; font-family: inherit; font-size: 12px; border-radius: 3px; text-align: right; }
+        .modal-footer { padding: 14px 24px; border-top: 2px solid #333; display: flex; gap: 10px; justify-content: flex-end; }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Section Editor: Customer Details</h2>
+        </div>
+        <div class="modal-body">
+            <div class="toolbar">
+                <button class="tool-btn">T Text</button>
+                <button class="tool-btn">{} Multi-Var</button>
+                <button class="tool-btn">Table</button>
+                <hr style="border: none; border-top: 1px dashed #ccc;">
+                <button class="tool-btn">Undo</button>
+                <button class="tool-btn">Redo</button>
+            </div>
+            <div class="canvas">
+                <span class="canvas-label">pdf-me designer canvas</span>
+                <div class="pdf-page">
+                    <div class="field-box selected" style="top: 40px; left: 30px; width: 200px;">customerName</div>
+                    <div class="field-box" style="top: 80px; left: 30px; width: 250px;">registeredAddress</div>
+                    <div class="field-box" style="top: 120px; left: 30px; width: 180px;">primaryContact</div>
+                    <div class="field-box" style="top: 120px; left: 300px; width: 150px;">primaryTelephone</div>
+                    <div class="field-box" style="top: 160px; left: 30px; width: 200px;">primaryEmail</div>
+                    <div class="field-box" style="top: 220px; left: 30px; width: 450px; height: 60px;">companyDetails (multi-variable)</div>
+                </div>
+            </div>
+            <div class="properties">
+                <div class="prop-heading">Properties: customerName</div>
+                <div class="prop-row"><label>Name</label><input value="customerName"></div>
+                <div class="prop-row"><label>X</label><input value="42"></div>
+                <div class="prop-row"><label>Y</label><input value="52"></div>
+                <div class="prop-row"><label>Width</label><input value="100"></div>
+                <div class="prop-row"><label>Height</label><input value="10"></div>
+                <div class="prop-row"><label>Font Size</label><input value="12"></div>
+                <div class="prop-row"><label>Align</label><input value="left"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn">Save Section</button>
+            <button class="btn">Cancel</button>
+        </div>
+    </div>
+</body>
+</html>

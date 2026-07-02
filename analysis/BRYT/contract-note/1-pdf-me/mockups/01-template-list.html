@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Note Templates - Wireframe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Architects Daughter', 'Comic Sans MS', cursive;
+            background: #fff;
+            padding: 32px;
+            font-size: 15px;
+            color: #333;
+        }
+        .wireframe-label {
+            position: fixed;
+            top: 8px;
+            right: 32px;
+            font-size: 11px;
+            color: #bbb;
+            border: 1px dashed #ccc;
+            padding: 4px 10px;
+            border-radius: 3px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            border: 2px solid #333;
+            border-radius: 6px;
+            transform: rotate(-0.3deg);
+        }
+        .header {
+            padding: 18px 24px;
+            border-bottom: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 22px; font-weight: 400; }
+        .btn {
+            background: #fff;
+            color: #333;
+            border: 2px solid #333;
+            padding: 8px 18px;
+            font-size: 15px;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 4px;
+            transform: rotate(0.5deg);
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 400;
+            border-bottom: 2px solid #333;
+            background: #f9f9f9;
+        }
+        td {
+            padding: 14px;
+            border-bottom: 1px dashed #aaa;
+            font-size: 15px;
+            vertical-align: middle;
+        }
+        tr:last-child td { border-bottom: none; }
+        .drag-handle { font-size: 20px; color: #999; }
+        .priority {
+            font-size: 16px;
+            border: 1.5px solid #333;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .template-name { font-size: 16px; }
+        .template-desc { font-size: 13px; color: #888; margin-top: 3px; }
+        .actions { display: flex; gap: 8px; }
+        .btn-sm {
+            border: 1.5px solid #555;
+            background: #fff;
+            padding: 5px 12px;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .note {
+            padding: 14px 24px;
+            border-top: 1.5px dashed #aaa;
+            font-size: 13px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="container">
+        <div class="header">
+            <h1>Contract Note Templates</h1>
+            <button class="btn">+ Create Template</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:40px;"></th>
+                    <th style="width:50px;">#</th>
+                    <th>Template</th>
+                    <th style="width:90px;">Sections</th>
+                    <th style="width:250px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="drag-handle">&#x22EE;&#x22EE;</span></td>
+                    <td><span class="priority">1</span></td>
+                    <td>
+                        <div class="template-name">Standard Fixed</div>
+                        <div class="template-desc">Standard fixed-price contract for NHH meters</div>
+                    </td>
+                    <td>5</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-sm">Rules</button>
+                            <button class="btn-sm">Edit</button>
+                            <button class="btn-sm">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><span class="drag-handle">&#x22EE;&#x22EE;</span></td>
+                    <td><span class="priority">2</span></td>
+                    <td>
+                        <div class="template-name">Pass-Through HH</div>
+                        <div class="template-desc">Half-hourly metered pass-through product</div>
+                    </td>
+                    <td>7</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-sm">Rules</button>
+                            <button class="btn-sm">Edit</button>
+                            <button class="btn-sm">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><span class="drag-handle">&#x22EE;&#x22EE;</span></td>
+                    <td><span class="priority">3</span></td>
+                    <td>
+                        <div class="template-name">Renewal TPI</div>
+                        <div class="template-desc">Renewal contract via Third Party Intermediary</div>
+                    </td>
+                    <td>6</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-sm">Rules</button>
+                            <button class="btn-sm">Edit</button>
+                            <button class="btn-sm">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><span class="drag-handle">&#x22EE;&#x22EE;</span></td>
+                    <td><span class="priority">4</span></td>
+                    <td>
+                        <div class="template-name">New Connection</div>
+                        <div class="template-desc">New supply connection contract</div>
+                    </td>
+                    <td>4</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-sm">Rules</button>
+                            <button class="btn-sm">Edit</button>
+                            <button class="btn-sm">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="note">Drag rows to reorder priority. First matching rule wins during automated processing.</div>
+    </div>
+</body>
+</html>

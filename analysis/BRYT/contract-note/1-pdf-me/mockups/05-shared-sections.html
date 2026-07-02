@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Sections - Wireframe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Architects Daughter', 'Comic Sans MS', cursive; background: #fff; padding: 32px; font-size: 15px; color: #333; }
+        .wireframe-label { position: fixed; top: 8px; right: 32px; font-size: 11px; color: #bbb; border: 1px dashed #ccc; padding: 4px 10px; border-radius: 3px; }
+        .container { max-width: 1100px; margin: 0 auto; border: 2px solid #333; border-radius: 6px; transform: rotate(-0.3deg); }
+        .header { padding: 18px 24px; border-bottom: 2px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; font-weight: 400; }
+        .btn { background: #fff; color: #333; border: 2px solid #333; padding: 8px 18px; font-size: 15px; font-family: inherit; cursor: pointer; border-radius: 4px; }
+        .btn-sm { border: 1.5px solid #555; background: #fff; padding: 5px 12px; font-size: 13px; font-family: inherit; cursor: pointer; border-radius: 3px; }
+        .content { display: flex; }
+        .list-panel { flex: 1; padding: 24px; border-right: 1.5px dashed #aaa; }
+        .detail-panel { width: 350px; padding: 24px; }
+        .section-heading { font-size: 14px; color: #888; margin-bottom: 12px; border-bottom: 1px dashed #ccc; padding-bottom: 8px; }
+        .shared-item { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1.5px solid #aaa; border-radius: 4px; margin-bottom: 8px; cursor: pointer; }
+        .shared-item.selected { border-color: #333; background: #f4f4f4; border-width: 2px; }
+        .shared-item .name { flex: 1; font-size: 15px; }
+        .shared-item .usage { font-size: 12px; color: #888; }
+        .shared-item .actions { display: flex; gap: 6px; }
+        .detail-field { margin-bottom: 14px; }
+        .detail-field label { display: block; font-size: 13px; color: #888; margin-bottom: 2px; }
+        .detail-field .value { font-size: 15px; padding: 6px 0; border-bottom: 1px dashed #ccc; }
+        .detail-templates { margin-top: 16px; }
+        .detail-templates li { font-size: 14px; padding: 4px 0; border-bottom: 1px dashed #eee; list-style: none; }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="container">
+        <div class="header">
+            <h1>Shared Sections</h1>
+            <button class="btn">+ Create Shared Section</button>
+        </div>
+        <div class="content">
+            <div class="list-panel">
+                <div class="section-heading">All Shared Sections</div>
+                <div class="shared-item">
+                    <span class="name">Header</span>
+                    <span class="usage">Used by 4 templates</span>
+                    <div class="actions">
+                        <button class="btn-sm">Edit</button>
+                        <button class="btn-sm">Delete</button>
+                    </div>
+                </div>
+                <div class="shared-item">
+                    <span class="name">Footer</span>
+                    <span class="usage">Used by 4 templates</span>
+                    <div class="actions">
+                        <button class="btn-sm">Edit</button>
+                        <button class="btn-sm">Delete</button>
+                    </div>
+                </div>
+                <div class="shared-item selected">
+                    <span class="name">Standard T&amp;Cs</span>
+                    <span class="usage">Used by 3 templates</span>
+                    <div class="actions">
+                        <button class="btn-sm">Edit</button>
+                        <button class="btn-sm">Delete</button>
+                    </div>
+                </div>
+                <div class="shared-item">
+                    <span class="name">Renewable T&amp;Cs</span>
+                    <span class="usage">Used by 1 template</span>
+                    <div class="actions">
+                        <button class="btn-sm">Edit</button>
+                        <button class="btn-sm">Delete</button>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-panel">
+                <div class="section-heading">Detail: Standard T&amp;Cs</div>
+                <div class="detail-field">
+                    <label>Name</label>
+                    <div class="value">Standard T&amp;Cs</div>
+                </div>
+                <div class="detail-field">
+                    <label>Type</label>
+                    <div class="value">Terms and Conditions</div>
+                </div>
+                <div class="detail-field">
+                    <label>Used by</label>
+                    <ul class="detail-templates">
+                        <li>Standard Fixed</li>
+                        <li>Pass-Through HH</li>
+                        <li>Renewal TPI</li>
+                    </ul>
+                </div>
+                <button class="btn" style="margin-top: 16px;">Edit in Designer</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -11,7 +11,19 @@
         "browser_snapshot",
         "browser_click",
         "browser_evaluate",
-        "browser_take_screenshot"
+        "browser_take_screenshot",
+        "browser_press_key",
+        "browser_wait_for"
+      ]
+    },
+    "excalidraw": {
+      "command": "npx",
+      "args": [
+        "mcp-excalidraw@latest"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "create-excalidraw-diagram"
       ]
     }
   }

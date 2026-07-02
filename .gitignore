@@ -3,3 +3,6 @@
 
 # VS Code settings
 .vscode/
+
+# Reference repos (local copies for context only)
+reference-repos/
