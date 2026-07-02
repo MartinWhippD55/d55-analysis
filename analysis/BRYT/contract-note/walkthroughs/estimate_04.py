@@ -6,13 +6,16 @@ Draws on:
   - analysis/BRYT/contract-note/4-bespoke-contract/mockups/{01-bespoke-list,02-bespoke-editor}.png
 """
 
+import figures as F
+
 MOCKUPS = "4-bespoke-contract/mockups"
+_f = F.FIGURES["est4"]
 
 DOC = {
     "estimate": "4",
     "title": "Bespoke Contracts",
     "subtitle": "Estimate 4 - Technical Walkthrough",
-    "effort": "~7.8 developer days (4.8 required + testing)",
+    "effort": F.effort_line("est4"),
     "date": "July 2026",
     "blocks": [
         # ---------------------------------------------------------------
@@ -214,7 +217,7 @@ DOC = {
         {
             "type": "table",
             "heading": "Delivery breakdown",
-            "intro": "Estimate 4 is ~4.8 required days plus optional testing, ~7.8 days in total. Much of the effort is wiring together existing capabilities.",
+            "intro": f"Estimate 4 is ~{F.fmt(_f.required)} required days plus optional testing, ~{F.fmt(_f.total)} days in total. Much of the effort is wiring together existing capabilities.",
             "columns": ["Area", "Scope"],
             "rows": [
                 ["Pipeline skip", "Salesforce bespoke-flag check (fail-safe), pending record creation, contract data stored for later"],

@@ -64,12 +64,14 @@ All scripts are in `analysis/BRYT/contract-note/`. Run from the repo root.
 
 | Script | Purpose | Usage |
 |--------|---------|-------|
+| `regenerate_all.py` | **Orchestrator.** Regenerates every deliverable (presentation HTML, all walkthroughs + data model, API HTML) from source, in order. Add `--no-pdf` to skip PDF rendering. | `python analysis/BRYT/contract-note/regenerate_all.py` |
+| `figures.py` | **Single source of truth for estimate figures.** Reads the spreadsheet's Task Detail tab and exposes per-estimate day figures. All generators import from here — nothing hardcodes numbers. Run directly to print current figures. | `python analysis/BRYT/contract-note/figures.py` |
 | `generate_estimates.py` | Parses all task files from `.kiro/specs/` and generates the estimates spreadsheet with auto-calculated weights. | `python analysis/BRYT/contract-note/generate_estimates.py` |
 | `rebuild_summary.py` | Rebuilds the Summary sheet with SUMIFS formulas driven from the Task Detail sheet. Run after manually editing the spreadsheet structure. | `python analysis/BRYT/contract-note/rebuild_summary.py` |
-| `read_estimates.py` | Reads the current spreadsheet and prints the updated figures to the console. Useful after manual edits to verify totals. | `python analysis/BRYT/contract-note/read_estimates.py` |
-| `build_standalone_html.py` | Generates the standalone HTML presentation with embedded base64 images (D55 + Bryt logos, background). Output: `outputs/presentation-preview.html`. | `python analysis/BRYT/contract-note/build_standalone_html.py` |
-| `generate_presentation.py` | Generates the .pptx PowerPoint file using python-pptx and the D55 template. | `python analysis/BRYT/contract-note/generate_presentation.py` |
-| `walkthroughs/build_walkthrough.py` | Reusable engine that renders a per-estimate walkthrough (branded HTML + PDF) from a content module. Add `--no-pdf` to skip PDF rendering. | `python analysis/BRYT/contract-note/walkthroughs/build_walkthrough.py estimate_01` |
+| `read_estimates.py` | Reads the current spreadsheet and prints the updated figures to the console. | `python analysis/BRYT/contract-note/read_estimates.py` |
+| `build_standalone_html.py` | Generates the standalone HTML presentation with embedded base64 images. Figures read from `figures.py`. Output: `outputs/presentation-preview.html`. | `python analysis/BRYT/contract-note/build_standalone_html.py` |
+| `generate_presentation.py` | Generates the .pptx PowerPoint (not part of `regenerate_all.py`; run separately if needed). Figures read from `figures.py`. | `python analysis/BRYT/contract-note/generate_presentation.py` |
+| `walkthroughs/build_walkthrough.py` | Reusable engine that renders a walkthrough (branded HTML + PDF) from a content module. Add `--no-pdf` to skip PDF rendering. | `python analysis/BRYT/contract-note/walkthroughs/build_walkthrough.py estimate_01` |
 
 ### Dependencies
 
@@ -80,8 +82,10 @@ python -m playwright install chromium   # one-time, for PDF walkthrough renderin
 
 ### Workflow
 
-1. Edit task days in the spreadsheet (`Task Detail` tab) → Summary auto-updates
-2. Run `read_estimates.py` to verify totals
-3. Update figures in `build_standalone_html.py` if they've changed
-4. Run `build_standalone_html.py` to regenerate the HTML presentation
-5. Optionally run `generate_presentation.py` to regenerate the .pptx
+Estimate figures flow from a single source — the spreadsheet's `Task Detail` tab — through `figures.py` into every generated document. To update figures after a technical discussion:
+
+1. Edit task days / optional flags in the spreadsheet (`Task Detail` tab) and save. (Estimate 3a has no task breakdown; edit its row on the `Summary` sheet.)
+2. Run `python analysis/BRYT/contract-note/figures.py` to verify the new totals.
+3. Run `python analysis/BRYT/contract-note/regenerate_all.py` to rebuild every deliverable with the updated figures.
+
+That's it — no hand-editing of numbers in any generator. The `.pptx` is regenerated separately via `generate_presentation.py` if required.

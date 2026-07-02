@@ -1,7 +1,15 @@
 """
 Build standalone HTML presentation with embedded base64 images.
+
+Estimate figures are read from the shared `figures` module (single source of
+truth: the estimates spreadsheet), not hardcoded.
 """
 import base64
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import figures as F  # noqa: E402
 
 # Encode assets
 with open('analysis/BRYT/contract-note/assets/d55-logo-white.png', 'rb') as f:
@@ -207,13 +215,13 @@ html = f'''<!DOCTYPE html>
             </tr>
         </thead>
         <tbody>
-            <tr><td>1. PDF / Template Management</td><td>9.0</td><td>13.5</td></tr>
-            <tr><td>2. DocuSign Integration</td><td>4.1</td><td>7.1</td></tr>
-            <tr><td>3a. Training &amp; Enablement</td><td>8.0</td><td>8.0</td></tr>
-            <tr><td>3b. Data Source Extensibility</td><td>6.4</td><td>8.9</td></tr>
-            <tr><td>4. Bespoke Contracts</td><td>4.8</td><td>7.8</td></tr>
-            <tr><td>5. Comparison Audit</td><td>12.4</td><td>12.4</td></tr>
-            <tr><td>TOTAL</td><td>44.6</td><td>57.6</td></tr>
+            <tr><td>1. PDF / Template Management</td><td>{F.fmt(F.FIGURES['est1'].required)}</td><td>{F.fmt(F.FIGURES['est1'].total)}</td></tr>
+            <tr><td>2. DocuSign Integration</td><td>{F.fmt(F.FIGURES['est2'].required)}</td><td>{F.fmt(F.FIGURES['est2'].total)}</td></tr>
+            <tr><td>3a. Training &amp; Enablement</td><td>{F.fmt(F.FIGURES['est3a'].required)}</td><td>{F.fmt(F.FIGURES['est3a'].total)}</td></tr>
+            <tr><td>3b. Data Source Extensibility</td><td>{F.fmt(F.FIGURES['est3b'].required)}</td><td>{F.fmt(F.FIGURES['est3b'].total)}</td></tr>
+            <tr><td>4. Bespoke Contracts</td><td>{F.fmt(F.FIGURES['est4'].required)}</td><td>{F.fmt(F.FIGURES['est4'].total)}</td></tr>
+            <tr><td>5. Comparison Audit</td><td>{F.fmt(F.FIGURES['est5'].required)}</td><td>{F.fmt(F.FIGURES['est5'].total)}</td></tr>
+            <tr><td>TOTAL</td><td>{F.fmt(F.grand_total().required)}</td><td>{F.fmt(F.grand_total().total)}</td></tr>
         </tbody>
     </table>
     <span class="slide-number">2 / 8</span>
@@ -223,7 +231,7 @@ html = f'''<!DOCTYPE html>
 <div class="slide slide-content">
     <img src="{logo_uri}" class="logo" alt="D55">
     <h2>Est 1: PDF / Template Management</h2>
-    <div class="hero-figure">~13.5 days</div>
+    <div class="hero-figure">~{F.fmt(F.FIGURES['est1'].total)} days</div>
     <ul>
         <li>Self-service template editor replacing the current developer-dependent pipeline</li>
         <li>Visual section editor (pdf-me) embedded in the Admin Portal</li>
@@ -239,7 +247,7 @@ html = f'''<!DOCTYPE html>
 <div class="slide slide-content">
     <img src="{logo_uri}" class="logo" alt="D55">
     <h2>Est 2: DocuSign Integration</h2>
-    <div class="hero-figure">~7.1 days</div>
+    <div class="hero-figure">~{F.fmt(F.FIGURES['est2'].total)} days</div>
     <ul>
         <li>Automated e-signature: PDF rendered &rarr; sent for signing &rarr; signed copy to Salesforce</li>
         <li>S3 trigger fires when contract note PDF is generated</li>
@@ -254,10 +262,10 @@ html = f'''<!DOCTYPE html>
 <div class="slide slide-content">
     <img src="{logo_uri}" class="logo" alt="D55">
     <h2>Est 3: Training &amp; Data Sources</h2>
-    <div class="hero-figure">~16.9 days</div>
+    <div class="hero-figure">~{F.fmt(F.FIGURES['est3'].total)} days</div>
     <ul>
-        <li><strong style="color:#5dade2">3a. Training &amp; Enablement (8 days):</strong> Quick-start guide, how-to guides, field reference, rules cheat sheet</li>
-        <li><strong style="color:#5dade2">3b. Data Source Extensibility (8.9 days):</strong></li>
+        <li><strong style="color:#5dade2">3a. Training &amp; Enablement ({F.fmt(F.FIGURES['est3a'].total)} days):</strong> Quick-start guide, how-to guides, field reference, rules cheat sheet</li>
+        <li><strong style="color:#5dade2">3b. Data Source Extensibility ({F.fmt(F.FIGURES['est3b'].total)} days):</strong></li>
         <li>Subscribe data sources in SageMaker Unified Studio &rarr; auto-discovered via Glue</li>
         <li>Attached to templates, enriched at render time via Athena (keyed on BrytNumber)</li>
         <li>Fields appear in the section editor for drag-and-drop use</li>
@@ -270,7 +278,7 @@ html = f'''<!DOCTYPE html>
 <div class="slide slide-content">
     <img src="{logo_uri}" class="logo" alt="D55">
     <h2>Est 4: Bespoke Contracts</h2>
-    <div class="hero-figure">~7.8 days</div>
+    <div class="hero-figure">~{F.fmt(F.FIGURES['est4'].total)} days</div>
     <ul>
         <li>One-off contract notes for VIP/non-standard customers</li>
         <li>Pipeline skips bespoke-flagged customers automatically</li>
@@ -286,7 +294,7 @@ html = f'''<!DOCTYPE html>
 <div class="slide slide-content">
     <img src="{logo_uri}" class="logo" alt="D55">
     <h2>Est 5: Comparison Audit</h2>
-    <div class="hero-figure">~12.4 days</div>
+    <div class="hero-figure">~{F.fmt(F.FIGURES['est5'].total)} days</div>
     <ul>
         <li>Detect PDF tampering: compare rendered original vs what was actually sent</li>
         <li>Step Function batch pipeline (ad-hoc, e.g. monthly)</li>
@@ -302,7 +310,7 @@ html = f'''<!DOCTYPE html>
 <div class="slide slide-content">
     <img src="{logo_uri}" class="logo" alt="D55">
     <h2>Next Steps</h2>
-    <div class="hero-figure">~58 developer days total</div>
+    <div class="hero-figure">~{F.fmt(F.grand_total().total)} developer days total</div>
     <ul>
         <li>Resolve open questions (11 items for client confirmation)</li>
         <li>Prioritise delivery order (estimates are sequential by default)</li>

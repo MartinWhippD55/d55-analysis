@@ -130,6 +130,32 @@ figure.flow { margin: 12px 0 6px; page-break-inside: avoid; }
 }
 .pipeline .step-arrow { color: #5dade2; font-size: 11pt; align-self: center; }
 
+/* Entity (DynamoDB record) definitions */
+.table-name { font-size: 10pt; color: #23232f; margin-bottom: 14px; }
+.table-name code { background: #1a0a3e; color: #d7ecfa; padding: 2px 8px; border-radius: 3px; font-size: 9.5pt; }
+.entity {
+    border: 1px solid #d8d8e6; border-radius: 6px; padding: 12px 14px;
+    margin-bottom: 14px; page-break-inside: avoid; background: #fcfcfe;
+}
+.entity h3 { margin-bottom: 8px; }
+.entity .keys { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.entity .key {
+    display: inline-flex; align-items: stretch; border-radius: 4px; overflow: hidden;
+    border: 1px solid #5dade2; font-size: 9pt;
+}
+.entity .key-label {
+    background: #5dade2; color: #fff; font-weight: 700; padding: 3px 8px;
+    display: flex; align-items: center;
+}
+.entity .key code { padding: 3px 9px; color: #1a0a3e; background: #eaf4fb; display: flex; align-items: center; }
+.entity .entity-note { font-size: 9.5pt; color: #55556a; margin-bottom: 8px; }
+code { font-family: 'Consolas', 'Monaco', monospace; }
+table.attr-table { font-size: 9pt; }
+table.attr-table td code { font-size: 8.5pt; color: #0a4a8c; }
+table.attr-table td.type { color: #6a6a80; font-style: italic; white-space: nowrap; }
+.gsi-block { margin-top: 6px; page-break-inside: avoid; }
+.gsi-block table code { font-size: 8.5pt; color: #0a4a8c; }
+
 .section-break { page-break-before: always; }
 
 /* Page-break control: keep headings with their content, avoid awkward splits */

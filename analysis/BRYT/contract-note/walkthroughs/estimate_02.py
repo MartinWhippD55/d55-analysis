@@ -11,13 +11,16 @@ Note: Estimate 2 is a headless, event-driven pipeline with no Admin Portal UI,
 so there are no screen mockups. The two flow diagrams carry the visual load.
 """
 
+import figures as F
+
 DOCUSIGN_DIR = "2-docusign"
+_f = F.FIGURES["est2"]
 
 DOC = {
     "estimate": "2",
     "title": "DocuSign Integration",
     "subtitle": "Estimate 2 - Technical Walkthrough",
-    "effort": "~7.1 developer days (4.1 required + testing)",
+    "effort": F.effort_line("est2"),
     "date": "July 2026",
     "blocks": [
         # ---------------------------------------------------------------
@@ -218,7 +221,7 @@ DOC = {
         {
             "type": "table",
             "heading": "Delivery breakdown",
-            "intro": "Estimate 2 is ~4.1 required days plus optional testing, ~7.1 days in total. Work is grouped as follows.",
+            "intro": f"Estimate 2 is ~{F.fmt(_f.required)} required days plus optional testing, ~{F.fmt(_f.total)} days in total. Work is grouped as follows.",
             "columns": ["Area", "Scope"],
             "rows": [
                 ["Infrastructure & utilities", "DynamoDB table + GSI, signed-docs S3 bucket, API Gateway webhook route, Secrets Manager, IAM, retry + error-record utilities"],

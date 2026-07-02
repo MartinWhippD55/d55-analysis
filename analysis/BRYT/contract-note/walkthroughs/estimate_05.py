@@ -10,11 +10,15 @@ Admin Portal UI, so there are no screen mockups. CSS-rendered flow diagrams
 carry the visual load.
 """
 
+import figures as F
+
+_f = F.FIGURES["est5"]
+
 DOC = {
     "estimate": "5",
     "title": "Comparison Audit",
     "subtitle": "Estimate 5 - Technical Walkthrough",
-    "effort": "~12.4 developer days (incl. prompt iteration)",
+    "effort": f"~{F.fmt(_f.total)} developer days (incl. prompt iteration)",
     "date": "July 2026",
     "blocks": [
         # ---------------------------------------------------------------
@@ -204,7 +208,7 @@ DOC = {
         {
             "type": "table",
             "heading": "Delivery breakdown",
-            "intro": "Estimate 5 is ~12.4 days. Unlike the others, a large share is prompt iteration and analysis rather than pure build.",
+            "intro": f"Estimate 5 is ~{F.fmt(_f.total)} days. Unlike the others, a large share is prompt iteration and analysis rather than pure build.",
             "columns": ["Area", "Scope"],
             "rows": [
                 ["Infrastructure", "Step Function, the six Lambdas, results S3 bucket, Secrets Manager, SSM prompt parameter, IAM, Athena/Glue table"],

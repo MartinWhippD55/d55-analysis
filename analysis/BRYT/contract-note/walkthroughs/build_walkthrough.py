@@ -512,6 +512,7 @@ def main():
     make_pdf = "--no-pdf" not in sys.argv
 
     sys.path.insert(0, str(Path(__file__).parent))
+    sys.path.insert(0, str(ROOT))  # so content modules can `import figures`
     content = importlib.import_module(module_name)
     doc = content.DOC
 

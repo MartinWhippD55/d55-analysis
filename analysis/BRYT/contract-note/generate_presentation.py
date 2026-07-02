@@ -1,11 +1,20 @@
 """
 Generate BRYT Contract Note Rework presentation using D55 template.
 Slim exec-level deck: 8 slides total.
+
+Estimate figures are read from the shared `figures` module (single source of
+truth: the estimates spreadsheet), not hardcoded.
 """
+import sys
+from pathlib import Path
+
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import figures as F  # noqa: E402
 
 # Load D55 template
 template_path = 'analysis/D55/ai-dlc/assets/powerpoint/D55_Deck_Visual_NO ANIMATION Template (1).pptx'
@@ -87,14 +96,15 @@ for col_idx, h in enumerate(['Estimate', 'Days (req)', 'Days (total)']):
     cell.fill.solid()
     cell.fill.fore_color.rgb = RGBColor(0x1F, 0x4E, 0x79)
 
+_gt = F.grand_total()
 data = [
-    ('1. PDF / Template Management', '9.0', '13.5'),
-    ('2. DocuSign Integration', '4.1', '7.1'),
-    ('3a. Training & Enablement', '8.0', '8.0'),
-    ('3b. Data Source Extensibility', '6.4', '8.9'),
-    ('4. Bespoke Contracts', '4.8', '7.8'),
-    ('5. Comparison Audit', '12.4', '12.4'),
-    ('TOTAL', '44.6', '57.6'),
+    ('1. PDF / Template Management', F.fmt(F.FIGURES['est1'].required), F.fmt(F.FIGURES['est1'].total)),
+    ('2. DocuSign Integration', F.fmt(F.FIGURES['est2'].required), F.fmt(F.FIGURES['est2'].total)),
+    ('3a. Training & Enablement', F.fmt(F.FIGURES['est3a'].required), F.fmt(F.FIGURES['est3a'].total)),
+    ('3b. Data Source Extensibility', F.fmt(F.FIGURES['est3b'].required), F.fmt(F.FIGURES['est3b'].total)),
+    ('4. Bespoke Contracts', F.fmt(F.FIGURES['est4'].required), F.fmt(F.FIGURES['est4'].total)),
+    ('5. Comparison Audit', F.fmt(F.FIGURES['est5'].required), F.fmt(F.FIGURES['est5'].total)),
+    ('TOTAL', F.fmt(_gt.required), F.fmt(_gt.total)),
 ]
 
 for row_idx, row_data in enumerate(data, 1):
@@ -116,7 +126,7 @@ for ph in slide.placeholders:
         set_text(ph.text_frame, "Est 1: PDF / Template Management", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
         add_body_lines(ph.text_frame, [
-            "~13.5 days",
+            f"~{F.fmt(F.FIGURES['est1'].total)} days",
             "",
             "Self-service template editor replacing the current developer-dependent pipeline.",
             "",
@@ -137,7 +147,7 @@ for ph in slide.placeholders:
         set_text(ph.text_frame, "Est 2: DocuSign Integration", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
         add_body_lines(ph.text_frame, [
-            "~7.1 days",
+            f"~{F.fmt(F.FIGURES['est2'].total)} days",
             "",
             "Automated e-signature: PDF rendered > sent for signing > signed copy to Salesforce.",
             "",
@@ -157,12 +167,12 @@ for ph in slide.placeholders:
         set_text(ph.text_frame, "Est 3: Training & Data Sources", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
         add_body_lines(ph.text_frame, [
-            "~16.9 days (8.0 + 8.9)",
+            f"~{F.fmt(F.FIGURES['est3'].total)} days ({F.fmt(F.FIGURES['est3a'].total)} + {F.fmt(F.FIGURES['est3b'].total)})",
             "",
-            "3a. Training & Enablement (8 days)",
+            f"3a. Training & Enablement ({F.fmt(F.FIGURES['est3a'].total)} days)",
             "Quick-start guide, how-to guides, field reference, cheat sheets",
             "",
-            "3b. Data Source Extensibility (8.9 days)",
+            f"3b. Data Source Extensibility ({F.fmt(F.FIGURES['est3b'].total)} days)",
             "Subscribe data sources in SageMaker Unified Studio",
             "Auto-discovered via Glue Catalog, attached to templates",
             "Athena enrichment at render time (keyed on BrytNumber)",
@@ -179,7 +189,7 @@ for ph in slide.placeholders:
         set_text(ph.text_frame, "Est 4: Bespoke Contracts", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
         add_body_lines(ph.text_frame, [
-            "~7.8 days",
+            f"~{F.fmt(F.FIGURES['est4'].total)} days",
             "",
             "One-off contract notes for VIP/non-standard customers.",
             "",
@@ -200,7 +210,7 @@ for ph in slide.placeholders:
         set_text(ph.text_frame, "Est 5: Comparison Audit", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
         add_body_lines(ph.text_frame, [
-            "~12.4 days",
+            f"~{F.fmt(F.FIGURES['est5'].total)} days",
             "",
             "Detect PDF tampering: compare rendered original vs what was actually sent.",
             "",
@@ -222,7 +232,7 @@ for ph in slide.placeholders:
         set_text(ph.text_frame, "Next Steps", size=22, bold=True)
     elif ph.placeholder_format.idx == 1:
         add_body_lines(ph.text_frame, [
-            "Total: ~58 developer days",
+            f"Total: ~{F.fmt(F.grand_total().total)} developer days",
             "",
             "Resolve open questions (11 items for client confirmation)",
             "Prioritise delivery order (estimates are sequential by default)",

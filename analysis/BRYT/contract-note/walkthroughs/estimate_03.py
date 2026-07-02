@@ -11,13 +11,18 @@ Draws on:
   - analysis/BRYT/contract-note/3-training/mockups/01-template-edit-data-sources.png
 """
 
+import figures as F
+
 MOCKUPS = "3-training/mockups"
+_3a = F.FIGURES["est3a"]
+_3b = F.FIGURES["est3b"]
+_3 = F.FIGURES["est3"]
 
 DOC = {
     "estimate": "3",
     "title": "Training & Data Sources",
     "subtitle": "Estimate 3 - Technical Walkthrough",
-    "effort": "~16.9 developer days (3a: 8.0 + 3b: 8.9)",
+    "effort": f"~{F.fmt(_3.total)} developer days (3a: {F.fmt(_3a.total)} + 3b: {F.fmt(_3b.total)})",
     "date": "July 2026",
     "blocks": [
         # ---------------------------------------------------------------
@@ -36,7 +41,7 @@ DOC = {
         # ---------------------------------------------------------------
         {
             "type": "section",
-            "heading": "3a. Training & Enablement (~8 days)",
+            "heading": f"3a. Training & Enablement (~{F.fmt(_3a.total)} days)",
             "body": [
                 "This part is a documentation and enablement effort rather than software. The goal is to get a "
                 "small team of business users (roughly 2-5 people) productive on the template management system "
@@ -236,7 +241,7 @@ DOC = {
             "type": "table",
             "heading": "Delivery breakdown (3b)",
             "pageBreak": True,
-            "intro": "Estimate 3b is ~6.4 required days plus optional testing, ~8.9 days in total. Part 3a adds ~8 days of training/enablement effort.",
+            "intro": f"Estimate 3b is ~{F.fmt(_3b.required)} required days plus optional testing, ~{F.fmt(_3b.total)} days in total. Part 3a adds ~{F.fmt(_3a.total)} days of training/enablement effort.",
             "columns": ["Area", "Scope"],
             "rows": [
                 ["Infrastructure & IAM", "Project role trust policy for Lambda assumption, Athena workgroup + results bucket, DynamoDB record types"],

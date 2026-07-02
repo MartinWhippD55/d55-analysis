@@ -6,13 +6,16 @@ Draws on:
   - analysis/BRYT/contract-note/1-pdf-me/screen-mockups.md + mockups/*.png
 """
 
+import figures as F
+
 MOCKUPS = "1-pdf-me/mockups"
+_f = F.FIGURES["est1"]
 
 DOC = {
     "estimate": "1",
     "title": "PDF / Template Management",
     "subtitle": "Estimate 1 - Technical Walkthrough",
-    "effort": "~13.5 developer days (9.0 required + testing)",
+    "effort": F.effort_line("est1"),
     "date": "July 2026",
     "blocks": [
         # ---------------------------------------------------------------
@@ -322,7 +325,7 @@ DOC = {
             "type": "table",
             "heading": "Delivery breakdown",
             "pageBreak": True,
-            "intro": "Estimate 1 is ~9.0 required days plus optional testing, ~13.5 days in total. Work is grouped as follows.",
+            "intro": f"Estimate 1 is ~{F.fmt(_f.required)} required days plus optional testing, ~{F.fmt(_f.total)} days in total. Work is grouped as follows.",
             "columns": ["Area", "Scope"],
             "rows": [
                 ["Infrastructure & types", "DynamoDB table + GSI, S3 buckets, API Gateway routes, shared TypeScript types, rule validation"],
