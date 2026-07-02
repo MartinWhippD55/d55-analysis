@@ -113,3 +113,4 @@ The radar chart gap analysis drives a recommendation into one (or more) of these
 | 2026-07-01 | Use SUS service catalogue and value prop canvas as structural examples | Rhys |
 | 2026-07-01 | Engagement models: DSD (pure consultancy, ~£50k), Workshops (modular, ~£5-15k each), Embedded team (FDEs, per engineer/month), Runbook asset | Rhys + Martin |
 | 2026-07-01 | Rhys feedback: the use case IS AI DLC — not general AI maturity, not AI product use cases. It's specifically "how do we use AI for development?" Dimensions reshaped accordingly. | Rhys |
+| 2026-07-02 | Rhys feedback: the service needs to go up a level. The assessment workshop is Phase 1 of a larger AI-DLC programme. The programme includes workshops per dimension, embedded prove-it, rollout, and a runbook as the customer asset. | Rhys |
