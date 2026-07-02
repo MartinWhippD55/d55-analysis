@@ -1166,6 +1166,22 @@ components:
         - $ref: '#/components/schemas/NotNode'
         - $ref: '#/components/schemas/ComparisonNode'
         - $ref: '#/components/schemas/InNode'
+      example:
+        type: AND
+        leftOperand:
+          type: EQUALS
+          field: offer.producttype
+          value: Fixed
+        rightOperand:
+          type: OR
+          leftOperand:
+            type: IN
+            field: offer.region
+            values: [North, South]
+          rightOperand:
+            type: MORE_THAN
+            field: offer.mpancount
+            value: 5
     AndOrNode:
       type: object
       required: [type, leftOperand, rightOperand]
@@ -1173,12 +1189,19 @@ components:
         type: { type: string, enum: [AND, OR] }
         leftOperand: { $ref: '#/components/schemas/Specification' }
         rightOperand: { $ref: '#/components/schemas/Specification' }
+      example:
+        type: AND
+        leftOperand: { type: EQUALS, field: offer.producttype, value: Fixed }
+        rightOperand: { type: MORE_THAN, field: offer.mpancount, value: 5 }
     NotNode:
       type: object
       required: [type, operand]
       properties:
         type: { type: string, enum: [NOT] }
         operand: { $ref: '#/components/schemas/Specification' }
+      example:
+        type: NOT
+        operand: { type: EQUALS, field: offer.region, value: North }
     ComparisonNode:
       type: object
       required: [type, field, value]
@@ -1189,6 +1212,10 @@ components:
           oneOf:
             - { type: string }
             - { type: number }
+      example:
+        type: EQUALS
+        field: offer.producttype
+        value: Fixed
     InNode:
       type: object
       required: [type, field, values]
@@ -1201,6 +1228,10 @@ components:
             oneOf:
               - { type: string }
               - { type: number }
+      example:
+        type: IN
+        field: offer.region
+        values: [North, South]
 
     # ------------------------------------------------------------- estimate 3b
     AvailableDataSource:
