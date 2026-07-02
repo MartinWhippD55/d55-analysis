@@ -12,3 +12,10 @@ Questions that need answers from BRYT before or during implementation.
 | 4 | Is an Admin Portal UI needed for envelope status tracking (sent/viewed/signed/declined)? | Assumption: No UI in this phase. Backend stores envelope metadata in DynamoDB for developer debugging, but no user-facing status screen. Signed PDF landing in Salesforce is the only visible outcome. | 🔴 Open |
 | 5 | What Salesforce object does `customersalesforceref` map to? (Account? Opportunity? Custom object?) | Needed at implementation time to know where the signed PDF gets attached. Doesn't affect the overall architecture. | 🔴 Open |
 | 6 | Are voided envelopes, resend, and reminder functionality out of scope for this phase? | Assumption: out of scope. We handle completed, declined, and expired statuses only. No automated retry or manual resend capability. Can be added in a future phase if needed. | 🔴 Open |
+
+## Estimate 4 - Bespoke Contracts
+
+| # | Question | Context | Status |
+|---|----------|---------|--------|
+| 7 | Should bespoke contract notes also flow through DocuSign (via a manual "Send via DocuSign" button)? | Assumption: yes, reuse the same DocuSign integration from Estimate 2 but triggered manually from the bespoke contract UI rather than automatically. | 🔴 Open |
+| 8 | How is a customer identified as requiring a bespoke contract? | Assumption: a Salesforce field (e.g., `requires_bespoke_contract`) flags the customer. Pipeline skips these entirely. | 🔴 Open |

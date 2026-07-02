@@ -168,6 +168,9 @@ graph TD
 | PUT | /contract-note-templates/{id}/sections/reorder | reorder-sections | Reorders sections within template |
 | GET | /contract-note-sections/{id}/schema | get-section-schema | Returns schema JSON from S3 |
 | PUT | /contract-note-sections/{id}/schema | save-section-schema | Saves schema JSON to S3 |
+| GET | /contract-note-sections/{id}/versions | list-section-versions | Returns version history for a section |
+| GET | /contract-note-sections/{id}/versions/{versionId} | get-section-version | Returns a specific historical version's schema |
+| POST | /contract-note-sections/{id}/versions/{versionId}/revert | revert-section-version | Creates a new version from a historical version |
 | GET | /contract-note-sections/shared | list-shared-sections | Lists all shared sections |
 | POST | /contract-note-sections/shared | create-shared-section | Creates a new shared section |
 | PUT | /contract-note-sections/shared/{id} | update-shared-section | Updates shared section metadata |
@@ -267,6 +270,30 @@ Single-table design with PK/SK pattern.
 | SK | String | `REF#{templateId}` |
 | templateId | String | Template using this shared section |
 | templateName | String | Denormalised for display |
+
+#### Section Version Record
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| PK | String | `SECTION_VERSION#{sectionId}` |
+| SK | String | `VERSION#{timestamp}` |
+| versionId | String | UUID |
+| sectionId | String | Section this version belongs to |
+| schemaS3Key | String | S3 key for this version's schema JSON |
+| createdAt | String | ISO 8601 timestamp |
+| createdBy | String | Cognito username |
+| description | String | (optional) Change description |
+
+#### Template Change Log Record
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| PK | String | `TEMPLATE#{templateId}` |
+| SK | String | `CHANGELOG#{timestamp}` |
+| changeType | String | section-added, section-removed, section-reordered, metadata-updated, rule-updated |
+| description | String | Human-readable description of the change |
+| createdAt | String | ISO 8601 timestamp |
+| createdBy | String | Cognito username |
 
 #### Rule Record
 
@@ -582,6 +609,24 @@ interface SharedSection {
 *For any* contract note processing that fails at any stage, the output S3 bucket SHALL NOT contain a file for that contract note.
 
 **Validates: Requirements 14.4**
+
+### Property 28: Section save creates a new version
+
+*For any* section save operation, the system SHALL create a new version record and preserve the previous version's schema JSON. The version count SHALL increase by exactly 1.
+
+**Validates: Requirements 16.1, 16.5**
+
+### Property 29: Section version revert creates new version (not destructive)
+
+*For any* revert operation to a historical version V, the system SHALL create a new version N+1 with the content of version V, and all intermediate versions SHALL remain accessible.
+
+**Validates: Requirements 16.4**
+
+### Property 30: Template change log records all modifications
+
+*For any* template modification (section add/remove/reorder, metadata update, rule change), the system SHALL record a change log entry with timestamp and user.
+
+**Validates: Requirements 17.1, 17.2**
 
 ## Error Handling
 

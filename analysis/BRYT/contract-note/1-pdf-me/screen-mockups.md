@@ -36,15 +36,18 @@ Editing a template's metadata and composing its sections.
 **Layout:**
 - Left panel: Template Details (Name, Description, Save Changes button)
 - Centre panel: Sections list (ordered, drag to reorder)
-  - Each row: #, Section Name, "(shared)" badge if applicable, Edit in Designer button, Remove button
+  - Each row: #, Section Name, "(shared)" badge if applicable, Edit in Designer button, History button, Remove button
 - Right panel: Add Section controls ([+ New Section], [+ Add Shared Section])
+- Bottom panel: Template Change Log (collapsible, shows chronological list of changes with timestamp + user)
 
 **Key interactions:**
 - Drag to reorder sections
 - "Edit in Designer" opens the pdf-me Section Editor Modal
+- "History" opens the section version history panel (list of versions with timestamp, user, and Revert button)
 - "Add Shared Section" opens a picker from the Shared Sections Library
 - Shared sections show a badge indicating they're shared
 - T&Cs sections automatically positioned at the end
+- Change log shows who changed what and when (section added, removed, reordered, metadata updated)
 
 ---
 

@@ -103,10 +103,16 @@ Implement a template management system within the BrytAdminPortal enabling busin
 
   - [ ] 3.5 Implement `get-section-schema` and `save-section-schema` handlers
     - GET: Read schema JSON from S3 at the section's schemaS3Key, return as JSON
-    - PUT: Validate schema JSON structure, write to S3
-    - _Requirements: 7.1, 7.3_
+    - PUT: Validate schema JSON structure, write to S3, create a new Section Version Record in DynamoDB with timestamp and user
+    - _Requirements: 7.1, 7.3, 16.1_
 
-  - [ ] 3.6 Implement shared section CRUD handlers
+  - [ ] 3.6 Implement section version history handlers
+    - `list-section-versions`: Query version records by PK `SECTION_VERSION#{sectionId}` ordered by timestamp descending
+    - `get-section-version`: Fetch a specific version's schema JSON from S3 using the version's schemaS3Key
+    - `revert-section-version`: Create a new version with the content of the specified historical version (non-destructive)
+    - _Requirements: 16.2, 16.3, 16.4, 16.5_
+
+  - [ ] 3.7 Implement shared section CRUD handlers
     - `list-shared-sections`: Return all shared sections with reference counts
     - `create-shared-section`: Create shared section record, support T&C designation
     - `update-shared-section`: Update metadata (name, isTermsAndConditions)
@@ -114,7 +120,12 @@ Implement a template management system within the BrytAdminPortal enabling busin
     - `get-shared-section-refs`: Return list of templates referencing this shared section
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 9.1, 9.4_
 
-  - [ ]* 3.7 Write property tests for section API logic
+  - [ ] 3.8 Implement template change log
+    - Write a change log record when sections are added, removed, reordered, or when template metadata/rules are updated
+    - `list-template-changelog`: Query changelog records by PK `TEMPLATE#{id}` SK begins_with `CHANGELOG#` ordered by timestamp descending
+    - _Requirements: 17.1, 17.2, 17.3_
+
+  - [ ]* 3.9 Write property tests for section API logic
     - **Property 7: Sections returned in sort order**
     - **Property 11: Section addition appends to end**
     - **Property 12: Section removal maintains contiguous order**
@@ -125,7 +136,10 @@ Implement a template management system within the BrytAdminPortal enabling busin
     - **Property 17: Shared section edit propagation**
     - **Property 18: Shared section reference tracking**
     - **Property 19: Referenced shared section deletion protection**
-    - **Validates: Requirements 3.3, 6.1, 6.2, 6.4, 6.5, 7.1, 7.3, 8.1, 8.2, 8.3, 8.4, 9.1, 9.2, 9.4**
+    - **Property 28: Section save creates a new version**
+    - **Property 29: Section version revert creates new version (not destructive)**
+    - **Property 30: Template change log records all modifications**
+    - **Validates: Requirements 3.3, 6.1, 6.2, 6.4, 6.5, 7.1, 7.3, 8.1, 8.2, 8.3, 8.4, 9.1, 9.2, 9.4, 16.1, 16.4, 17.1**
 
 - [ ] 4. Rules API Lambda handlers
   - [ ] 4.1 Implement `get-rule` handler
@@ -210,10 +224,10 @@ Implement a template management system within the BrytAdminPortal enabling busin
 
   - [ ] 8.2 Implement TemplateService, SectionService, and RulesService
     - TemplateService: list, create, get, update, delete, reorder templates via HTTP
-    - SectionService: list, add, remove, reorder sections; get/save schema; shared section CRUD + refs
+    - SectionService: list, add, remove, reorder sections; get/save schema; shared section CRUD + refs; list versions, get version, revert version
     - RulesService: get and save specification for a template
     - Wire to API Gateway endpoints
-    - _Requirements: 1.1, 2.1, 3.1, 6.1, 7.1, 8.1, 10.1_
+    - _Requirements: 1.1, 2.1, 3.1, 6.1, 7.1, 8.1, 10.1, 16.1, 16.2, 17.1_
 
 - [ ] 9. Angular frontend components
   - [ ] 9.1 Implement TemplateListComponent
@@ -229,7 +243,9 @@ Implement a template management system within the BrytAdminPortal enabling busin
     - Section list showing ordered sections with add/remove/reorder
     - Add section options: new section, existing shared section, T&C section
     - Section click opens SectionEditorComponent modal
-    - _Requirements: 2.1, 2.3, 2.4, 3.1, 3.2, 3.3, 6.1, 6.2, 6.3, 6.4, 6.5_
+    - Version history button per section (opens version list panel)
+    - Template change log panel (collapsible, shows chronological changes)
+    - _Requirements: 2.1, 2.3, 2.4, 3.1, 3.2, 3.3, 6.1, 6.2, 6.3, 6.4, 6.5, 16.2, 17.2, 17.3_
 
   - [ ] 9.3 Implement RulesConfigComponent
     - Visual tree editor for specification pattern (recursive node rendering)

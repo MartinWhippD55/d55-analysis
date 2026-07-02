@@ -186,3 +186,25 @@ The solution covers template CRUD operations, a visual section editor, shared/re
 1. THE Admin_Portal SHALL restrict access to template management screens to authenticated users with the appropriate Cognito group membership
 2. WHEN an unauthenticated user attempts to access template management, THE Admin_Portal SHALL redirect to the login flow
 3. WHEN an authenticated user without the required group membership attempts to access template management, THE Admin_Portal SHALL display an access denied message
+
+### Requirement 16: Section Version History
+
+**User Story:** As a Business_User, I want to view and revert to previous versions of a section's design, so that I can undo mistakes or compare changes over time.
+
+#### Acceptance Criteria
+
+1. WHEN a Business_User saves changes to a section in the Section_Editor, THE Admin_Portal SHALL create a new version of the section's Schema_JSON rather than overwriting the previous version
+2. THE Admin_Portal SHALL display a version history for each section, showing version number, timestamp, and the user who made the change
+3. WHEN a Business_User selects a previous version from the history, THE Admin_Portal SHALL display a preview or allow the user to open it in the Section_Editor as read-only
+4. WHEN a Business_User confirms reverting to a previous version, THE Admin_Portal SHALL create a new version with the content of the selected historical version (rather than deleting intermediate versions)
+5. THE Admin_Portal SHALL retain all versions indefinitely (no automatic purging)
+
+### Requirement 17: Template Version History
+
+**User Story:** As a Business_User, I want to view the change history of a template's configuration (sections added/removed/reordered, metadata changes), so that I can understand what changed and when.
+
+#### Acceptance Criteria
+
+1. WHEN a Business_User modifies a template (adds/removes/reorders sections, changes name/description), THE Admin_Portal SHALL record a change event with timestamp, user, and description of what changed
+2. THE Admin_Portal SHALL display a change log for each template, showing the chronological list of changes
+3. THE change log SHALL be accessible from the template edit screen
