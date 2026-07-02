@@ -1,0 +1,1368 @@
+# =============================================================================
+# BRYT Energy - Contract Note Rework
+# Admin Portal API (OpenAPI 3.1)
+#
+# Scope: Estimate 1 (Template Management), Estimate 3b (Data Source
+# Extensibility), and Estimate 4 (Bespoke Contracts) - the REST surface hosted
+# behind the BrytAdminPortal API Gateway. Estimate 2's DocuSign webhook is
+# included as a separate tagged section (it is the only REST endpoint in an
+# otherwise event-driven pipeline).
+#
+# Derived from the .kiro/specs design documents. Where the specs describe
+# behaviour in prose rather than concrete request/response bodies, reasonable
+# shapes have been inferred and marked with "ASSUMPTION:" in the description.
+# These should be confirmed with BRYT before implementation.
+# =============================================================================
+openapi: 3.1.0
+info:
+  title: BRYT Contract Note - Admin Portal API
+  version: 0.1.0
+  description: >-
+    API surface for managing contract note templates, sections, shared
+    sections, selection rules, external data sources, and bespoke contract
+    notes within the BrytAdminPortal.
+
+
+    **Estimates covered**
+
+    - Estimate 1 - Template Management (templates, sections, shared sections, rules, version history)
+
+    - Estimate 3b - Data Source Extensibility (Glue-discovered data sources attached to templates)
+
+    - Estimate 4 - Bespoke Contracts (one-off contract notes with on-demand render + manual DocuSign)
+
+    - Estimate 2 - DocuSign webhook (single public callback endpoint)
+
+
+    **Assumptions** (to confirm with BRYT): a standard JSON error envelope is
+    used for all non-2xx responses; authentication is via a Cognito-issued
+    bearer token; list endpoints are unpaginated in this phase unless noted.
+  contact:
+    name: D55 Consulting
+servers:
+  - url: https://{apiId}.execute-api.{region}.amazonaws.com/{stage}
+    description: BrytAdminPortal API Gateway
+    variables:
+      apiId:
+        default: xxxxxxxxxx
+      region:
+        default: eu-west-2
+      stage:
+        default: prod
+
+security:
+  - cognitoBearer: []
+
+tags:
+  - name: Templates
+    description: Estimate 1 - template CRUD and priority ordering
+  - name: Sections
+    description: Estimate 1 - section composition, schema, and version history
+  - name: Shared Sections
+    description: Estimate 1 - reusable sections (headers, footers, T&Cs)
+  - name: Rules
+    description: Estimate 1 - specification-tree selection rules
+  - name: Data Sources
+    description: Estimate 3b - discover and attach external data sources
+  - name: Bespoke Contracts
+    description: Estimate 4 - one-off contract notes, render, and manual DocuSign
+  - name: DocuSign Webhook
+    description: Estimate 2 - public DocuSign Connect callback
+
+paths:
+  # ==========================================================================
+  # ESTIMATE 1 - TEMPLATES
+  # ==========================================================================
+  /contract-note-templates:
+    get:
+      tags: [Templates]
+      summary: List all templates
+      description: Returns all templates ordered by evaluation priority (ascending).
+      operationId: listTemplates
+      responses:
+        '200':
+          description: Ordered list of templates.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Template' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Templates]
+      summary: Create a template
+      description: >-
+        Creates a template at the lowest priority (appended to the end of the
+        list). Rejects duplicate names.
+      operationId: createTemplate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TemplateCreate' }
+      responses:
+        '201':
+          description: Template created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Template' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-templates/reorder:
+    put:
+      tags: [Templates]
+      summary: Reorder template priorities
+      description: >-
+        Accepts an ordered array of template IDs and rewrites priorities to
+        contiguous integers starting at 1.
+      operationId: reorderTemplates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [templateIds]
+              properties:
+                templateIds:
+                  type: array
+                  items: { type: string, format: uuid }
+                  description: Template IDs in the desired priority order.
+      responses:
+        '200':
+          description: Updated ordered list of templates.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Template' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-templates/{templateId}:
+    parameters:
+      - $ref: '#/components/parameters/TemplateId'
+    get:
+      tags: [Templates]
+      summary: Get a template
+      description: Returns template metadata together with its ordered section list.
+      operationId: getTemplate
+      responses:
+        '200':
+          description: Template with sections.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TemplateWithSections' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    put:
+      tags: [Templates]
+      summary: Update a template
+      description: Updates the template name and/or description.
+      operationId: updateTemplate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TemplateUpdate' }
+      responses:
+        '200':
+          description: Updated template.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Template' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    delete:
+      tags: [Templates]
+      summary: Delete a template
+      description: >-
+        Deletes the template and its section associations, then re-orders
+        remaining templates to keep priorities contiguous. Shared sections
+        referenced by the template are not deleted.
+      operationId: deleteTemplate
+      responses:
+        '204': { description: Template deleted. }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-templates/{templateId}/changelog:
+    parameters:
+      - $ref: '#/components/parameters/TemplateId'
+    get:
+      tags: [Templates]
+      summary: Get template change log
+      description: Returns the chronological change log for the template (newest first).
+      operationId: listTemplateChangelog
+      responses:
+        '200':
+          description: Change log entries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ChangeLogEntry' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ==========================================================================
+  # ESTIMATE 1 - RULES
+  # ==========================================================================
+  /contract-note-templates/{templateId}/rule:
+    parameters:
+      - $ref: '#/components/parameters/TemplateId'
+    get:
+      tags: [Rules]
+      summary: Get a template's selection rule
+      description: Returns the specification-tree rule for the template.
+      operationId: getRule
+      responses:
+        '200':
+          description: The specification tree.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Specification' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    put:
+      tags: [Rules]
+      summary: Save a template's selection rule
+      description: >-
+        Validates the specification tree is well-formed, then persists it.
+        Malformed trees are rejected with node-path detail.
+      operationId: saveRule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Specification' }
+      responses:
+        '200':
+          description: Rule saved.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Specification' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ==========================================================================
+  # ESTIMATE 1 - SECTIONS (template-owned)
+  # ==========================================================================
+  /contract-note-templates/{templateId}/sections:
+    parameters:
+      - $ref: '#/components/parameters/TemplateId'
+    get:
+      tags: [Sections]
+      summary: List sections for a template
+      description: Returns the template's sections ordered by sort order (ascending).
+      operationId: listSections
+      responses:
+        '200':
+          description: Ordered sections.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Section' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Sections]
+      summary: Add a section to a template
+      description: >-
+        Adds a section at the end of the template. Can create a new section or
+        attach an existing shared section by reference. T&C sections are forced
+        to the end.
+      operationId: addSection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SectionCreate' }
+      responses:
+        '201':
+          description: Section added.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Section' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-templates/{templateId}/sections/reorder:
+    parameters:
+      - $ref: '#/components/parameters/TemplateId'
+    put:
+      tags: [Sections]
+      summary: Reorder sections within a template
+      description: >-
+        Accepts an ordered array of section IDs. T&C sections are kept at the
+        end regardless of requested position.
+      operationId: reorderSections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sectionIds]
+              properties:
+                sectionIds:
+                  type: array
+                  items: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Reordered sections.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Section' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-templates/{templateId}/sections/{sectionId}:
+    parameters:
+      - $ref: '#/components/parameters/TemplateId'
+      - $ref: '#/components/parameters/SectionId'
+    delete:
+      tags: [Sections]
+      summary: Remove a section from a template
+      description: >-
+        Removes the section association and re-orders remaining sections. If the
+        section was a shared-section reference, the reference record is removed
+        (the shared section itself is untouched).
+      operationId: removeSection
+      responses:
+        '204': { description: Section removed. }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-sections/{sectionId}/schema:
+    parameters:
+      - $ref: '#/components/parameters/SectionId'
+    get:
+      tags: [Sections]
+      summary: Get a section's schema JSON
+      description: Returns the pdf-me schema JSON for the section (read from S3).
+      operationId: getSectionSchema
+      responses:
+        '200':
+          description: The section schema.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchemaJson' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    put:
+      tags: [Sections]
+      summary: Save a section's schema JSON
+      description: >-
+        Validates and stores the schema JSON in S3, and creates a new section
+        version record (previous versions are preserved).
+      operationId: saveSectionSchema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SchemaJson' }
+      responses:
+        '200':
+          description: Schema saved; new version created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SectionVersion' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-sections/{sectionId}/versions:
+    parameters:
+      - $ref: '#/components/parameters/SectionId'
+    get:
+      tags: [Sections]
+      summary: List section versions
+      description: Returns version history for the section (newest first).
+      operationId: listSectionVersions
+      responses:
+        '200':
+          description: Version history.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SectionVersion' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-sections/{sectionId}/versions/{versionId}:
+    parameters:
+      - $ref: '#/components/parameters/SectionId'
+      - $ref: '#/components/parameters/VersionId'
+    get:
+      tags: [Sections]
+      summary: Get a specific section version
+      description: Returns the schema JSON for a historical version.
+      operationId: getSectionVersion
+      responses:
+        '200':
+          description: Historical version schema.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchemaJson' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-sections/{sectionId}/versions/{versionId}/revert:
+    parameters:
+      - $ref: '#/components/parameters/SectionId'
+      - $ref: '#/components/parameters/VersionId'
+    post:
+      tags: [Sections]
+      summary: Revert to a historical version
+      description: >-
+        Creates a new version with the content of the selected historical
+        version. Non-destructive - intermediate versions remain accessible.
+      operationId: revertSectionVersion
+      responses:
+        '201':
+          description: New version created from the historical version.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SectionVersion' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ==========================================================================
+  # ESTIMATE 1 - SHARED SECTIONS
+  # ==========================================================================
+  /contract-note-sections/shared:
+    get:
+      tags: [Shared Sections]
+      summary: List shared sections
+      description: Returns all shared sections with their reference counts.
+      operationId: listSharedSections
+      responses:
+        '200':
+          description: Shared sections.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SharedSection' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Shared Sections]
+      summary: Create a shared section
+      description: Creates a shared section, optionally designated as Terms & Conditions.
+      operationId: createSharedSection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SharedSectionCreate' }
+      responses:
+        '201':
+          description: Shared section created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SharedSection' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-sections/shared/{sharedSectionId}:
+    parameters:
+      - $ref: '#/components/parameters/SharedSectionId'
+    put:
+      tags: [Shared Sections]
+      summary: Update a shared section
+      description: Updates shared section metadata (name, T&C designation).
+      operationId: updateSharedSection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SharedSectionUpdate' }
+      responses:
+        '200':
+          description: Updated shared section.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SharedSection' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    delete:
+      tags: [Shared Sections]
+      summary: Delete a shared section
+      description: >-
+        Deletes a shared section. Blocked with 409 (and the list of referencing
+        templates) if the section is still in use.
+      operationId: deleteSharedSection
+      responses:
+        '204': { description: Shared section deleted. }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Shared section is referenced by one or more templates.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SharedSectionReferences' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-sections/shared/{sharedSectionId}/references:
+    parameters:
+      - $ref: '#/components/parameters/SharedSectionId'
+    get:
+      tags: [Shared Sections]
+      summary: Get templates referencing a shared section
+      description: Returns the set of templates that include this shared section.
+      operationId: getSharedSectionReferences
+      responses:
+        '200':
+          description: Referencing templates.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SharedSectionReferences' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ==========================================================================
+  # ESTIMATE 3b - DATA SOURCES
+  # ==========================================================================
+  /contract-note-data-sources:
+    get:
+      tags: [Data Sources]
+      summary: List available data sources
+      description: >-
+        Lists all Glue tables accessible via the Unified Studio project role
+        that contain a bryt_number column (join constraint).
+      operationId: listAvailableDataSources
+      responses:
+        '200':
+          description: Available data sources.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AvailableDataSource' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+  /contract-note-data-sources/{database}/{table}/columns:
+    parameters:
+      - $ref: '#/components/parameters/Database'
+      - $ref: '#/components/parameters/Table'
+    get:
+      tags: [Data Sources]
+      summary: Get column detail for a data source
+      description: Returns the column names and types for a specific table (for the field browser).
+      operationId: getDataSourceColumns
+      responses:
+        '200':
+          description: Column detail.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/DataSourceColumn' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-templates/{templateId}/data-sources:
+    parameters:
+      - $ref: '#/components/parameters/TemplateId'
+    get:
+      tags: [Data Sources]
+      summary: List data sources attached to a template
+      operationId: listAttachedDataSources
+      responses:
+        '200':
+          description: Attached data sources.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TemplateDataSource' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Data Sources]
+      summary: Attach a data source to a template
+      description: >-
+        Validates the table exists and has a bryt_number column, then attaches
+        it to the template.
+      operationId: attachDataSource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DataSourceAttach' }
+      responses:
+        '201':
+          description: Data source attached.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TemplateDataSource' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-templates/{templateId}/data-sources/{database}/{table}:
+    parameters:
+      - $ref: '#/components/parameters/TemplateId'
+      - $ref: '#/components/parameters/Database'
+      - $ref: '#/components/parameters/Table'
+    delete:
+      tags: [Data Sources]
+      summary: Detach a data source from a template
+      description: >-
+        Detaches the data source. Blocked with 409 (and the affected section
+        list) if any section still references its fields.
+      operationId: detachDataSource
+      responses:
+        '204': { description: Data source detached. }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Data source fields are still in use by one or more sections.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataSourceInUse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ==========================================================================
+  # ESTIMATE 4 - BESPOKE CONTRACTS
+  # ==========================================================================
+  /contract-note-bespoke:
+    get:
+      tags: [Bespoke Contracts]
+      summary: List bespoke contract notes
+      description: >-
+        Lists all bespoke contract notes, including pending requests created by
+        the pipeline skip. Filterable by status.
+      operationId: listBespoke
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Filter by status.
+          schema: { $ref: '#/components/schemas/BespokeStatus' }
+      responses:
+        '200':
+          description: Bespoke contract notes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BespokeContractNote' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Bespoke Contracts]
+      summary: Create a bespoke contract note
+      description: >-
+        Creates a bespoke note from a pending request. Starting point is either
+        an empty document or a clone of an existing template (sections copied as
+        independent records).
+      operationId: createBespoke
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BespokeCreate' }
+      responses:
+        '201':
+          description: Bespoke contract note created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BespokeContractNote' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-bespoke/{bespokeId}:
+    parameters:
+      - $ref: '#/components/parameters/BespokeId'
+    get:
+      tags: [Bespoke Contracts]
+      summary: Get a bespoke contract note
+      description: Returns bespoke metadata with sections, render history, and DocuSign status.
+      operationId: getBespoke
+      responses:
+        '200':
+          description: Bespoke contract note.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BespokeWithDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    put:
+      tags: [Bespoke Contracts]
+      summary: Update a bespoke contract note
+      description: Updates bespoke metadata.
+      operationId: updateBespoke
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BespokeUpdate' }
+      responses:
+        '200':
+          description: Updated bespoke contract note.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BespokeContractNote' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    delete:
+      tags: [Bespoke Contracts]
+      summary: Delete a bespoke contract note
+      description: Deletes the bespoke note and its associated sections.
+      operationId: deleteBespoke
+      responses:
+        '204': { description: Bespoke contract note deleted. }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-bespoke/{bespokeId}/render:
+    parameters:
+      - $ref: '#/components/parameters/BespokeId'
+    post:
+      tags: [Bespoke Contracts]
+      summary: Render a bespoke contract note on demand
+      description: >-
+        Triggers a synchronous render using the bespoke sections and the
+        customer's stored contract data. Increments the render version and
+        appends to render history. Returns 409 if a render is already in
+        progress.
+      operationId: renderBespoke
+      responses:
+        '200':
+          description: Render completed (or failed with detail in the record).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BespokeRender' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-bespoke/{bespokeId}/renders:
+    parameters:
+      - $ref: '#/components/parameters/BespokeId'
+    get:
+      tags: [Bespoke Contracts]
+      summary: List render history
+      description: Returns render history (newest first) with pre-signed PDF download links.
+      operationId: listBespokeRenders
+      responses:
+        '200':
+          description: Render history.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BespokeRender' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-bespoke/{bespokeId}/send-docusign:
+    parameters:
+      - $ref: '#/components/parameters/BespokeId'
+    post:
+      tags: [Bespoke Contracts]
+      summary: Send a bespoke note for signature
+      description: >-
+        Reuses the Estimate 2 envelope logic to send the latest rendered PDF via
+        DocuSign. Requires status "rendered".
+      operationId: sendBespokeDocuSign
+      responses:
+        '202':
+          description: DocuSign envelope created; status tracked on the bespoke record.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DocuSignEnvelopeRef' }
+        '400':
+          description: Bespoke note has not been rendered yet.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /contract-note-bespoke/{bespokeId}/contract-data:
+    parameters:
+      - $ref: '#/components/parameters/BespokeId'
+    get:
+      tags: [Bespoke Contracts]
+      summary: Get the customer's contract data
+      description: >-
+        Returns the stored contract JSON for this customer, for the editor's
+        reference panel. ASSUMPTION: returned grouped by category (offer,
+        customer, pricing, MPANs, sites).
+      operationId: getBespokeContractData
+      responses:
+        '200':
+          description: Contract data reference.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContractDataReference' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ==========================================================================
+  # ESTIMATE 2 - DOCUSIGN WEBHOOK (public, HMAC-validated)
+  # ==========================================================================
+  /docusign-webhook:
+    post:
+      tags: [DocuSign Webhook]
+      summary: DocuSign Connect callback
+      description: >-
+        Public endpoint that receives DocuSign Connect status notifications.
+        Requests are validated via HMAC signature (X-DocuSign-Signature-1)
+        rather than the Cognito bearer scheme used elsewhere. Handles completed,
+        declined, and expired envelope events.
+      operationId: docusignWebhook
+      security:
+        - docusignHmac: []
+      parameters:
+        - name: X-DocuSign-Signature-1
+          in: header
+          required: true
+          description: HMAC-SHA256 signature of the payload.
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DocuSignWebhookEvent' }
+      responses:
+        '200': { description: Event acknowledged. }
+        '401':
+          description: HMAC signature validation failed.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+# =============================================================================
+# COMPONENTS
+# =============================================================================
+components:
+  securitySchemes:
+    cognitoBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        Cognito-issued JWT. Access is further gated by Cognito group
+        membership (ASSUMPTION: a dedicated contract-note admin group).
+    docusignHmac:
+      type: apiKey
+      in: header
+      name: X-DocuSign-Signature-1
+      description: HMAC-SHA256 signature used to verify DocuSign Connect callbacks.
+
+  parameters:
+    TemplateId:
+      name: templateId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    SectionId:
+      name: sectionId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    VersionId:
+      name: versionId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    SharedSectionId:
+      name: sharedSectionId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    BespokeId:
+      name: bespokeId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    Database:
+      name: database
+      in: path
+      required: true
+      description: Glue database name.
+      schema: { type: string }
+    Table:
+      name: table
+      in: path
+      required: true
+      description: Glue table name.
+      schema: { type: string }
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid authentication.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Authenticated but lacking the required group membership.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: Conflict (e.g. duplicate name, or operation not valid in current state).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: Request failed validation.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ValidationError' }
+    ServiceUnavailable:
+      description: A dependency (e.g. Glue catalog) is unreachable.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    # ------------------------------------------------------------------ common
+    Error:
+      type: object
+      description: 'ASSUMPTION: standard error envelope for all non-2xx responses.'
+      required: [message]
+      properties:
+        message: { type: string, description: Human-readable error message. }
+        code: { type: string, description: Machine-readable error code. }
+      examples:
+        - { message: 'Template not found', code: 'NOT_FOUND' }
+    ValidationError:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        code: { type: string, default: 'VALIDATION_ERROR' }
+        fieldErrors:
+          type: array
+          description: Field- or node-level validation detail.
+          items:
+            type: object
+            properties:
+              path: { type: string, description: Field name or node path in the tree. }
+              message: { type: string }
+
+    # -------------------------------------------------------------- estimate 1
+    Template:
+      type: object
+      required: [templateId, name, description, priority, sectionCount, createdAt, updatedAt, createdBy]
+      properties:
+        templateId: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string }
+        priority: { type: integer, description: Evaluation priority (1 = highest). }
+        sectionCount: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        createdBy: { type: string, description: Cognito username. }
+    TemplateCreate:
+      type: object
+      required: [name, description]
+      properties:
+        name: { type: string }
+        description: { type: string }
+    TemplateUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string }
+    TemplateWithSections:
+      allOf:
+        - $ref: '#/components/schemas/Template'
+        - type: object
+          properties:
+            sections:
+              type: array
+              items: { $ref: '#/components/schemas/Section' }
+
+    Section:
+      type: object
+      required: [sectionId, name, sortOrder, isShared, schemaS3Key]
+      properties:
+        sectionId: { type: string, format: uuid }
+        name: { type: string }
+        sortOrder: { type: integer }
+        isShared: { type: boolean, description: Whether this references a shared section. }
+        sharedSectionId:
+          type: string
+          format: uuid
+          description: Present when isShared is true.
+        schemaS3Key: { type: string }
+        versionNumber: { type: integer, description: Current version number. }
+        isTermsAndConditions: { type: boolean }
+    SectionCreate:
+      type: object
+      required: [name]
+      description: >-
+        Create a new section, or attach a shared section by supplying
+        sharedSectionId.
+      properties:
+        name: { type: string }
+        sharedSectionId:
+          type: string
+          format: uuid
+          description: When present, attaches the shared section by reference instead of creating a new one.
+        isTermsAndConditions: { type: boolean, default: false }
+
+    SchemaJson:
+      type: object
+      description: >-
+        pdf-me template definition. The schemas array holds one entry per page;
+        each page is an array of positioned field definitions.
+      required: [schemas]
+      properties:
+        schemas:
+          type: array
+          items:
+            type: array
+            items: { $ref: '#/components/schemas/SchemaField' }
+    SchemaField:
+      type: object
+      required: [name, type, position]
+      properties:
+        name: { type: string, description: 'Field name; data-source fields are namespaced, e.g. credit_data.score.' }
+        type:
+          type: string
+          enum: [text, multiVariableText, table]
+        position:
+          type: object
+          properties:
+            x: { type: number }
+            y: { type: number }
+        width: { type: number }
+        height: { type: number }
+        fontSize: { type: number }
+        fontName: { type: string }
+        alignment:
+          type: string
+          enum: [left, center, right]
+
+    SectionVersion:
+      type: object
+      required: [versionId, sectionId, createdAt, createdBy]
+      properties:
+        versionId: { type: string, format: uuid }
+        sectionId: { type: string, format: uuid }
+        schemaS3Key: { type: string }
+        createdAt: { type: string, format: date-time }
+        createdBy: { type: string }
+        description: { type: string }
+
+    SharedSection:
+      type: object
+      required: [sectionId, name, isTermsAndConditions, schemaS3Key]
+      properties:
+        sectionId: { type: string, format: uuid }
+        name: { type: string }
+        isTermsAndConditions: { type: boolean }
+        schemaS3Key: { type: string }
+        referenceCount: { type: integer, description: Number of templates referencing this section. }
+    SharedSectionCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        isTermsAndConditions: { type: boolean, default: false }
+    SharedSectionUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        isTermsAndConditions: { type: boolean }
+    SharedSectionReferences:
+      type: object
+      properties:
+        sectionId: { type: string, format: uuid }
+        templates:
+          type: array
+          items:
+            type: object
+            properties:
+              templateId: { type: string, format: uuid }
+              templateName: { type: string }
+
+    ChangeLogEntry:
+      type: object
+      properties:
+        changeType:
+          type: string
+          enum: [section-added, section-removed, section-reordered, metadata-updated, rule-updated]
+        description: { type: string }
+        createdAt: { type: string, format: date-time }
+        createdBy: { type: string }
+
+    # -------------------------------------------- estimate 1: specification tree
+    Specification:
+      description: >-
+        Recursive specification tree. A node is one of: a binary logical node
+        (AND/OR) with leftOperand + rightOperand, a unary NOT with operand, a
+        comparison (EQUALS/LESS_THAN/MORE_THAN) with field + value, or an IN
+        node with field + values.
+      oneOf:
+        - $ref: '#/components/schemas/AndOrNode'
+        - $ref: '#/components/schemas/NotNode'
+        - $ref: '#/components/schemas/ComparisonNode'
+        - $ref: '#/components/schemas/InNode'
+    AndOrNode:
+      type: object
+      required: [type, leftOperand, rightOperand]
+      properties:
+        type: { type: string, enum: [AND, OR] }
+        leftOperand: { $ref: '#/components/schemas/Specification' }
+        rightOperand: { $ref: '#/components/schemas/Specification' }
+    NotNode:
+      type: object
+      required: [type, operand]
+      properties:
+        type: { type: string, enum: [NOT] }
+        operand: { $ref: '#/components/schemas/Specification' }
+    ComparisonNode:
+      type: object
+      required: [type, field, value]
+      properties:
+        type: { type: string, enum: [EQUALS, LESS_THAN, MORE_THAN] }
+        field: { type: string, description: 'Dotted path into contract data, e.g. offer.producttype.' }
+        value:
+          oneOf:
+            - { type: string }
+            - { type: number }
+    InNode:
+      type: object
+      required: [type, field, values]
+      properties:
+        type: { type: string, enum: [IN] }
+        field: { type: string }
+        values:
+          type: array
+          items:
+            oneOf:
+              - { type: string }
+              - { type: number }
+
+    # ------------------------------------------------------------- estimate 3b
+    AvailableDataSource:
+      type: object
+      required: [database, tableName, columns]
+      properties:
+        database: { type: string }
+        tableName: { type: string }
+        location: { type: string, description: Underlying storage location. }
+        columns:
+          type: array
+          items: { $ref: '#/components/schemas/DataSourceColumn' }
+    DataSourceColumn:
+      type: object
+      required: [name, type]
+      properties:
+        name: { type: string }
+        type: { type: string, description: 'Glue/Athena type: string, int, bigint, double, boolean, etc.' }
+    TemplateDataSource:
+      type: object
+      required: [database, tableName, displayName, attachedAt, attachedBy]
+      properties:
+        database: { type: string }
+        tableName: { type: string }
+        displayName: { type: string }
+        attachedAt: { type: string, format: date-time }
+        attachedBy: { type: string }
+    DataSourceAttach:
+      type: object
+      required: [database, tableName]
+      properties:
+        database: { type: string }
+        tableName: { type: string }
+        displayName: { type: string, description: 'Optional; defaults to the table name.' }
+    DataSourceInUse:
+      type: object
+      description: Returned when detachment is blocked by in-use fields.
+      properties:
+        database: { type: string }
+        tableName: { type: string }
+        affectedSections:
+          type: array
+          items:
+            type: object
+            properties:
+              sectionId: { type: string, format: uuid }
+              name: { type: string }
+
+    # -------------------------------------------------------------- estimate 4
+    BespokeStatus:
+      type: string
+      enum: [pending, draft, rendering, rendered, failed]
+    BespokeContractNote:
+      type: object
+      required: [bespokeId, brytNumber, offerReference, customerName, status, createdAt, updatedAt, createdBy]
+      properties:
+        bespokeId: { type: string, format: uuid }
+        brytNumber: { type: string, description: Customer reference (customerreference in the payload). }
+        offerReference: { type: string }
+        customerName: { type: string }
+        contractDataS3Key: { type: string }
+        clonedFromTemplateId: { type: string, format: uuid }
+        status: { $ref: '#/components/schemas/BespokeStatus' }
+        currentRenderS3Key: { type: string }
+        currentRenderVersion: { type: integer }
+        docusignEnvelopeId: { type: string }
+        docusignStatus:
+          type: string
+          enum: [sent, delivered, completed, declined, expired]
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        createdBy: { type: string }
+        updatedBy: { type: string }
+    BespokeCreate:
+      type: object
+      required: [brytNumber, offerReference, startingPoint]
+      description: Create from a pending request; choose a starting point.
+      properties:
+        brytNumber: { type: string }
+        offerReference: { type: string }
+        startingPoint:
+          type: string
+          enum: [empty, clone]
+          description: 'When "clone", cloneFromTemplateId is required.'
+        cloneFromTemplateId: { type: string, format: uuid }
+    BespokeUpdate:
+      type: object
+      properties:
+        customerName: { type: string }
+    BespokeWithDetail:
+      allOf:
+        - $ref: '#/components/schemas/BespokeContractNote'
+        - type: object
+          properties:
+            sections:
+              type: array
+              items: { $ref: '#/components/schemas/Section' }
+            renders:
+              type: array
+              items: { $ref: '#/components/schemas/BespokeRender' }
+    BespokeRender:
+      type: object
+      required: [version, renderedAt, renderedBy, status]
+      properties:
+        version: { type: integer }
+        pdfS3Key: { type: string }
+        downloadUrl: { type: string, format: uri, description: Pre-signed S3 URL (time-limited). }
+        renderedAt: { type: string, format: date-time }
+        renderedBy: { type: string }
+        status: { type: string, enum: [success, failed] }
+        errorMessage: { type: string }
+    ContractDataReference:
+      type: object
+      description: >-
+        ASSUMPTION: contract data returned grouped by category for the editor
+        reference panel. Each entry pairs a field name with its current value.
+      additionalProperties:
+        type: array
+        items:
+          type: object
+          properties:
+            field: { type: string }
+            value: {}
+      examples:
+        - offer: [{ field: 'offer.reference', value: 'OP-56412' }]
+          customer: [{ field: 'customer.name', value: 'Acme Ltd' }]
+
+    # ---------------------------------------------- estimate 2: docusign shapes
+    DocuSignEnvelopeRef:
+      type: object
+      properties:
+        envelopeId: { type: string }
+        status: { type: string, example: sent }
+    DocuSignWebhookEvent:
+      type: object
+      description: 'Simplified DocuSign Connect payload (see Estimate 2 design).'
+      required: [event, data]
+      properties:
+        event: { type: string, example: envelope-completed }
+        apiVersion: { type: string }
+        uri: { type: string }
+        retryCount: { type: integer }
+        configurationId: { type: integer }
+        data:
+          type: object
+          properties:
+            accountId: { type: string }
+            envelopeId: { type: string }
+            envelopeSummary:
+              type: object
+              properties:
+                status: { type: string }
+                emailSubject: { type: string }
+                recipients:
+                  type: object
+                  properties:
+                    signers:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name: { type: string }
+                          email: { type: string }
+                          status: { type: string }
+                          declinedReason: { type: string }

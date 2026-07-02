@@ -43,6 +43,10 @@ Per-estimate technical walkthrough documents — the detailed companion to the e
 
 All five estimates now have walkthrough documents.
 
+## API Specification
+
+An OpenAPI 3.1 spec for the Admin Portal API surface (Estimates 1 + 3b + 4, plus the Estimate 2 DocuSign webhook) lives at `analysis/BRYT/contract-note/api/contract-note-api.yaml`. See `api/README.md` for scope, assumptions, and how to view/validate it.
+
 ## Scripts
 
 All scripts are in `analysis/BRYT/contract-note/`. Run from the repo root.
