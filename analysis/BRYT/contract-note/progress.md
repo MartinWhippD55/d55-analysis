@@ -10,7 +10,7 @@ Rework of the BRYT contract note system across 5 estimates, each specced indepen
 |---|------|--------|--------|
 | 1 | PDF / T&Cs Rework | `1-pdf-me/` | 🟢 Spec Complete |
 | 2 | DocuSign Integration | `2-docusign/` | 🟢 Spec Complete |
-| 3 | Training & Templates | `3-training/` | 🔴 Not Started |
+| 3 | Training & Templates | `3-training/` | 🟢 Spec Complete |
 | 4 | Bespoke Contracts | `4-bespoke-contract/` | 🔴 Not Started |
 | 5 | System Comparison | `5-comparison/` | 🔴 Not Started |
 

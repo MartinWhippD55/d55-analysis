@@ -61,6 +61,11 @@ From initial brief:
 - Where does the signed PDF get stored in AWS before/alongside Salesforce?
 - Are there multiple signatories? (Customer + Bryt + TPI in some cases based on the current system)
 
+## Key Identifiers
+
+- **BrytNumber** = `customerreference` field in the contract data payload (e.g., "BRYT002618"). Unique customer identifier shared across BRYT's external services (Salesforce, Ensek, etc.). Used as the join key for data source enrichment.
+- **customersalesforceref** = Salesforce record reference for the customer (e.g., "432"). Used for DocuSign flow (Estimate 2) to look up contact details and attach signed documents.
+
 ## Reference Repos
 
 Available at `reference-repos/` (gitignored, local only):
