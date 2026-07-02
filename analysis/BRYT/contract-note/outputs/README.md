@@ -36,10 +36,10 @@ Per-estimate technical walkthrough documents — the detailed companion to the e
 | `estimate-2-walkthrough.html` | Standalone HTML source for the above (embedded base64 images). |
 | `estimate-3-walkthrough.pdf` | Estimate 3: Training & Data Sources. Brief 3a (training/enablement) intent plus full 3b (data source extensibility) — Unified Studio/Glue/Athena flow, data sources panel mockup, enrichment pipeline, and data model. |
 | `estimate-3-walkthrough.html` | Standalone HTML source for the above (embedded base64 images). |
+| `estimate-4-walkthrough.pdf` | Estimate 4: Bespoke Contracts. Pipeline skip, bespoke list + editor mockups, on-demand rendering and history, manual DocuSign trigger, and data model. |
+| `estimate-4-walkthrough.html` | Standalone HTML source for the above (embedded base64 images). |
 
-### Still TODO
-
-- Walkthrough for Estimate 4 (Bespoke Contracts) — reuse the same generator by adding a content module.
+All five estimates now have walkthrough documents (Estimate 5 / Comparison Audit can be added the same way if needed).
 
 ## Scripts
 
