@@ -11,6 +11,7 @@ UI screen mockups for the contract note template management system. Created usin
 | Rules Configuration | [03-rules-config.png](mockups/03-rules-config.png) |
 | Section Editor Modal | [04-section-editor.png](mockups/04-section-editor.png) |
 | Shared Sections Library | [05-shared-sections.png](mockups/05-shared-sections.png) |
+| Section Version History | [06-version-history.png](mockups/06-version-history.png) |
 
 ## Screen 1: Template List
 
@@ -113,3 +114,22 @@ Managing reusable sections (headers, footers, T&Cs).
 - "Edit in Designer" opens the same pdf-me modal
 - Delete shows warning if section is referenced by templates
 - Creating a shared section prompts for name and type
+
+
+---
+
+## Screen 6: Section Version History
+
+Viewing and reverting to previous versions of a section's design.
+
+**Layout:**
+- Header: "Version History: {Section Name}" with Close button
+- Current version panel (green highlight): version number, timestamp, user, [View in Designer] button
+- Previous versions list (ordered newest first):
+  - Each row: version number, timestamp, user, [Preview] and [Revert] buttons
+
+**Key interactions:**
+- "View in Designer" opens the current version in the pdf-me editor (read-only)
+- "Preview" opens a historical version in the designer as read-only
+- "Revert" creates a new version from the selected historical version (non-destructive — all versions preserved)
+- Close returns to the Template Edit screen

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section Version History - Wireframe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Architects Daughter', 'Comic Sans MS', cursive; background: #fff; padding: 32px; font-size: 15px; color: #333; }
+        .wireframe-label { position: fixed; top: 8px; right: 32px; font-size: 11px; color: #bbb; border: 1px dashed #ccc; padding: 4px 10px; border-radius: 3px; }
+        .container { max-width: 700px; margin: 0 auto; border: 2px solid #333; border-radius: 6px; transform: rotate(-0.3deg); }
+        .header { padding: 18px 24px; border-bottom: 2px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; font-weight: 400; }
+        .btn { background: #fff; color: #333; border: 2px solid #333; padding: 8px 18px; font-size: 15px; font-family: inherit; cursor: pointer; border-radius: 4px; }
+        .btn-sm { border: 1.5px solid #555; background: #fff; padding: 5px 12px; font-size: 13px; font-family: inherit; cursor: pointer; border-radius: 3px; }
+        .btn-primary { border-color: #2a6; color: #2a6; }
+        .content { padding: 24px; }
+        .current-version { background: #f0fff4; border: 1.5px solid #2a6; border-radius: 4px; padding: 14px 16px; margin-bottom: 20px; }
+        .current-label { font-size: 11px; color: #2a6; text-transform: uppercase; margin-bottom: 6px; }
+        .version-list { list-style: none; }
+        .version-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1.5px solid #ddd; border-radius: 4px; margin-bottom: 8px; }
+        .version-item:hover { border-color: #999; }
+        .version-item .ver-num { font-size: 14px; font-weight: bold; min-width: 30px; }
+        .version-item .ver-info { flex: 1; }
+        .version-item .ver-date { font-size: 13px; color: #666; }
+        .version-item .ver-user { font-size: 12px; color: #999; }
+        .version-item .ver-actions { display: flex; gap: 6px; }
+        .section-heading { font-size: 14px; color: #888; margin-bottom: 12px; border-bottom: 1px dashed #ccc; padding-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="container">
+        <div class="header">
+            <h1>Version History: Customer Details</h1>
+            <button class="btn">Close</button>
+        </div>
+        <div class="content">
+            <div class="current-version">
+                <div class="current-label">&#x2713; Current Version</div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-weight: bold;">v5</span>
+                    <span style="flex: 1;">2026-06-28 14:32 &mdash; Amina Ali</span>
+                    <button class="btn-sm">View in Designer</button>
+                </div>
+            </div>
+
+            <div class="section-heading">Previous Versions</div>
+            <ul class="version-list">
+                <li class="version-item">
+                    <span class="ver-num">v4</span>
+                    <div class="ver-info">
+                        <div class="ver-date">2026-06-15 09:17</div>
+                        <div class="ver-user">Jodie Reaney</div>
+                    </div>
+                    <div class="ver-actions">
+                        <button class="btn-sm">Preview</button>
+                        <button class="btn-sm btn-primary">Revert</button>
+                    </div>
+                </li>
+                <li class="version-item">
+                    <span class="ver-num">v3</span>
+                    <div class="ver-info">
+                        <div class="ver-date">2026-06-02 16:45</div>
+                        <div class="ver-user">Amina Ali</div>
+                    </div>
+                    <div class="ver-actions">
+                        <button class="btn-sm">Preview</button>
+                        <button class="btn-sm btn-primary">Revert</button>
+                    </div>
+                </li>
+                <li class="version-item">
+                    <span class="ver-num">v2</span>
+                    <div class="ver-info">
+                        <div class="ver-date">2026-05-20 11:03</div>
+                        <div class="ver-user">Amina Ali</div>
+                    </div>
+                    <div class="ver-actions">
+                        <button class="btn-sm">Preview</button>
+                        <button class="btn-sm btn-primary">Revert</button>
+                    </div>
+                </li>
+                <li class="version-item">
+                    <span class="ver-num">v1</span>
+                    <div class="ver-info">
+                        <div class="ver-date">2026-05-12 10:00</div>
+                        <div class="ver-user">Amina Ali</div>
+                    </div>
+                    <div class="ver-actions">
+                        <button class="btn-sm">Preview</button>
+                        <button class="btn-sm btn-primary">Revert</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
