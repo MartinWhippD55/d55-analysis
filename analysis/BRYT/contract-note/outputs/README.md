@@ -38,8 +38,10 @@ Per-estimate technical walkthrough documents — the detailed companion to the e
 | `estimate-3-walkthrough.html` | Standalone HTML source for the above (embedded base64 images). |
 | `estimate-4-walkthrough.pdf` | Estimate 4: Bespoke Contracts. Pipeline skip, bespoke list + editor mockups, on-demand rendering and history, manual DocuSign trigger, and data model. |
 | `estimate-4-walkthrough.html` | Standalone HTML source for the above (embedded base64 images). |
+| `estimate-5-walkthrough.pdf` | Estimate 5: Comparison Audit. Developer-operated Step Function tool — per-record comparison flow, Graph API + Bedrock architecture, findings model, open questions (M365 dependency), and delivery breakdown. |
+| `estimate-5-walkthrough.html` | Standalone HTML source for the above (embedded base64 images). |
 
-All five estimates now have walkthrough documents (Estimate 5 / Comparison Audit can be added the same way if needed).
+All five estimates now have walkthrough documents.
 
 ## Scripts
 
