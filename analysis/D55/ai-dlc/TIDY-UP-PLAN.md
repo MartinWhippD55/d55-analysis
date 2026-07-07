@@ -71,19 +71,15 @@ new-programme (skill)
 
 ---
 
-## Sequencing / prerequisites (do NOT start yet)
+## Sequencing / prerequisites
 
-Blocked on:
-- Rhys reviewing the programme structure and the working assumptions (WA-1…WA-6).
-- Content firming up (modules still lean, assets not built, embed figures illustrative).
+**Decision (2026-07-07):** Rhys review will not come soon, so we are **proceeding on the working assumptions** (WA-1…WA-6) as ground-truth. The Rhys-review gate is lifted; assumptions remain flagged 🟡 for later review but do not block work. The best way to firm up lean content is to run the process against it and fix what breaks.
 
-Rationale: building a consolidation skill against content that's about to change means reworking it. Same "don't build against a moving target" logic that parked the other skills.
-
-**Order when unblocked:**
-1. Firm up content (module templates, confirmed assumptions).
-2. Generalise `build_programme_doc.py` → shared engine.
-3. Build `new-programme` skill steps incrementally (scaffold → content loop → assets → assessment → pitch).
-4. Run it against this folder to emit the clean canonical version.
+**Order:**
+1. ✅ Write the `new-programme` skill definition — `.kiro/skills/new-programme.md`.
+2. Generalise `build_programme_doc.py` → a reusable engine (separate engine from ai-dlc-specific content/branding config). Foundation for the skill; not throwaway regardless of content changes.
+3. Build `new-programme` skill steps incrementally (scaffold → content loop → assets → assessment → pitch), refining the skill doc as we learn.
+4. Run it against this folder to emit the clean canonical version (new folder).
 5. Author `delivery-playbook.md` + README as part of the clean output.
 
 ---
