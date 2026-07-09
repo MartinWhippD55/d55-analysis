@@ -70,7 +70,8 @@ DOC = {
             ],
         },
         {
-            "type": "diagram",
+            "type": "fitted_diagram",
+            "fit": "width",
             "heading": "The programme build flow — overview",
             "body": [
                 "Nine phases (A–I), grouped into four stages. The overview shows how the stages connect; each "
@@ -81,7 +82,8 @@ DOC = {
             "caption": "High-level flow: Scope & Frame -> Build Modules -> Generate Assets -> Verify & Ship.",
         },
         {
-            "type": "diagram",
+            "type": "fitted_diagram",
+            "fit": "height",
             "heading": "Stage 1 — Scope & Frame (Phases A–B)",
             "pageBreak": True,
             "body": [
@@ -92,7 +94,8 @@ DOC = {
             "caption": "Context (CEO/Marketing/C-Suite critique) then Dimensions (CTO/Tech/Middle-Mgmt critique).",
         },
         {
-            "type": "diagram",
+            "type": "fitted_diagram",
+            "fit": "height",
             "heading": "Stage 2 — Build Modules (Phases C–D)",
             "pageBreak": True,
             "body": [
@@ -103,7 +106,8 @@ DOC = {
             "caption": "Join keys are validated before authoring; the loop repeats per in-scope module.",
         },
         {
-            "type": "diagram",
+            "type": "fitted_diagram",
+            "fit": "height",
             "heading": "Stage 3 — Generate Assets (Phases E–H)",
             "pageBreak": True,
             "body": [
@@ -114,7 +118,8 @@ DOC = {
             "caption": "Assets -> spreadsheets -> interactive questionnaire -> pitch (Marketing/CEO/C-Suite critique).",
         },
         {
-            "type": "diagram",
+            "type": "fitted_diagram",
+            "fit": "width",
             "heading": "Stage 4 — Verify & Ship (Phase I)",
             "pageBreak": True,
             "body": [
@@ -180,7 +185,8 @@ DOC = {
             ],
         },
         {
-            "type": "diagram",
+            "type": "fitted_diagram",
+            "fit": "width",
             "heading": "The critique loop (rendered)",
             "image": CRITIQUE_LOOP_PNG,
             "caption": "Relevant personas critique in parallel; the aggregator triages addressable vs parked; "

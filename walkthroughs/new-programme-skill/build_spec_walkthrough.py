@@ -32,6 +32,35 @@ def _b64_uri(path: Path) -> str:
     return f"data:{mime};base64," + base64.b64encode(path.read_bytes()).decode()
 
 
+def render_fitted_diagram(block):
+    """Diagram that reliably fits an A4 page.
+
+    fit="height": constrain by explicit height (for tall/narrow flowcharts) so the
+    image can't overflow the page width — it renders narrow and centered.
+    fit="width" (default): constrain by width (for wide/short diagrams).
+    Uses inline styles + max-height:none to defeat the engine's default caps.
+    """
+    heading = f'<h2>{eng.esc(block["heading"])}</h2>' if block.get("heading") else ""
+    body = eng._para_list(block.get("body"))
+    uri = _b64_uri(Path(block["image"]))
+    cap = f'<figcaption>{eng.esc(block["caption"])}</figcaption>' if block.get("caption") else ""
+    border = "border:1px solid #e2e2ee;border-radius:4px;"
+    if block.get("fit") == "height":
+        # leave room for heading + body + caption on the page (page content ~= 251mm);
+        # 175mm keeps the whole section (heading+body+figure+caption) inside one page.
+        istyle = f"height:175mm;width:auto;max-width:100%;max-height:none;{border}"
+    else:
+        istyle = f"width:100%;height:auto;max-height:225mm;{border}"
+    return (
+        f'<section class="block block-diagram">{heading}{body}'
+        f'<figure style="text-align:center;margin-top:10px;break-inside:avoid;page-break-inside:avoid;">'
+        f'<img src="{uri}" style="{istyle}" alt="diagram">{cap}</figure></section>'
+    )
+
+
+eng.RENDERERS["fitted_diagram"] = render_fitted_diagram
+
+
 def build_html_d55(doc: dict) -> str:
     """D55-branded page assembly (adapted from engine.build_html, no client logo)."""
     logo_uri = _b64_uri(LOGO)
@@ -56,9 +85,6 @@ def build_html_d55(doc: dict) -> str:
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 {eng.build_css(bg_uri)}
-/* Allow the (portrait) stage-detail diagrams more height than the engine default,
-   so tall flows render large enough to read on their own page. */
-figure.diagram img {{ max-height: 235mm; }}
 </style>
 </head>
 <body>
