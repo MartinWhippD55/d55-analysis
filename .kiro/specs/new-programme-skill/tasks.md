@@ -65,10 +65,10 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - Add `templates/` skeletons (`programme.yaml.tmpl`, `module.md.tmpl`, `dimensions.md.tmpl`, `client-operating-manual-toc.md.tmpl`) and implement the scaffold routine that instantiates them and runs `validate_join_keys` after scaffolding.
   - _Requirements: 2.1, 6.1, 6.3_
 
-- [ ] 10. Dimensions and module authoring steps
-  - [ ] 10.1 Implement the dimensions authoring step producing `dimensions.md` (1–5 rubrics, calibration, must-ask/go-deeper questions) with names usable as join keys.
+- [x] 10. Dimensions and module authoring steps
+  - [x] 10.1 Implement the dimensions authoring step producing `dimensions.md` (1–5 rubrics, calibration, must-ask/go-deeper questions) with names usable as join keys.
     - _Requirements: 5.1, 5.2, 5.3_
-  - [ ] 10.2 Implement the module authoring step producing schema-conformant `module.md` per in-scope module, validating join keys, and (client-instance) only populating recommended modules.
+  - [x] 10.2 Implement the module authoring step producing schema-conformant `module.md` per in-scope module, validating join keys, and (client-instance) only populating recommended modules.
     - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
 - [ ] 11. Per-module asset generation
