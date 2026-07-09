@@ -53,12 +53,12 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - Define the persona→artefact relevance matrix and primary-persona thresholds (internal ≥4, external ≥3) in `engine/critique.py` config, and the sub-agent invocation input/output contract used by the orchestrator.
   - _Requirements: 4.1, 4.2_
 
-- [ ] 8. Output layout, modes, and internal/client separation
-  - [ ] 8.1 Implement `engine/layout.py`: given a configurable output root (default `programmes/<slug>/`), create the template-mode layout (`programme.yaml`, docs, `modules/`, `internal/`, `client/`, `assets/brand/`) and the client-instance layout under `clients/<client-slug>/`.
+- [x] 8. Output layout, modes, and internal/client separation
+  - [x] 8.1 Implement `engine/layout.py`: given a configurable output root (default `programmes/<slug>/`), create the template-mode layout (`programme.yaml`, docs, `modules/`, `internal/`, `client/`, `assets/brand/`) and the client-instance layout under `clients/<client-slug>/`.
     - _Requirements: 12.1, 12.2, 12.5, 12.7_
-  - [ ] 8.2 Enforce that internal-only assets are written under `internal/` and never under `client/` or module `assets/`, and provide a `client_bundle()` helper that excludes `internal/`.
+  - [x] 8.2 Enforce that internal-only assets are written under `internal/` and never under `client/` or module `assets/`, and provide a `client_bundle()` helper that excludes `internal/`.
     - _Requirements: 12.3, 12.4, 9.2_
-  - [ ] 8.3 Implement client-instance cloning that never mutates the template library; unit-test template stays byte-identical (Property 11).
+  - [x] 8.3 Implement client-instance cloning that never mutates the template library; unit-test template stays byte-identical (Property 11).
     - _Requirements: 12.6_
 
 - [ ] 9. Templates and scaffolding step
