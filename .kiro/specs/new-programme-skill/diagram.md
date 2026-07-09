@@ -8,7 +8,11 @@ Improved from the original hand-drawn sketch. The key additions over the sketch:
 - **A manifest** (`programme.yaml`) introduced at scaffold time as the single source of truth.
 - **Explicit spreadsheet + interactive questionnaire phases** (F, G) that the sketch only implied.
 
+> Rendered PNGs (via mermaid.js + Playwright) sit alongside this file: `diagram-flow.png` and `diagram-critique-loop.png`. Regenerate them with `python -m http.server` on `_render-diagrams.html` (recreate it from the mermaid below) and screenshot the SVGs — see the session notes.
+
 ## End-to-end flow
+
+![End-to-end programme flow](diagram-flow.png)
 
 ```mermaid
 flowchart TD
@@ -39,6 +43,8 @@ flowchart TD
 ```
 
 ## The critique loop (detail)
+
+![Critique loop](diagram-critique-loop.png)
 
 ```mermaid
 flowchart LR

@@ -2,9 +2,15 @@
 Content for the New Programme skill spec walkthrough.
 
 Drawn from .kiro/specs/new-programme-skill/design.md + diagram.md.
-CSS-rendered diagrams (pipeline/layers) are used instead of images so the
-document is fully self-contained and prints cleanly.
+CSS-rendered diagrams (pipeline/layers) carry the in-doc flow; the rendered
+mermaid critique-loop PNG is embedded as a figure. Images are embedded as
+base64 by the engine so the document stays self-contained.
 """
+from pathlib import Path
+
+# The rendered mermaid PNGs live next to diagram.md in the spec folder.
+_SPEC = Path(__file__).resolve().parents[2] / ".kiro" / "specs" / "new-programme-skill"
+CRITIQUE_LOOP_PNG = str(_SPEC / "diagram-critique-loop.png")
 
 DOC = {
     "slug": "new-programme-skill-walkthrough",
@@ -133,6 +139,13 @@ DOC = {
                 "ITERATE — apply the top-ranked addressable findings, then re-critique",
                 "ESCALATE — cap hit or backlog stalled -> stop, surface open items to the human",
             ],
+        },
+        {
+            "type": "diagram",
+            "heading": "The critique loop (rendered)",
+            "image": CRITIQUE_LOOP_PNG,
+            "caption": "Relevant personas critique in parallel; the aggregator triages addressable vs parked; "
+                       "gates and an iteration cap guarantee the loop terminates before the human review.",
         },
         {
             "type": "table",
