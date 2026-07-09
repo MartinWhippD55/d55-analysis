@@ -56,6 +56,9 @@ def build_html_d55(doc: dict) -> str:
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 {eng.build_css(bg_uri)}
+/* Allow the (portrait) stage-detail diagrams more height than the engine default,
+   so tall flows render large enough to read on their own page. */
+figure.diagram img {{ max-height: 235mm; }}
 </style>
 </head>
 <body>

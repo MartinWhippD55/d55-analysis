@@ -10,6 +10,11 @@ from pathlib import Path
 
 # The rendered mermaid PNGs live next to diagram.md in the spec folder.
 _SPEC = Path(__file__).resolve().parents[2] / ".kiro" / "specs" / "new-programme-skill"
+OVERVIEW_PNG = str(_SPEC / "diagram-overview.png")
+S1_PNG = str(_SPEC / "diagram-s1-scope.png")
+S2_PNG = str(_SPEC / "diagram-s2-modules.png")
+S3_PNG = str(_SPEC / "diagram-s3-assets.png")
+S4_PNG = str(_SPEC / "diagram-s4-verify.png")
 CRITIQUE_LOOP_PNG = str(_SPEC / "diagram-critique-loop.png")
 
 DOC = {
@@ -65,25 +70,59 @@ DOC = {
             ],
         },
         {
-            "type": "pipeline",
-            "heading": "The programme build flow",
+            "type": "diagram",
+            "heading": "The programme build flow — overview",
             "body": [
-                "Nine phases from idea to a verified asset set. A six-persona critique loop runs before the "
-                "human gate at the context, dimensions, module, and pitch phases (not shown as steps here — "
-                "see the critique loop section).",
+                "Nine phases (A–I), grouped into four stages. The overview shows how the stages connect; each "
+                "of stages 1–3 runs the six-persona critique loop and a human gate internally (the dotted "
+                "self-loops). The stage-by-stage detail follows.",
             ],
-            "steps": [
-                "A. Context",
-                "B. Dimensions",
-                "C. Scaffold + manifest",
-                "D. Module content loop",
-                "E. Per-module assets",
-                "F. Spreadsheets",
-                "G. Interactive questionnaire",
-                "H. Elevator pitch",
-                "I. Verify",
+            "image": OVERVIEW_PNG,
+            "caption": "High-level flow: Scope & Frame -> Build Modules -> Generate Assets -> Verify & Ship.",
+        },
+        {
+            "type": "diagram",
+            "heading": "Stage 1 — Scope & Frame (Phases A–B)",
+            "pageBreak": True,
+            "body": [
+                "Establish the programme context, then the assessment dimensions. Each is refined by the "
+                "critique panel and confirmed at a human gate before advancing.",
             ],
-            "caption": "Phases A, B, D and H each pass through the critique loop, then a human 'Happy?' gate, before advancing.",
+            "image": S1_PNG,
+            "caption": "Context (CEO/Marketing/C-Suite critique) then Dimensions (CTO/Tech/Middle-Mgmt critique).",
+        },
+        {
+            "type": "diagram",
+            "heading": "Stage 2 — Build Modules (Phases C–D)",
+            "pageBreak": True,
+            "body": [
+                "Scaffold the modules and manifest, validate the join keys, then author each in-scope module "
+                "through the critique loop and a per-module human gate.",
+            ],
+            "image": S2_PNG,
+            "caption": "Join keys are validated before authoring; the loop repeats per in-scope module.",
+        },
+        {
+            "type": "diagram",
+            "heading": "Stage 3 — Generate Assets (Phases E–H)",
+            "pageBreak": True,
+            "body": [
+                "Produce the per-module assets, the runbook and questionnaire spreadsheets, the interactive "
+                "questionnaire, and the elevator-pitch deck — with a final critique pass on the client-facing set.",
+            ],
+            "image": S3_PNG,
+            "caption": "Assets -> spreadsheets -> interactive questionnaire -> pitch (Marketing/CEO/C-Suite critique).",
+        },
+        {
+            "type": "diagram",
+            "heading": "Stage 4 — Verify & Ship (Phase I)",
+            "pageBreak": True,
+            "body": [
+                "Verify every output (measure the DOM, check PDFs and spreadsheets); fix and regenerate any "
+                "failures until all checks pass.",
+            ],
+            "image": S4_PNG,
+            "caption": "The programme is only 'ready' once all verification checks pass.",
         },
         {
             "type": "layers",
