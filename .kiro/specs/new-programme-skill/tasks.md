@@ -30,12 +30,12 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - [x] 4.3 Unit-test the validator with deliberately broken fixtures (unknown dimension, unknown manual section, critical-not-covered) and a valid fixture returning empty (Property 1).
     - _Requirements: 2.5_
 
-- [ ] 5. Recommendation logic (single shared implementation)
-  - [ ] 5.1 Implement `engine/recommend.py::recommend_modules(assessment, modules)` exactly per MODULE-SCHEMA trigger logic (include/high/critical, highest-level-wins), plus `validate_assessment` enforcing the scoring bijection and 1–5 range.
+- [x] 5. Recommendation logic (single shared implementation)
+  - [x] 5.1 Implement `engine/recommend.py::recommend_modules(assessment, modules)` exactly per MODULE-SCHEMA trigger logic (include/high/critical, highest-level-wins), plus `validate_assessment` enforcing the scoring bijection and 1–5 range.
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.6_
-  - [ ] 5.2 Unit-test against MODULE-SCHEMA worked examples and the AI-DLC modules (weak-governance→critical, high-ambition-from-strong-base→included).
+  - [x] 5.2 Unit-test against MODULE-SCHEMA worked examples and the AI-DLC modules (weak-governance→critical, high-ambition-from-strong-base→included).
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
-  - [ ] 5.3 Property tests (`hypothesis`): monotonicity (Property 3), priority-implies-inclusion (Property 4), critical gate (Property 5), scoring bijection (Property 2).
+  - [x] 5.3 Property tests (`hypothesis`): monotonicity (Property 3), priority-implies-inclusion (Property 4), critical gate (Property 5), scoring bijection (Property 2).
     - _Requirements: 7.2, 7.3, 7.4, 7.5, 7.6_
 
 - [ ] 6. Critique aggregation and termination
