@@ -48,7 +48,7 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - [x] 6.4 Property tests: loop termination within cap for adversarial/oscillating streams (Properties 7, 8), gate integrity (Property 9), aggregator idempotence/dedupe (Property 10).
     - _Requirements: 4.4, 4.6, 4.7_
 
-- [ ] 7. Persona rubrics and critic invocation contract
+- [x] 7. Persona rubrics and critic invocation contract
   - Author the six persona rubric files in `personas/` (d55_ceo, d55_cto, d55_marketing, client_csuite, client_middle_mgmt, client_technical), each with a scored rubric and the addressable-vs-parked instruction.
   - Define the persona→artefact relevance matrix and primary-persona thresholds (internal ≥4, external ≥3) in `engine/critique.py` config, and the sub-agent invocation input/output contract used by the orchestrator.
   - _Requirements: 4.1, 4.2_
