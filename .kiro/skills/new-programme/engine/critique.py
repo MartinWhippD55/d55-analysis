@@ -45,15 +45,43 @@ INTERNAL_PERSONAS: frozenset[Persona] = frozenset({"d55_ceo", "d55_cto", "d55_ma
 INTERNAL_THRESHOLD = 4       # internal primary >= 4/5
 EXTERNAL_THRESHOLD = 3       # external primary >= 3/5 (credibility, not perfection)
 
-# Persona -> artefact relevance matrix: the PRIMARY (score-gating, "●●") personas
-# per phase. Contributing/light-touch personas critique but do not gate.
-# (Fuller matrix + rubric files are authored in Task 7.)
+# Persona -> artefact relevance matrix (design "Persona → artefact relevance").
+# Level per persona per phase:
+#   "primary"      = ●● score-gates the artefact
+#   "contributing" = ●  critiques and feeds the backlog, does not gate
+#   "light"        = ○  optional light-touch review
+Level = Literal["primary", "contributing", "light"]
+
+RELEVANCE_MATRIX: dict[str, dict[Persona, Level]] = {
+    # A. Context / positioning
+    "A": {"d55_ceo": "primary", "d55_cto": "contributing", "d55_marketing": "primary",
+          "client_csuite": "primary", "client_middle_mgmt": "light", "client_technical": "light"},
+    # B. Dimensions / questions
+    "B": {"d55_ceo": "light", "d55_cto": "primary", "d55_marketing": "light",
+          "client_csuite": "contributing", "client_middle_mgmt": "primary", "client_technical": "primary"},
+    # D. Module content
+    "D": {"d55_ceo": "contributing", "d55_cto": "primary", "d55_marketing": "contributing",
+          "client_csuite": "contributing", "client_middle_mgmt": "primary", "client_technical": "primary"},
+    # G. Interactive questionnaire
+    "G": {"d55_ceo": "contributing", "d55_cto": "contributing", "d55_marketing": "primary",
+          "client_csuite": "primary", "client_middle_mgmt": "contributing", "client_technical": "contributing"},
+    # H. Elevator pitch
+    "H": {"d55_ceo": "primary", "d55_cto": "light", "d55_marketing": "primary",
+          "client_csuite": "primary", "client_middle_mgmt": "light", "client_technical": "light"},
+}
+
+
+def personas_for(phase: str, include_light: bool = False) -> tuple[Persona, ...]:
+    """Personas that critique a phase. By default primary + contributing (not light)."""
+    levels = RELEVANCE_MATRIX.get(phase, {})
+    keep = {"primary", "contributing"} | ({"light"} if include_light else set())
+    return tuple(p for p, lvl in levels.items() if lvl in keep)
+
+
+# The PRIMARY (score-gating, ●●) personas per phase, derived from the matrix.
 PRIMARY_PERSONAS: dict[str, tuple[Persona, ...]] = {
-    "A": ("d55_ceo", "d55_marketing", "client_csuite"),          # Context / positioning
-    "B": ("d55_cto", "client_middle_mgmt", "client_technical"),  # Dimensions / questions
-    "D": ("d55_cto", "client_middle_mgmt", "client_technical"),  # Module content
-    "G": ("d55_marketing", "client_csuite"),                     # Interactive questionnaire
-    "H": ("d55_ceo", "d55_marketing", "client_csuite"),          # Elevator pitch
+    phase: tuple(p for p, lvl in levels.items() if lvl == "primary")
+    for phase, levels in RELEVANCE_MATRIX.items()
 }
 
 
@@ -256,6 +284,8 @@ __all__ = [
     "SEVERITY_WEIGHT",
     "MAX_ITERATIONS",
     "CONVERGENCE_DELTA",
+    "RELEVANCE_MATRIX",
+    "personas_for",
     "PRIMARY_PERSONAS",
     "primary_thresholds",
     "aggregate",
