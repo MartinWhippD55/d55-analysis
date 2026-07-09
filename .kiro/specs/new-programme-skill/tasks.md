@@ -38,14 +38,14 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - [x] 5.3 Property tests (`hypothesis`): monotonicity (Property 3), priority-implies-inclusion (Property 4), critical gate (Property 5), scoring bijection (Property 2).
     - _Requirements: 7.2, 7.3, 7.4, 7.5, 7.6_
 
-- [ ] 6. Critique aggregation and termination
-  - [ ] 6.1 Implement `engine/critique.py`: `aggregate(results, phase, iteration)` (dedupe, rank by severity × persona weight × cross-persona frequency, addressable/parked split, `passed` gate) and `should_continue(history)` returning PASS/ITERATE/ESCALATE with the max-iteration cap and stall detection.
+- [x] 6. Critique aggregation and termination
+  - [x] 6.1 Implement `engine/critique.py`: `aggregate(results, phase, iteration)` (dedupe, rank by severity × persona weight × cross-persona frequency, addressable/parked split, `passed` gate) and `should_continue(history)` returning PASS/ITERATE/ESCALATE with the max-iteration cap and stall detection.
     - _Requirements: 4.3, 4.4, 4.5, 4.6, 4.7_
-  - [ ] 6.2 Implement the critique-log writer that appends per-persona scores, backlog delta, and decision each round.
+  - [x] 6.2 Implement the critique-log writer that appends per-persona scores, backlog delta, and decision each round.
     - _Requirements: 4.8_
-  - [ ] 6.3 Unit-test `aggregate` (dedupe/weighting/gate) and `should_continue` (PASS, cap ESCALATE, stall ESCALATE, ITERATE).
+  - [x] 6.3 Unit-test `aggregate` (dedupe/weighting/gate) and `should_continue` (PASS, cap ESCALATE, stall ESCALATE, ITERATE).
     - _Requirements: 4.5, 4.6_
-  - [ ] 6.4 Property tests: loop termination within cap for adversarial/oscillating streams (Properties 7, 8), gate integrity (Property 9), aggregator idempotence/dedupe (Property 10).
+  - [x] 6.4 Property tests: loop termination within cap for adversarial/oscillating streams (Properties 7, 8), gate integrity (Property 9), aggregator idempotence/dedupe (Property 10).
     - _Requirements: 4.4, 4.6, 4.7_
 
 - [ ] 7. Persona rubrics and critic invocation contract
