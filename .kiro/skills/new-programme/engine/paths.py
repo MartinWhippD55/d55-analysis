@@ -46,6 +46,16 @@ def brand_assets_dir() -> Path:
     return BUNDLE_ROOT / "assets" / "brand"
 
 
+def default_logo() -> Path:
+    """Return the vendored default D55 logo (white, for the dark cover)."""
+    return brand_assets_dir() / "d55-logo-white.png"
+
+
+def default_background() -> Path:
+    """Return the vendored default D55 cover background."""
+    return brand_assets_dir() / "d55-background.jpg"
+
+
 def examples_dir() -> Path:
     """Return the worked-example directory."""
     return BUNDLE_ROOT / "examples"
@@ -72,6 +82,8 @@ __all__ = [
     "templates_dir",
     "personas_dir",
     "brand_assets_dir",
+    "default_logo",
+    "default_background",
     "examples_dir",
     "resource",
 ]
