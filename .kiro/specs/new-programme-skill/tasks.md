@@ -61,7 +61,7 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - [x] 8.3 Implement client-instance cloning that never mutates the template library; unit-test template stays byte-identical (Property 11).
     - _Requirements: 12.6_
 
-- [ ] 9. Templates and scaffolding step
+- [x] 9. Templates and scaffolding step
   - Add `templates/` skeletons (`programme.yaml.tmpl`, `module.md.tmpl`, `dimensions.md.tmpl`, `client-operating-manual-toc.md.tmpl`) and implement the scaffold routine that instantiates them and runs `validate_join_keys` after scaffolding.
   - _Requirements: 2.1, 6.1, 6.3_
 
