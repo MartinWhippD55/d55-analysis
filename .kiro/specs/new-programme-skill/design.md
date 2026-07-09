@@ -553,19 +553,19 @@ A non-empty result is a **hard stop** — the orchestrator routes violations bac
 
 The invariants the implementation must uphold; these drive the tests below.
 
-1. **Manifest integrity** — after a successful build, `validate_join_keys` returns empty (dimensions ↔ modules ↔ manual TOC all resolve). A broken join is a hard stop, not a drifted doc.
-2. **Scoring bijection** — every dimension in the manifest is scored exactly once; each score ∈ [1,5] for both current and target.
-3. **Recommendation monotonicity** — lowering a covered dimension's current, or raising its target, never *removes* a module from the recommended set (it can only add or raise priority).
-4. **Priority implies inclusion** — no module is ever returned high/critical while excluded; status is the highest triggered (critical > high > standard).
-5. **Critical gate honoured** — if a module names `critical_dimensions` with a threshold and a listed dimension's current ≤ threshold, the module is always included and flagged critical.
-6. **Trigger-logic parity** — the interactive questionnaire's client-side recommendations exactly match build-time `recommend_modules()` for the same scores.
-7. **Loop termination** — every critique loop halts within `MAX_ITERATIONS`, or earlier on PASS/stall. No input causes unbounded iteration.
-8. **Convergence detection** — if consecutive iterations don't shrink the addressable backlog by ≥ `CONVERGENCE_DELTA`, the loop escalates rather than continuing.
-9. **Gate integrity** — `AggregateVerdict.passed` is true iff every primary persona meets its threshold and there are zero open blockers; parked items never affect the score.
-10. **Aggregator idempotence** — identical findings from multiple personas collapse to one backlog item (by `dedupe_key`), ranked by cross-persona frequency; aggregating the same results twice yields the same order.
-11. **Mode isolation** — a client-instance build never mutates the template library.
-12. **Self-containment** — every HTML output embeds its assets/runtime as base64 (portable, offline) — no CDN links, per `deliverables-toolkit`.
-13. **Bundle portability** — a skill bundle copied to a location outside the repo runs end-to-end on its bundled example with no path resolving into `analysis/`, the repo root, or any absolute path. All resources it needs are inside the bundle.
+1. **Manifest integrity** — after a successful build, `validate_join_keys` returns empty (dimensions ↔ modules ↔ manual TOC all resolve). A broken join is a hard stop, not a drifted doc. *(Validates: Requirement 2.5)*
+2. **Scoring bijection** — every dimension in the manifest is scored exactly once; each score ∈ [1,5] for both current and target. *(Validates: Requirement 7.6)*
+3. **Recommendation monotonicity** — lowering a covered dimension's current, or raising its target, never *removes* a module from the recommended set (it can only add or raise priority). *(Validates: Requirement 7.5)*
+4. **Priority implies inclusion** — no module is ever returned high/critical while excluded; status is the highest triggered (critical > high > standard). *(Validates: Requirement 7.4)*
+5. **Critical gate honoured** — if a module names `critical_dimensions` with a threshold and a listed dimension's current ≤ threshold, the module is always included and flagged critical. *(Validates: Requirement 7.3)*
+6. **Trigger-logic parity** — the interactive questionnaire's client-side recommendations exactly match build-time `recommend_modules()` for the same scores. *(Validates: Requirement 11.3)*
+7. **Loop termination** — every critique loop halts within `MAX_ITERATIONS`, or earlier on PASS/stall. No input causes unbounded iteration. *(Validates: Requirement 4.6)*
+8. **Convergence detection** — if consecutive iterations don't shrink the addressable backlog by ≥ `CONVERGENCE_DELTA`, the loop escalates rather than continuing. *(Validates: Requirement 4.6)*
+9. **Gate integrity** — `AggregateVerdict.passed` is true iff every primary persona meets its threshold and there are zero open blockers; parked items never affect the score. *(Validates: Requirement 4.4)*
+10. **Aggregator idempotence** — identical findings from multiple personas collapse to one backlog item (by `dedupe_key`), ranked by cross-persona frequency; aggregating the same results twice yields the same order. *(Validates: Requirement 4.7)*
+11. **Mode isolation** — a client-instance build never mutates the template library. *(Validates: Requirement 12.6)*
+12. **Self-containment** — every HTML output embeds its assets/runtime as base64 (portable, offline) — no CDN links, per `deliverables-toolkit`. *(Validates: Requirements 8.3, 11.4)*
+13. **Bundle portability** — a skill bundle copied to a location outside the repo runs end-to-end on its bundled example with no path resolving into `analysis/`, the repo root, or any absolute path. All resources it needs are inside the bundle. *(Validates: Requirement 14.3)*
 
 ## Testing Strategy
 
