@@ -76,10 +76,10 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - Verify self-containment (base64-embedded, no CDN) in output (Property 12).
   - _Requirements: 8.1, 8.2, 8.3_
 
-- [ ] 12. Spreadsheet generators
-  - [ ] 12.1 Implement the internal Delivery Playbook generator (`openpyxl`): stages, activities, owners, inputs/outputs, decision points; written under `internal/`.
+- [x] 12. Spreadsheet generators
+  - [x] 12.1 Implement the internal Delivery Playbook generator (`openpyxl`): stages, activities, owners, inputs/outputs, decision points; written under `internal/`.
     - _Requirements: 9.1, 9.2_
-  - [ ] 12.2 Implement the assessment questionnaire spreadsheet generator: questions per dimension + 1–5 scale, dimension names matching the manifest; written under `client/`.
+  - [x] 12.2 Implement the assessment questionnaire spreadsheet generator: questions per dimension + 1–5 scale, dimension names matching the manifest; written under `client/`.
     - _Requirements: 10.1, 10.2_
 
 - [ ] 13. Interactive questionnaire generator
