@@ -71,7 +71,7 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - [x] 10.2 Implement the module authoring step producing schema-conformant `module.md` per in-scope module, validating join keys, and (client-instance) only populating recommended modules.
     - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
-- [ ] 11. Per-module asset generation
+- [x] 11. Per-module asset generation
   - Implement `engine/module_assets.py` that reads a module's deliverables and renders branded HTML + matching PDF + starter templates into that module's `assets/` via `programme_engine.build()`.
   - Verify self-containment (base64-embedded, no CDN) in output (Property 12).
   - _Requirements: 8.1, 8.2, 8.3_
