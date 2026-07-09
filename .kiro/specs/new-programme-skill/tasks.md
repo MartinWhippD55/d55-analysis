@@ -18,7 +18,7 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - Confirm `BrandConfig` + `build(doc, cfg, make_pdf)` renders branded, self-contained HTML (base64-embedded assets) and A4 PDF.
   - _Requirements: 8.2, 8.3, 14.1, 14.2_
 
-- [ ] 3. Define core data models
+- [x] 3. Define core data models
   - In `engine/models.py` implement dataclasses: `DimensionScore` (with `gap`), `Assessment`, `Recommendation`/`Status`, `BrandConfig` (reuse), and the critique models `Finding`, `CritiqueResult`, `AggregateVerdict`, plus `ContractViolation`.
   - _Requirements: 2.1, 4.3, 7.1_
 
