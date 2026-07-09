@@ -8,12 +8,12 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
 
 ## Tasks
 
-- [ ] 1. Scaffold the self-sufficient skill bundle
+- [x] 1. Scaffold the self-sufficient skill bundle
   - Create `.kiro/skills/new-programme/` with `SKILL.md` (frontmatter `inclusion: manual`, placeholder), `engine/`, `templates/`, `personas/`, `assets/brand/`, `examples/`, and a bundle-local `requirements.txt` (openpyxl, playwright, pypdf, hypothesis, pyyaml).
   - Add a `paths.py` helper that resolves all resource paths relative to `Path(__file__).parent` (no repo-root or absolute paths).
   - _Requirements: 14.1, 14.2_
 
-- [ ] 2. Vendor and generalise the render engine
+- [x] 2. Vendor and generalise the render engine
   - Copy `analysis/D55/ai-dlc/programme_engine.py` into `engine/programme_engine.py` and remove any repo-relative/absolute path assumptions; make brand assets load from `assets/brand/` via the bundle path helper.
   - Confirm `BrandConfig` + `build(doc, cfg, make_pdf)` renders branded, self-contained HTML (base64-embedded assets) and A4 PDF.
   - _Requirements: 8.2, 8.3, 14.1, 14.2_
