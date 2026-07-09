@@ -22,12 +22,12 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - In `engine/models.py` implement dataclasses: `DimensionScore` (with `gap`), `Assessment`, `Recommendation`/`Status`, `BrandConfig` (reuse), and the critique models `Finding`, `CritiqueResult`, `AggregateVerdict`, plus `ContractViolation`.
   - _Requirements: 2.1, 4.3, 7.1_
 
-- [ ] 4. Manifest loading and the join-key validator
-  - [ ] 4.1 Implement `engine/manifest.py` to read/write `programme.yaml` and parse module frontmatter and manual-TOC section titles.
+- [x] 4. Manifest loading and the join-key validator
+  - [x] 4.1 Implement `engine/manifest.py` to read/write `programme.yaml` and parse module frontmatter and manual-TOC section titles.
     - _Requirements: 2.1_
-  - [ ] 4.2 Implement `validate_join_keys(programme_dir)` returning `ContractViolation[]` for unknown dimension, unknown manual section, critical-not-covered, and scoring bijection issues; make it a hard stop for callers.
+  - [x] 4.2 Implement `validate_join_keys(programme_dir)` returning `ContractViolation[]` for unknown dimension, unknown manual section, critical-not-covered, and scoring bijection issues; make it a hard stop for callers.
     - _Requirements: 2.2, 2.3, 2.4, 2.5_
-  - [ ] 4.3 Unit-test the validator with deliberately broken fixtures (unknown dimension, unknown manual section, critical-not-covered) and a valid fixture returning empty (Property 1).
+  - [x] 4.3 Unit-test the validator with deliberately broken fixtures (unknown dimension, unknown manual section, critical-not-covered) and a valid fixture returning empty (Property 1).
     - _Requirements: 2.5_
 
 - [ ] 5. Recommendation logic (single shared implementation)
