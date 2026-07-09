@@ -22,7 +22,8 @@ The **AI-DLC programme** (`analysis/D55/ai-dlc/`) is the reference implementatio
 - One orchestrator skill that takes a programme from idea → full asset set.
 - Every artefact driven from a single machine-readable **programme manifest**, so tooling and the interactive questionnaire never drift from the docs.
 - A structured, repeatable critique loop across six named perspectives, with score gates and a triage of *addressable-now* vs *parked* issues.
-- Heavy reuse of existing skills (`deliverables-toolkit`, `summary-presentation`, `estimate-spreadsheet`, `data-model-pdf`, `openapi-html`) and the config-driven `programme_engine.py`.
+- **Self-sufficient, portable skill bundles** — the skill and its sub-skills carry everything they need (engine code, brand assets, templates, worked examples) inside their own directories, so a skill (or the whole set) can be zipped and dropped into another repo/project with no external-folder dependencies.
+- Build on the *patterns* of existing skills (`deliverables-toolkit`, `summary-presentation`, `estimate-spreadsheet`, `data-model-pdf`, `openapi-html`) and the config-driven `programme_engine.py` — vendoring the reusable engine into the bundle rather than referencing it across the repo.
 
 ### Non-goals
 
@@ -146,6 +147,41 @@ analysis/D55/<programme-slug>/
   programme_engine.py                # config-driven render engine (reused/generalised)
   build_*.py, generate_*.py          # thin content-driven callers
 ```
+
+### Skill self-sufficiency & portability
+
+A hard constraint: **the unit of portability is the skill (or skill-set) directory.** Any skill in this feature must be usable by zipping its directory and dropping it into another repo — with no reach-back into `analysis/`, no shared repo-root modules, and no hard-coded absolute paths. Portability wins over DRY: if two skills need the same engine, each carries its own vendored copy (or they ship together as one skill-set directory) rather than referencing a shared file elsewhere.
+
+Consequently, a skill stops being a lone `.kiro/skills/<name>.md` file and becomes a **bundle directory**:
+
+```
+.kiro/skills/new-programme/
+  SKILL.md                       # the skill instructions (frontmatter: inclusion: manual)
+  MODULE-SCHEMA.md               # the module frontmatter contract (vendored, not referenced)
+  engine/
+    programme_engine.py          # vendored, self-contained render engine (BrandConfig + DOC -> HTML/PDF)
+    spreadsheet_engine.py        # runbook + questionnaire xlsx generation
+    questionnaire_template.html  # the interactive radar/recommendation tool template
+  templates/
+    programme.yaml.tmpl          # manifest skeleton
+    module.md.tmpl               # module skeleton to the schema
+    dimensions.md.tmpl
+    client-operating-manual-toc.md.tmpl
+  personas/
+    d55_ceo.md  d55_cto.md  d55_marketing.md
+    client_csuite.md  client_middle_mgmt.md  client_technical.md   # the six critique rubrics
+  assets/brand/                  # default D55 logo + background (overridable per programme)
+  examples/ai-dlc/               # a trimmed worked example (patterns, not full prose)
+```
+
+Rules that keep bundles portable:
+- **Resolve paths relative to the bundle** (`Path(__file__).parent`), never relative to a repo root or `analysis/`.
+- **Vendor, don't reference.** The engine, schema, persona rubrics, brand assets, and a worked example are copied into the bundle. Updating the reference implementation does not silently change a shipped skill.
+- **Declare dependencies inside the bundle.** Python libs used (`openpyxl`, `playwright`, `pypdf`, `hypothesis`) are listed in a bundle-local `requirements.txt`; no assumption about the host repo's environment beyond a Python interpreter + Chromium.
+- **Programme output location is a parameter**, defaulting to the bundle's own `output/` when run standalone, or a caller-supplied directory when embedded — so the skill never writes into fixed repo paths.
+- **A portability check** (see Testing) copies a bundle to a temp dir outside the repo and runs it end-to-end on the example, asserting it produces outputs with no `analysis/`-relative or absolute-path failures.
+
+This applies to the review/walkthrough tooling too: walkthrough generators live under a top-level `walkthroughs/<skill>/` folder (not inside the spec), and the New Programme skill's own outputs are self-contained. The one acknowledged exception is the current `build_spec_walkthrough.py` review artefact, which still imports the BRYT engine by path — that is a throwaway doc generator, not a shipped skill, and is the very cross-folder coupling the `programme_engine.py` vendoring is designed to remove.
 
 ### Sequence: module build + critique iteration (Phase D)
 
@@ -529,6 +565,7 @@ The invariants the implementation must uphold; these drive the tests below.
 10. **Aggregator idempotence** — identical findings from multiple personas collapse to one backlog item (by `dedupe_key`), ranked by cross-persona frequency; aggregating the same results twice yields the same order.
 11. **Mode isolation** — a client-instance build never mutates the template library.
 12. **Self-containment** — every HTML output embeds its assets/runtime as base64 (portable, offline) — no CDN links, per `deliverables-toolkit`.
+13. **Bundle portability** — a skill bundle copied to a location outside the repo runs end-to-end on its bundled example with no path resolving into `analysis/`, the repo root, or any absolute path. All resources it needs are inside the bundle.
 
 ## Testing Strategy
 
@@ -551,6 +588,7 @@ Following `deliverables-toolkit` (the agent cannot view images — measure the D
 - **Per-module & overview docs:** measure DOM (images loaded `naturalWidth>0`, expected block counts, cover background applied); read PDFs back with `pypdf` for page count/size (A4 595×842pt) and orphaned-heading detection.
 - **Spreadsheets:** open with `openpyxl`, assert expected sheets/rows; restore from git after read-only checks (openpyxl rewrites binaries).
 - **Mode isolation (Property 11):** client-instance build leaves the template library byte-identical (git clean).
+- **Bundle portability (Property 13):** copy the skill bundle to a temp dir *outside* the repo, run it on the bundled example, and assert it produces outputs and that no file/asset load resolves into `analysis/`, the repo root, or an absolute path. This is the guard that the "zip and drop into another project" promise actually holds.
 - Clean up temporary servers, screenshots, and check scripts afterwards.
 
 ## Error Handling
@@ -570,6 +608,7 @@ Following `deliverables-toolkit` (the agent cannot view images — measure the D
 3. **External-persona thresholds lower than internal.** External audiences stress credibility; holding them to 5/5 would loop forever on things only a real pilot can fix. Parked-vs-addressable triage keeps the loop honest.
 4. **Reuse over rebuild.** `programme_engine.py`, `deliverables-toolkit`, and `summary-presentation` do the heavy rendering; new sub-skills are thin content producers. Cheapest path to a working skill.
 5. **Template vs client-instance modes.** Maintain a canonical template library per programme; clone per client and scope by scores rather than editing the template in place.
+6. **Portability over DRY — skills are self-sufficient bundles.** Each skill directory vendors its engine, schema, persona rubrics, brand assets, and a worked example so it can be zipped and reused elsewhere with zero external-folder dependencies. *Alternative rejected:* referencing a shared repo-root engine and the `analysis/D55/ai-dlc/` reference by path — smaller footprint, but the skill breaks the moment it leaves this repo, which defeats the point of packaging it as a shareable skill.
 
 ## Open Questions (for requirements/confirmation)
 
