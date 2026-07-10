@@ -107,12 +107,12 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - Implement a test that copies the bundle to a temp dir outside the repo and runs it end-to-end on the bundled `examples/` programme, asserting outputs are produced and no path resolves into `analysis/`, the repo root, or an absolute path (Property 13).
   - _Requirements: 14.1, 14.2, 14.3, 14.4_
 
-- [ ] 18. End-to-end integration
-  - [ ] 18.1 Add a tiny 2-dimension / 2-module fixture programme and run template mode end-to-end; assert deliverable completeness and self-containment.
+- [x] 18. End-to-end integration
+  - [x] 18.1 Add a tiny 2-dimension / 2-module fixture programme and run template mode end-to-end; assert deliverable completeness and self-containment.
     - _Requirements: 1.4, 8.3, 11.4, 15.1_
-  - [ ] 18.2 Run client-instance mode on the fixture with sample scores; assert only in-scope modules get assets and the template is untouched.
+  - [x] 18.2 Run client-instance mode on the fixture with sample scores; assert only in-scope modules get assets and the template is untouched.
     - _Requirements: 1.2, 6.4, 12.6_
-  - [ ] 18.3 Regenerate the AI-DLC programme through the skill as the reference validation and diff against the existing hand-built assets for parity of structure.
+  - [x] 18.3 Regenerate the AI-DLC programme through the skill as the reference validation and diff against the existing hand-built assets for parity of structure.
     - _Requirements: 1.3, 1.4_
 
 ## Task Dependency Graph
