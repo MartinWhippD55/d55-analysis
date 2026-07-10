@@ -96,7 +96,7 @@ p, li { orphans: 2; widows: 2; }
         <div class="eyebrow">Module 3</div>
         <h1>A test strategy for AI-generated code (gates, coverage, review bar)</h1>
         <div class="subtitle">Shipping Safely</div>
-        <div class="badge">Starter template</div>
+        <div class="badge">Workshop deliverable · template</div>
     </div>
     <div class="meta">
         <div class="org">D55</div>
@@ -104,7 +104,7 @@ p, li { orphans: 2; widows: 2; }
     </div>
 </div>
 <div class="content">
-<section class="block block-section"><h2>Purpose</h2><p>Starter template for <strong>A test strategy for AI-generated code (gates, coverage, review bar)</strong>, produced by Module 3 — Shipping Safely.</p></section><section class="block block-section"><h2>How to use</h2><ul class="bullets"><li>Replace the placeholder content with the client's specifics.</li><li>Keep the D55 branding and structure.</li><li>This artefact writes into the Client Operating Manual section: 3. Shipping Safely.</li></ul></section><section class="block callout"><h3>Notes</h3><p>TODO — capture decisions, owners, and follow-ups here.</p></section>
+<section class="block block-section"><h2>The principle</h2><p>Confidence in AI-generated code should be <strong>evidence-based, not assumed</strong>. The bar is the same as human code; the tactics adapt to how AI produces code.</p></section><section class="block block-table"><h2>Gates &amp; bar</h2><table class="data-table"><thead><tr><th>Control</th><th>Standard</th><th>Your setting</th></tr></thead><tbody><tr><td>Coverage gate</td><td>CI fails below the agreed threshold, AI or human code</td><td>__%</td></tr><tr><td>Tests from specs</td><td>Tests generated against the spec's acceptance criteria</td><td>____</td></tr><tr><td>Human-in-the-loop</td><td>Mandatory human validation at integration points</td><td>____</td></tr><tr><td>Regression</td><td>Automated regression on key flows (e.g. Playwright)</td><td>____</td></tr><tr><td>Advanced</td><td>Mutation / property-based testing on critical paths</td><td>____</td></tr><tr><td>Prod feedback</td><td>Prod issues feed back into test coverage</td><td>____</td></tr></tbody></table></section><section class="block callout"><h3>New failure modes to watch</h3><ul class="bullets"><li>Plausible-but-wrong code that passes shallow tests.</li><li>Over-mocked tests that assert the implementation, not the behaviour.</li><li>Integration seams the assistant didn't have context for.</li></ul></section>
 </div>
 </body>
 </html>
