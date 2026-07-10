@@ -103,7 +103,7 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - [x] 16.3 Author `SKILL.md` orchestrator instructions tying the steps, sub-skills, and critic invocation together (manual inclusion).
     - _Requirements: 1.1, 4.1, 4.2_
 
-- [ ] 17. Bundle portability check
+- [x] 17. Bundle portability check
   - Implement a test that copies the bundle to a temp dir outside the repo and runs it end-to-end on the bundled `examples/` programme, asserting outputs are produced and no path resolves into `analysis/`, the repo root, or an absolute path (Property 13).
   - _Requirements: 14.1, 14.2, 14.3, 14.4_
 
