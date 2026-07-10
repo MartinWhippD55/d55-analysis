@@ -1,0 +1,93 @@
+programme:
+  slug: ai-dlc
+  name: AI Development Lifecycle
+  external_name: null
+  one_liner: One hour. Eight dimensions. A clear AI roadmap — free.
+  phases:
+  - Assess
+  - Teach
+  - Prove
+  - Scale
+  commercial:
+    free_assessment: true
+    tiers:
+    - Assess
+    - Assess+Teach
+    - Full programme
+brand:
+  primary: '#1a0a3e'
+  logo: assets/brand/d55-logo-white.png
+  background: assets/brand/d55-background.jpg
+dimensions:
+- name: Leadership & Mandate
+  short: Leadership
+  rubric_ref: dimensions.md#leadership-mandate
+- name: Developer Tooling & Adoption
+  short: Tooling
+  rubric_ref: dimensions.md#developer-tooling-adoption
+- name: Specification & Design Process
+  short: Specs
+  rubric_ref: dimensions.md#specification-design-process
+- name: Delivery Process & Ceremonies
+  short: Delivery
+  rubric_ref: dimensions.md#delivery-process-ceremonies
+- name: Testing & Quality Assurance
+  short: Testing
+  rubric_ref: dimensions.md#testing-quality-assurance
+- name: Governance, Security & Compliance
+  short: Governance
+  rubric_ref: dimensions.md#governance-security-compliance
+- name: Team Adaptation & Skills
+  short: People
+  rubric_ref: dimensions.md#team-adaptation-skills
+- name: Metrics & ROI
+  short: Metrics
+  rubric_ref: dimensions.md#metrics-roi
+modules:
+- id: 1
+  slug: leadership-and-investment-case
+  title: Leadership & the Investment Case
+  dimensions_covered:
+  - Leadership & Mandate
+  - Metrics & ROI
+  manual_section: 1. Mandate & Measurement
+  trigger:
+    recommend_when_current_at_or_below: 2
+    include_when_gap_at_or_above: 2
+    prioritise_when_gap_at_or_above: 2
+- id: 2
+  slug: ai-first-delivery-lifecycle
+  title: The AI-First Delivery Lifecycle
+  dimensions_covered:
+  - Developer Tooling & Adoption
+  - Specification & Design Process
+  - Delivery Process & Ceremonies
+  manual_section: 2. How We Build
+  trigger:
+    recommend_when_current_at_or_below: 3
+    include_when_gap_at_or_above: 2
+    prioritise_when_gap_at_or_above: 2
+- id: 3
+  slug: shipping-safely
+  title: Shipping Safely
+  dimensions_covered:
+  - Testing & Quality Assurance
+  - Governance, Security & Compliance
+  manual_section: 3. Shipping Safely
+  trigger:
+    recommend_when_current_at_or_below: 3
+    include_when_gap_at_or_above: 2
+    prioritise_when_gap_at_or_above: 2
+    critical_dimensions:
+    - Governance, Security & Compliance
+    critical_when_current_at_or_below: 2
+- id: 4
+  slug: people-and-change
+  title: People & Change
+  dimensions_covered:
+  - Team Adaptation & Skills
+  manual_section: 4. People & Operating Model
+  trigger:
+    recommend_when_current_at_or_below: 3
+    include_when_gap_at_or_above: 2
+    prioritise_when_gap_at_or_above: 2
