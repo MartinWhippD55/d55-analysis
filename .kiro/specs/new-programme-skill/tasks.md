@@ -82,7 +82,7 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - [x] 12.2 Implement the assessment questionnaire spreadsheet generator: questions per dimension + 1–5 scale, dimension names matching the manifest; written under `client/`.
     - _Requirements: 10.1, 10.2_
 
-- [ ] 13. Interactive questionnaire generator
+- [x] 13. Interactive questionnaire generator
   - Generalise the AI-DLC `workshop.html` into `engine/questionnaire.py` + `templates/questionnaire_template.html`, reading dimensions and module trigger logic from the manifest (embedded at build time), rendering the radar chart and recommendations.
   - Reuse the exact `recommend_modules` logic client-side; add a parity test asserting client-side output matches build-time for fixture scores (Property 6). Output self-contained HTML under `client/` (Property 12).
   - _Requirements: 11.1, 11.2, 11.3, 11.4_
