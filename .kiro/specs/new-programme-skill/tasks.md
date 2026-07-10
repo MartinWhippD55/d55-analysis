@@ -87,7 +87,7 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - Reuse the exact `recommend_modules` logic client-side; add a parity test asserting client-side output matches build-time for fixture scores (Property 6). Output self-contained HTML under `client/` (Property 12).
   - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
-- [ ] 14. Elevator-pitch generator
+- [x] 14. Elevator-pitch generator
   - Implement the pitch deck generator (reusing the `summary-presentation` pattern): 2-minute narrative, stage path, value, next step; tailored to gaps in client-instance mode; written under `client/`.
   - _Requirements: 13.1, 13.2, 13.3_
 
