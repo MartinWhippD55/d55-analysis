@@ -95,12 +95,12 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - Implement `engine/verify.py`: serve locally + drive Playwright to measure the DOM (images loaded, expected counts, no overflow); read PDFs with `pypdf` (page count/size, orphaned-heading detection); open xlsx with `openpyxl` (expected sheets/rows). On failure, signal the affected asset for regeneration; clean up temp servers/scripts.
   - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5_
 
-- [ ] 16. Orchestrator: state machine, phases, and human gates
-  - [ ] 16.1 Implement `engine/orchestrator.py` driving the four stages (Scope & Frame, Build Modules, Generate Assets, Verify & Ship), the per-artefact critique loop before each human gate, and the module loop with per-module gate.
+- [x] 16. Orchestrator: state machine, phases, and human gates
+  - [x] 16.1 Implement `engine/orchestrator.py` driving the four stages (Scope & Frame, Build Modules, Generate Assets, Verify & Ship), the per-artefact critique loop before each human gate, and the module loop with per-module gate.
     - _Requirements: 1.1, 1.3, 3.1, 3.2, 3.3, 3.4, 3.5_
-  - [ ] 16.2 Wire mode handling (template vs client-instance), required-input prompting, and the working-assumptions register for provisional decisions.
+  - [x] 16.2 Wire mode handling (template vs client-instance), required-input prompting, and the working-assumptions register for provisional decisions.
     - _Requirements: 1.1, 1.2, 1.4, 1.5_
-  - [ ] 16.3 Author `SKILL.md` orchestrator instructions tying the steps, sub-skills, and critic invocation together (manual inclusion).
+  - [x] 16.3 Author `SKILL.md` orchestrator instructions tying the steps, sub-skills, and critic invocation together (manual inclusion).
     - _Requirements: 1.1, 4.1, 4.2_
 
 - [ ] 17. Bundle portability check
