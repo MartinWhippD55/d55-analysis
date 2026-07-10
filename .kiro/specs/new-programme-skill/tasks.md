@@ -91,7 +91,7 @@ The bundle lives at `.kiro/skills/new-programme/`. Paths resolve relative to the
   - Implement the pitch deck generator (reusing the `summary-presentation` pattern): 2-minute narrative, stage path, value, next step; tailored to gaps in client-instance mode; written under `client/`.
   - _Requirements: 13.1, 13.2, 13.3_
 
-- [ ] 15. Output verification harness
+- [x] 15. Output verification harness
   - Implement `engine/verify.py`: serve locally + drive Playwright to measure the DOM (images loaded, expected counts, no overflow); read PDFs with `pypdf` (page count/size, orphaned-heading detection); open xlsx with `openpyxl` (expected sheets/rows). On failure, signal the affected asset for regeneration; clean up temp servers/scripts.
   - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5_
 
