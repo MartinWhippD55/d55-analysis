@@ -28,7 +28,8 @@ DOC = {
                 "against an end-July target — for work smaller than Debt Management, which we delivered "
                 "in ~2 months with 9 developers.",
                 "The variable that changed is the process, not the people. The fastest route back to "
-                "pace is to reinstate design-first, then AI-accelerate from it.",
+                "pace is to reinstate design-first, split the work by technical area (not business "
+                "area), assign owners, then AI-accelerate from it.",
                 "Opportunity: ESG want to learn how we break work down for AI. We're in the process of "
                 "productising exactly that — route it into a value-adding engagement rather than giving "
                 "it away piecemeal.",
@@ -105,7 +106,9 @@ DOC = {
                 "The current setup under-uses D55's strengths. Our value was never interchangeable "
                 "coding capacity — it was the delivery system (design-first plus AI acceleration) that "
                 "produced the earlier results. Embedded as individual contributors under another "
-                "process, that advantage is switched off.",
+                "process — without a view of the wider delivery, against a constantly moving baseline, "
+                "and with no technical-area ownership — that advantage is lost. Not through any lack of "
+                "ability, but through the absence of oversight to guide everyone in the same direction.",
             ],
         },
         # ---------------------------------------------------------------
@@ -148,7 +151,8 @@ DOC = {
             "type": "section",
             "heading": "How the realistic estimate builds up",
             "bullets": [
-                "~178 dev-days estimated across the 16 initiatives (gut-feel, no design).",
+                "~178 dev-days estimated across the 16 initiatives (gut-feel, no design), and "
+                "excluding system testing.",
                 "Team of 5 → ~35–36 dev-days ≈ ~7 dev-weeks of pure build, if perfectly parallel with "
                 "zero rework.",
                 "Excludes testing, defect-fixing, and merging feature-branch PRs into main — a "
@@ -192,6 +196,14 @@ DOC = {
                 "Gut-feel estimates and ad-hoc ambiguity resolution mid-flight, rather than designed out early.",
                 "Fragmented design ownership — per-developer initiative design drives communication "
                 "overhead and integration rework.",
+                "No technical-area owners. Debt Management had clear owners for front-end, back-end "
+                "logic & validation, API endpoints & handlers, and the debt pipeline — each with clear "
+                "accountability, clean communication lines, and very little rework, because "
+                "cross-cutting design decisions were made with a view of the whole. The current "
+                "per-initiative (business-area) split has none of that.",
+                "AI works better scoped to a specific technical area than to a business area spanning "
+                "many. Technical-area ownership is what lets AI deliver faster, with better testing "
+                "and less rework.",
                 "No comparable metrics — without our decomposition we can't produce the like-for-like "
                 "throughput data that would evidence the pace drop.",
                 "Autonomy removed — decision latency when every meaningful call routes through ESG leads.",
@@ -221,9 +233,9 @@ DOC = {
             "type": "pipeline",
             "steps": [
                 "Reinstate design-first",
+                "Split by technical area & assign owners",
                 "AI-accelerate from the design",
                 "Phase the delivery",
-                "Align accountability with control",
                 "Right-size the team post-design",
             ],
             "caption": "The sequence matters: design first is the enabler for everything downstream.",
@@ -233,6 +245,9 @@ DOC = {
             "bullets": [
                 "Reinstate design-first: a technical design across the 16 initiatives up front, "
                 "resolving the overlaps once. This enables everything else.",
+                "Split by technical area and assign owners: front-end, back-end logic & validation, "
+                "API endpoints & handlers, and pipeline — re-establishing accountability, clear "
+                "communication lines, and overall control, as we had on Debt Management.",
                 "AI-accelerate from the design: with clean design and defined contracts, large sections "
                 "can be one-shot with Claude/Copilot — where the throughput multiplier actually lives.",
                 "Phase the delivery: carving into phases (already on ESG's agenda) plays to "
@@ -251,7 +266,8 @@ DOC = {
             "rows": [
                 ["More resource",
                  "Won't help linearly on undesigned, overlapping work — risks worsening integration "
-                 "rework. Design first, then add people to a decomposed backlog."],
+                 "rework. Design first, assign technical-area owners, then add people to a decomposed "
+                 "backlog organised by technical area, not business area."],
                 ["Use of AI",
                  "The real lever — but it requires the upfront design. This is the honest case for "
                  "reinstating design-first."],

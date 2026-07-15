@@ -9,7 +9,7 @@
 - D55 delivered four major workstreams — Financial Management, Instalment Plans, Debt Config, Debt Management — **on time, to very tight deadlines**, running our own squads and process.
 - The next tranche (**16 initiatives**) is now being run under a **new operating model**: D55 developers embedded into an ESG squad, ESG leads owning design and decisions, D55's design-first process removed.
 - Under that model, **pace has dropped materially**. Current gut-feel estimates point to a **~end-September** finish against an **end-July** target — for a body of work **smaller than Debt Management**, which we delivered in ~2 months with 9 developers.
-- The single variable that changed is **the process**, not the people. The fastest route back to pace is to **reinstate design-first, then AI-accelerate from it** — the method that produced our previous results.
+- The single variable that changed is **the process**, not the people. The fastest route back to pace is to **reinstate design-first, split the work by technical area (not business area), assign owners, then AI-accelerate from it** — the method that produced our previous results.
 - The strategic opportunity: ESG want to learn how we break work down for AI. We're **in the process of productising exactly that**. Route it into a value-adding engagement rather than giving it away piecemeal.
 - **Bigger picture:** ESG absorbing our ways of working is the *goal* of our engagement model, not a threat. Treat the meeting as genuine **fact-finding** to uncover where else D55 can add value.
 
@@ -49,7 +49,7 @@ Delivery quality held up under scrutiny: on the Debt/IP defect review, **127 def
 - **3 further D55 developers** waiting on workstreams that start end of next week.
 - **2 further D55 developers** working on less involved areas of the codebase.
 
-Observation to convey (calmly, not as a grievance): the current setup **under-uses D55's strengths**. Our value was never interchangeable coding capacity — it was the delivery *system* (design-first + AI acceleration) that produced the earlier results. Embedded as individual contributors under someone else's process, that advantage is switched off.
+Observation to convey (calmly, not as a grievance): the current setup **under-uses D55's strengths**. Our value was never interchangeable coding capacity — it was the delivery *system* (design-first + AI acceleration) that produced the earlier results. Embedded as individual contributors under someone else's process — without a view of the wider delivery, against a constantly moving baseline, and with **no technical-area ownership** — that advantage is lost. Not through any lack of ability, but through the absence of oversight to guide everyone in the same direction.
 
 ---
 
@@ -61,7 +61,7 @@ Observation to convey (calmly, not as a grievance): the current setup **under-us
 | **Realistic (current trajectory)** | ~End of September |
 
 ### How the realistic estimate builds up
-- **~178 dev-days** estimated across the 16 initiatives (gut-feel, no design).
+- **~178 dev-days** estimated across the 16 initiatives (gut-feel, no design), **excluding system testing**.
 - Team of 5 → **~35–36 dev-days ≈ ~7 dev-weeks of pure build**, *if* perfectly parallel with zero rework.
 - That excludes: **testing, defect-fixing, and merging feature-branch PRs into main** — a non-trivial tail on every prior workstream.
 - With refinement only just finished mid-July and no technical design to parallelise cleanly, the honest landing point is **end of September**.
@@ -84,8 +84,10 @@ All of these trace back to **one root cause: the switch away from design-first.*
 2. **Sequential refinement dependency.** Work now waits on individual refinement sessions rather than being decomposed once, upfront.
 3. **Gut-feel estimates + side discussions on ambiguity.** Ambiguity is resolved ad hoc mid-flight instead of being designed out early.
 4. **Fragmented design ownership.** Each dev owning their own initiative design → communication overhead and **rework where overlapping initiatives must integrate**.
-5. **No comparable metrics.** Because we're not using our decomposition, we can't produce the like-for-like throughput data we normally would — which itself obscures the pace drop.
-6. **Autonomy removed.** Decision latency: D55 can't move at its own pace when every meaningful call routes through ESG leads.
+5. **No technical-area owners.** Debt Management had clear owners for front-end, back-end logic & validation, API endpoints & handlers, and the debt pipeline — each with clear accountability, clean communication lines, and very little rework, because cross-cutting design decisions were made with a view of the whole. The current per-initiative (business-area) split has none of that.
+6. **AI works better scoped to a technical area** than to a business area spanning many. Technical-area ownership is what lets AI deliver faster, with better testing and less rework.
+7. **No comparable metrics.** Because we're not using our decomposition, we can't produce the like-for-like throughput data we normally would — which itself obscures the pace drop.
+8. **Autonomy removed.** Decision latency: D55 can't move at its own pace when every meaningful call routes through ESG leads.
 
 **The AI angle that matters most** (and it's D55's own published insight): when developers go 5x with AI, the bottleneck moves from *building* to *specifying*. *"No design specs at 5x speed = failure."* The current model has increased AI pressure on delivery while **removing the specification/design step that makes AI pay off** — so the constraint has moved to the middle layer (design, coordination, refinement), exactly where we're now seeing the slowdown.
 
@@ -96,13 +98,14 @@ All of these trace back to **one root cause: the switch away from design-first.*
 The fastest path is not "more people" or vaguely "more AI." It's restoring the conditions that produced our earlier pace.
 
 1. **Reinstate design-first.** Produce a technical design across the 16 initiatives up front, resolving the overlaps once. This is the enabler for everything else.
-2. **AI-accelerate from the design.** With a clean design and defined contracts/integration points, large sections can be one-shot with Claude/Copilot — this is where the throughput multiplier actually lives.
-3. **Phase the delivery.** Carving into delivery phases (already on ESG's agenda) plays directly to decomposition — sequence by dependency, ship value earlier.
-4. **Align accountability with control.** We're happy to be measured on delivery where we own the levers that drive it. Under a shared-ownership model, timescale accountability is genuinely shared.
-5. **Right-size the team to the work, post-design.** Adding developers *before* the work is designed and decomposed adds coordination overhead and rework, not speed. Design first, then scale the team to the shape of the work.
+2. **Split by technical area and assign owners.** Front-end, back-end logic & validation, API endpoints & handlers, and pipeline — re-establishing accountability, clear communication lines, and overall control, as we had on Debt Management.
+3. **AI-accelerate from the design.** With a clean design and defined contracts/integration points, large sections can be one-shot with Claude/Copilot — this is where the throughput multiplier actually lives.
+4. **Phase the delivery.** Carving into delivery phases (already on ESG's agenda) plays directly to decomposition — sequence by dependency, ship value earlier.
+5. **Align accountability with control.** We're happy to be measured on delivery where we own the levers that drive it. Under a shared-ownership model, timescale accountability is genuinely shared.
+6. **Right-size the team to the work, post-design.** Adding developers *before* the work is designed and decomposed adds coordination overhead and rework, not speed. Design first, then scale the team to the shape of the work.
 
 ### Responding to Jen's agenda (reduce timescales: more resource / AI / phasing)
-- **More resource:** won't help linearly on undesigned, overlapping work — risks worsening integration rework. Design first, then add people to a decomposed backlog.
+- **More resource:** won't help linearly on undesigned, overlapping work — risks worsening integration rework. Design first, assign technical-area owners, then add people to a decomposed backlog organised by technical area, not business area.
 - **Use of AI:** the real lever — *but it requires the upfront design.* This is the honest case for reinstating design-first.
 - **Phasing:** yes, supportive — it aligns with how we decompose.
 
