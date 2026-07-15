@@ -1,0 +1,2 @@
+- design first, then parallelise the work
+- Damian is spread too thin

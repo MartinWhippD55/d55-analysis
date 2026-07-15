@@ -154,6 +154,7 @@ p {{ margin: 0 0 9px; }}
 }}
 .cover > * {{ position: relative; z-index: 1; }}
 .cover .logo {{ position: absolute; top: 30px; right: 34px; height: 46px; }}
+.cover .client-logo {{ position: absolute; top: 32px; left: 34px; height: 40px; }}
 .cover .cover-inner {{ position: absolute; top: 38%; left: 52px; right: 52px; }}
 .cover .eyebrow {{
     font-size: 12pt; font-weight: 300; letter-spacing: 2px;
@@ -258,6 +259,8 @@ p, li {{ orphans: 2; widows: 2; }}
 def build_html(doc: dict) -> str:
     logo_uri = _b64_uri(ASSETS / "d55-logo-white.png")
     bg_uri = _b64_uri(ASSETS / "d55-bg.jpg")
+    client_logo_path = ASSETS / "esg-logo-white.png"
+    client_logo_uri = _b64_uri(client_logo_path) if client_logo_path.exists() else None
 
     blocks_html = ""
     for block in doc["blocks"]:
@@ -288,6 +291,7 @@ def build_html(doc: dict) -> str:
 <body>
 <div class="cover">
     <img src="{logo_uri}" class="logo" alt="D55">
+    {f'<img src="{client_logo_uri}" class="client-logo" alt="ESG">' if client_logo_uri else ''}
     <div class="cover-inner">
         <div class="eyebrow">{esc(doc.get('eyebrow', ''))}</div>
         <h1>{esc(doc['title'])}</h1>
