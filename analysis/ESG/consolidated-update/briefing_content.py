@@ -120,6 +120,31 @@ DOC = {
             ],
         },
         {
+            "type": "timeline",
+            "months": ["July", "August", "September"],
+            "markers": [
+                {"short": "Now", "at": 15, "kind": "now", "align": "center"},
+                {"short": "ESG target", "at": 33, "kind": "target", "align": "center"},
+                {"short": "Forecast", "at": 72, "kind": "forecast", "align": "center"},
+                {"short": "Realistic", "at": 100, "kind": "realistic", "align": "right"},
+            ],
+            "bars": [
+                {"label": "Refinement", "start": 0, "end": 15, "state": "done"},
+                {"label": "Development — assumes perfect parallelisation", "start": 15, "end": 72, "state": "forecast"},
+                {"label": "Test, fixes & PR merges to main", "start": 72, "end": 100, "state": "tail"},
+            ],
+            "caption": "Bar positions are proportional to calendar time (July–September). "
+                       "The gap between the end-July target and late-September reality is the story.",
+            "key": [
+                "Refinement complete — mid-July. This is where we are now.",
+                "ESG target — end of July.",
+                "Development — ~178 dev-days across 5 developers ≈ 7 dev-weeks; forecast "
+                "dev-complete early September, and only if perfectly parallel with zero rework.",
+                "Testing, defect fixes and PR merges to main follow on — realistic completion "
+                "late September.",
+            ],
+        },
+        {
             "type": "section",
             "heading": "How the realistic estimate builds up",
             "bullets": [

@@ -96,6 +96,50 @@ def render_pipeline(block):
     )
 
 
+def render_timeline(block):
+    """Horizontal Gantt-style timeline: month axis, phase bars positioned by
+    percentage, and milestone marker lines with short top labels. Percentages
+    run 0-100 across the axis (e.g. July 1 = 0%, Sep 30 = 100%)."""
+    heading = f'<h2>{esc(block["heading"])}</h2>' if block.get("heading") else ""
+    body = _para_list(block.get("body"))
+
+    months = "".join(f'<div class="m">{esc(m)}</div>' for m in block["months"])
+
+    top_labels = ""
+    marker_lines = ""
+    for mk in block.get("markers", []):
+        at = mk["at"]
+        kind = mk.get("kind", "now")
+        align = mk.get("align", "center")
+        top_labels += (
+            f'<div class="tl-tlabel {kind} {align}" style="left:{at}%">'
+            f'{esc(mk["short"])}</div>'
+        )
+        marker_lines += f'<div class="tl-mline {kind}" style="left:{at}%"></div>'
+
+    bars = ""
+    for b in block["bars"]:
+        width = b["end"] - b["start"]
+        bars += (
+            f'<div class="tl-row"><div class="tl-bar {b["state"]}" '
+            f'style="left:{b["start"]}%;width:{width}%">'
+            f'<span>{esc(b["label"])}</span></div></div>'
+        )
+
+    key = _bullets(block.get("key")) if block.get("key") else ""
+    caption = f'<figcaption>{esc(block["caption"])}</figcaption>' if block.get("caption") else ""
+
+    return (
+        f'<section class="block block-timeline">{heading}{body}'
+        f'<figure class="tl">'
+        f'<div class="timeline">'
+        f'<div class="tl-tlabels">{top_labels}</div>'
+        f'<div class="tl-months">{months}</div>'
+        f'<div class="tl-bars">{marker_lines}{bars}</div>'
+        f'</div>{caption}</figure>{key}</section>'
+    )
+
+
 def render_layers(block):
     heading = f'<h2>{esc(block["heading"])}</h2>' if block.get("heading") else ""
     body = _para_list(block.get("body"))
@@ -122,6 +166,7 @@ RENDERERS = {
     "callout": render_callout,
     "pipeline": render_pipeline,
     "layers": render_layers,
+    "timeline": render_timeline,
 }
 
 
@@ -229,6 +274,43 @@ figure.flow {{ margin: 12px 0 6px; page-break-inside: avoid; }}
     font-size: 8.5pt; font-weight: 600; color: #1a0a3e;
 }}
 .lane-arrow {{ text-align: center; color: #5dade2; font-size: 12pt; line-height: 1; margin: -1px 0; }}
+
+/* Timeline (CSS-rendered Gantt) */
+figure.tl {{ margin: 14px 0 8px; page-break-inside: avoid; }}
+.timeline {{ position: relative; }}
+.tl-tlabels {{ position: relative; height: 20px; margin-bottom: 2px; }}
+.tl-tlabel {{
+    position: absolute; top: 0; font-size: 7.5pt; font-weight: 700; white-space: nowrap;
+    transform: translateX(-50%); padding: 2px 5px; border-radius: 3px; color: #fff;
+}}
+.tl-tlabel.left {{ transform: translateX(0); }}
+.tl-tlabel.right {{ transform: translateX(-100%); }}
+.tl-tlabel.now {{ background: #6a6a80; }}
+.tl-tlabel.target {{ background: #c0392b; }}
+.tl-tlabel.forecast {{ background: #0a4a8c; }}
+.tl-tlabel.realistic {{ background: #1a0a3e; }}
+
+.tl-months {{ display: flex; border: 1px solid #d0d0e0; border-radius: 4px 4px 0 0; overflow: hidden; }}
+.tl-months .m {{
+    flex: 1; text-align: center; font-size: 8.5pt; font-weight: 700; color: #0a4a8c;
+    padding: 5px 0; background: #f2f2f9; border-right: 1px solid #d0d0e0;
+}}
+.tl-months .m:last-child {{ border-right: none; }}
+
+.tl-bars {{ position: relative; border: 1px solid #d0d0e0; border-top: none; border-radius: 0 0 4px 4px; padding: 12px 0; }}
+.tl-row {{ position: relative; height: 24px; margin: 7px 0; }}
+.tl-bar {{
+    position: absolute; height: 24px; border-radius: 4px; display: flex; align-items: center;
+    padding: 0 9px; font-size: 8pt; font-weight: 600; color: #fff; overflow: hidden;
+}}
+.tl-bar span {{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+.tl-bar.done {{ background: #6a6a80; }}
+.tl-bar.forecast {{ background: #0a4a8c; }}
+.tl-bar.tail {{ background: #5dade2; }}
+.tl-mline {{ position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed #b9b9c8; z-index: 2; }}
+.tl-mline.target {{ border-color: #c0392b; }}
+.tl-mline.forecast {{ border-color: #0a4a8c; }}
+.tl-mline.realistic {{ border-color: #1a0a3e; }}
 
 .section-break {{ page-break-before: always; }}
 
