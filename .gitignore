@@ -6,3 +6,6 @@
 
 # Reference repos (local copies for context only)
 reference-repos/
+
+# Derived client delivery bundles (regenerable via client_bundle)
+programmes/*-client-bundle/
