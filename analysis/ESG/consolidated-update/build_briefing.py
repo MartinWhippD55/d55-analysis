@@ -154,7 +154,7 @@ p {{ margin: 0 0 9px; }}
 }}
 .cover > * {{ position: relative; z-index: 1; }}
 .cover .logo {{ position: absolute; top: 30px; right: 34px; height: 46px; }}
-.cover .client-logo {{ position: absolute; top: 32px; left: 34px; height: 40px; }}
+.cover .client-logo {{ position: absolute; top: 24px; left: 34px; height: 58px; }}
 .cover .cover-inner {{ position: absolute; top: 38%; left: 52px; right: 52px; }}
 .cover .eyebrow {{
     font-size: 12pt; font-weight: 300; letter-spacing: 2px;
