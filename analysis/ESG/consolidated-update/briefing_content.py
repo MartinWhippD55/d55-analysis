@@ -32,6 +32,9 @@ DOC = {
                 "Opportunity: ESG want to learn how we break work down for AI. We're in the process of "
                 "productising exactly that — route it into a value-adding engagement rather than giving "
                 "it away piecemeal.",
+                "Bigger picture: ESG absorbing our ways of working is the goal of our engagement model, "
+                "not a threat. Treat the meeting as genuine fact-finding to uncover where else D55 can "
+                "add value.",
             ],
         },
         # ---------------------------------------------------------------
@@ -234,7 +237,68 @@ DOC = {
         # ---------------------------------------------------------------
         {
             "type": "section",
-            "heading": "6. How to Play the Conversation with Lynsey",
+            "heading": "6. Where Else D55 Can Help",
+            "pageBreak": True,
+            "body": [
+                "We don't currently have visibility of Lynsey's own priorities, so this is genuine "
+                "fact-finding. The areas below are hypotheses to test in the conversation, not claims "
+                "to present.",
+            ],
+        },
+        {
+            "type": "callout",
+            "heading": "The reframe to hold onto",
+            "body": [
+                "ESG wanting to absorb our ways of working is the intended outcome of our engagement "
+                "model — embed, prove, then enable, not a permanent dependency. That demand is a market "
+                "for our highest-value offering, not a threat to defend against. Approach the whole "
+                "conversation as discovering where that capability transfer is most valuable to her.",
+            ],
+        },
+        {
+            "type": "table",
+            "heading": "Value areas to explore",
+            "intro": "Grounded in what we know of ESG's domain and the signals to date. Items marked "
+                     "(inference) are our read, not documented fact — test them, don't assert them.",
+            "columns": ["Area", "What we'd explore"],
+            "rows": [
+                ["Specification & decomposition at AI pace",
+                 "The middle-layer bottleneck — Lynsey's own domain. When devs go 5x, the constraint "
+                 "moves to specifying. Help ESG's product/BA function spec and decompose at pace."],
+                ["Reviewer / lead capacity",
+                 "\"Damian is spread too thin.\" Codified standards and PR-review enablement relieve "
+                 "senior-reviewer load so it stops being a bottleneck."],
+                ["Predictable forecasting",
+                 "Design → stories → Monte Carlo forecasting vs gut-feel. Predictable dates often "
+                 "matter more to a product leader than fast ones. (inference)"],
+                ["Domain-depth delivery",
+                 "Pricing and Billing, Debt, Instalment Plans, Comms Hub — hard-won context D55 "
+                 "already holds, backed by excellent breadth and depth of energy-sector knowledge. "
+                 "Continued delivery of high-value initiatives here. (inference)"],
+                ["Greenfield done right",
+                 "Alex's own point: the Debt Service greenfield was a missed clean-slate chance. An "
+                 "opening for D55 to lead clean service design under agreed standards. (inference)"],
+            ],
+        },
+        {
+            "type": "section",
+            "heading": "Questions to uncover it",
+            "body": [
+                "Each question maps to a D55 engagement model once we hear the answer (workshops, "
+                "forecasting/DSD, embedded team, enablement).",
+            ],
+            "bullets": [
+                "What outcomes are you measured on this year — roadmap, predictability, cost, quality?",
+                "Where does delivery most often stall for you — specifying, reviewing, testing, integrating?",
+                "What's the constraint you can't just hire your way out of?",
+                "Which piece of upcoming work worries you most?",
+                "Six months from now, what would make you say bringing D55 in was worth it?",
+            ],
+        },
+        # ---------------------------------------------------------------
+        {
+            "type": "section",
+            "heading": "7. How to Play the Conversation with Lynsey",
             "pageBreak": True,
             "body": [
                 "Strategic framing — Jonathan's call, offered as counsel.",
