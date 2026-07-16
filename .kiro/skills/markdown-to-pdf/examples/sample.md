@@ -3,7 +3,7 @@ title: Markdown to PDF — Sample
 subtitle: A demonstration of every supported construct
 eyebrow: Skill Example
 confidential: Example document
-client_logo: esg
+client_logo: sample
 date: July 2026
 ---
 
@@ -15,8 +15,8 @@ above is used as the cover title and is not repeated in the body.
 ## Headings and prose
 
 Paragraphs support **bold**, *italic*, `inline code`, and
-[links](https://d55.co). Long paragraphs wrap and flow naturally across the
-page with sensible margins.
+[links](https://example.com). Long paragraphs wrap and flow naturally across
+the page with sensible margins.
 
 ### A third-level heading
 

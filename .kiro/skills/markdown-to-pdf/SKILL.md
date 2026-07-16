@@ -23,7 +23,7 @@ Options:
 
 | Option | Effect |
 |---|---|
-| `--client-logo <key\|path>` | Co-brand the cover top-left. Bundled key (e.g. `esg`) or a path to a white PNG. |
+| `--client-logo <key\|path>` | Co-brand the cover top-left. Bundled key (e.g. `sample`) or a path to a white PNG. |
 | `--title / --subtitle / --eyebrow / --date / --confidential` | Override cover fields. |
 | `--out <path>` | Output PDF path (default: alongside the source, same stem). The HTML is written next to the PDF. |
 | `--no-pdf` | Write the standalone HTML only (skip the PDF render). |
@@ -31,8 +31,8 @@ Options:
 Example:
 
 ```
-python .kiro/skills/markdown-to-pdf/md_to_pdf.py analysis/ESG/report.md \
-    --client-logo esg --eyebrow "Confidential Briefing"
+python .kiro/skills/markdown-to-pdf/md_to_pdf.py docs/report.md \
+    --client-logo sample --eyebrow "Confidential Briefing"
 ```
 
 ## Front matter (optional)
@@ -45,7 +45,7 @@ title: My Document
 subtitle: A short description
 eyebrow: Confidential Briefing
 confidential: Confidential — D55 internal
-client_logo: esg
+client_logo: sample
 date: July 2026
 ---
 ```
@@ -63,8 +63,9 @@ blocks, and inline `**bold**`, `*italic*`, `` `code` ``, `[links](url)`.
 ## Branding
 
 - Bundled assets in `assets/`: `d55-logo-white.png` (cover, top-right),
-  `d55-bg.jpg` (cover background), and `esg-logo-white.png` (an example client
-  logo). All embedded as base64 so outputs are self-contained.
+  `d55-bg.jpg` (cover background), and `sample-client-logo.png` (a neutral
+  placeholder client logo for the co-brand example). All embedded as base64 so
+  outputs are self-contained.
 - Add more client logos by dropping a white PNG in `assets/` and registering a
   key in `CLIENT_LOGOS` in `md_to_pdf.py`, or just pass a path to `--client-logo`.
 - Colours/typography match the D55 deliverables (navy `#1a0a3e`, accent

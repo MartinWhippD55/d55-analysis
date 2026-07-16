@@ -16,13 +16,13 @@ Supported Markdown:
   - Fenced code blocks (``` ... ```)
   - Inline: **bold**, *italic* / _italic_, `code`, [text](url)
   - Optional YAML front matter: title, subtitle, eyebrow, date, confidential,
-    client_logo (a bundled key like "esg", or a path to a white PNG logo)
+    client_logo (a bundled key like "sample", or a path to a white PNG logo)
 
 Usage:
   python .kiro/skills/markdown-to-pdf/md_to_pdf.py <path-to.md> [options]
 
 Options:
-  --client-logo <key|path>  Co-brand: bundled key (e.g. "esg") or a PNG path.
+  --client-logo <key|path>  Co-brand: bundled key (e.g. "sample") or a PNG path.
   --title / --subtitle / --eyebrow / --date / --confidential  Override cover.
   --out <path>              Output PDF path (default: alongside source, .pdf).
   --no-pdf                  Write HTML only (skip PDF render).
@@ -37,9 +37,10 @@ from pathlib import Path
 SKILL_DIR = Path(__file__).resolve().parent
 ASSETS = SKILL_DIR / "assets"
 
-# Bundled client logos by key (extend as needed).
+# Bundled client logos by key (extend as needed). Drop a white PNG in assets/
+# and register it here, or pass a path directly to --client-logo.
 CLIENT_LOGOS = {
-    "esg": ASSETS / "esg-logo-white.png",
+    "sample": ASSETS / "sample-client-logo.png",
 }
 
 
@@ -393,7 +394,7 @@ def render_pdf(html_path: Path, pdf_path: Path):
 def main():
     ap = argparse.ArgumentParser(description="Convert a Markdown file to a branded D55 PDF.")
     ap.add_argument("source", help="Path to the Markdown file (relative to CWD).")
-    ap.add_argument("--client-logo", help="Bundled key (e.g. 'esg') or path to a white PNG logo.")
+    ap.add_argument("--client-logo", help="Bundled key (e.g. 'sample') or path to a white PNG logo.")
     ap.add_argument("--title")
     ap.add_argument("--subtitle")
     ap.add_argument("--eyebrow")
