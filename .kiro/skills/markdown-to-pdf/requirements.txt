@@ -1,0 +1,7 @@
+# Runtime dependencies for md_to_pdf.py
+# PyYAML is optional (front matter falls back to a simple parser if absent).
+playwright>=1.40
+PyYAML>=6.0
+
+# One-time browser setup after installing Playwright:
+#   python -m playwright install chromium
