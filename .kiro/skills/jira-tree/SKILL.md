@@ -106,15 +106,41 @@ persona):**
   An API response shape here should match the OpenAPI spec, and a component mock should
   match its backing endpoint — mismatches surface gaps in the parent spec.
 
-### Optional: enrich with a sub-agent
+### Optional: enrich with a sub-agent (iterative)
 
-After seeding, an optional sub-agent pass can fill the placeholders — most usefully the
+After seeding, an optional enrichment pass fills the placeholders — most usefully the
 sub-task **Suggested approach** snippets and story **acceptance criteria** — by reading
 the spec's `design.md`/`requirements.md`, any OpenAPI spec, and (if pointed at one) an
-associated code repository. Have it replace `TODO` markers only, preserve frontmatter
-and identity labels, and flag any cross-reference mismatch (e.g. a mock whose shape
-disagrees with the OpenAPI response) as a candidate spec gap. Re-run `validate_tree`
-and `find_placeholders` afterwards.
+associated code repository.
+
+Enrichment is **iterative, not one-shot**. A freshly seeded tree can carry a `TODO` in
+almost every issue (e.g. 55 across one epic + 10 stories + 44 sub-tasks); a single pass
+over all of them produces shallow, inconsistent bodies. Work in **batches** and **loop
+until done**:
+
+1. **Establish the baseline.** Run `find_placeholders(tree)` and record the count and
+   which issues still carry a `TODO`. This is the worklist.
+2. **Batch by story.** Take one story and its sub-tasks as a unit (the story's
+   acceptance criteria and its sub-tasks' snippets share context). Dispatch batches to
+   sub-agents — up to ~5 concurrently — rather than one agent over the whole tree.
+   Each sub-agent must:
+   - Replace `TODO` markers **only**; preserve all frontmatter and identity labels.
+   - Read the spec's `design.md`/`requirements.md`, the OpenAPI spec, and any pointed-to
+     repo for that story's area before writing.
+   - Flag any cross-reference mismatch (e.g. a mock whose shape disagrees with the
+     OpenAPI response) as a candidate spec gap in its report — do **not** silently
+     "fix" the spec.
+3. **Re-check after each round.** Re-run `validate_tree` (must stay `[]`) and
+   `find_placeholders` (count must **strictly decrease**). Record the new worklist.
+4. **Repeat** from step 2 with the remaining placeholders until `find_placeholders`
+   returns empty, or every remaining `TODO` is one you have **deliberately** chosen to
+   leave (note which, and why). Do not stop early with unexplained placeholders.
+5. **Guard against stalls.** If a round doesn't reduce the count, or a sub-agent can't
+   fill a placeholder because the source spec is silent, stop and surface it — that is a
+   spec gap for the user, not something to invent an answer for.
+
+The loop's stop condition is explicit: `find_placeholders` empty (or a documented,
+intentional remainder) **and** `validate_tree == []`.
 
 ## Prerequisites
 
@@ -149,9 +175,12 @@ deliberately reset a file to its seeded content.
 
 Enrich the markdown **bodies** to the house style above — replace every `TODO`
 placeholder (acceptance criteria, delivers, suggested-code snippets, notes). Leave
-frontmatter and identity labels intact. Optionally run the **sub-agent enrichment**
-pass to draft the snippets and criteria. Commit and review in a PR like any other file
-— this is the whole point of the tree.
+frontmatter and identity labels intact. Run the **sub-agent enrichment** pass to draft
+the snippets and criteria — this is **iterative**: batch by story, loop until
+`find_placeholders` is empty (or the remainder is intentional) and `validate_tree`
+stays `[]`. See "Optional: enrich with a sub-agent (iterative)" above for the loop and
+its stop condition. Commit and review in a PR like any other file — this is the whole
+point of the tree.
 
 ### 3. Load and validate before pushing
 
