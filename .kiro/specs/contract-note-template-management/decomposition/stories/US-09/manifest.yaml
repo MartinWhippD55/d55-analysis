@@ -1,0 +1,95 @@
+id: US-09
+title: Angular screens & components
+userStory: As a Business_User, I want the full set of screens (template list, template
+  edit, rules config, section editor, shared sections, version history, variants,
+  publish) and navigation, so that I can manage everything from the portal.
+coversRequirements:
+- '1'
+- '2'
+- '3'
+- '4'
+- '5'
+- '6'
+- '7'
+- '8'
+- '9'
+- '10'
+- '16'
+- '17'
+- '18'
+- '19'
+- '21'
+exports:
+- frontend-screen:TemplateList
+- frontend-screen:TemplateEdit
+- frontend-screen:SharedSectionsLibrary
+- frontend-component:RulesConfigComponent
+- frontend-component:SectionEditorComponent
+- frontend-component:SectionVersionHistoryComponent
+- frontend-component:SectionVariantsComponent
+- frontend-component:SectionPublishComponent
+- frontend-component:Navigation
+dependsOn:
+- frontend-component:ContractNoteModule
+- service:TemplateService
+- service:SectionService
+- service:RulesService
+- web-component:pdfme-designer
+subtasks:
+- id: US-09-1
+  title: TemplateListComponent (landing page)
+  requirements:
+  - '1'
+  - '4'
+  - '5'
+  optional: false
+- id: US-09-2
+  title: TemplateEditComponent + change log + variant list
+  requirements:
+  - '2'
+  - '3'
+  - '6'
+  - '17'
+  - '19'
+  optional: false
+- id: US-09-3
+  title: RulesConfigComponent (shared by template + variant rules)
+  requirements:
+  - '10'
+  optional: false
+- id: US-09-4
+  title: SectionEditorComponent host (modal)
+  requirements:
+  - '7'
+  optional: false
+- id: US-09-5
+  title: SharedSectionsComponent + detail
+  requirements:
+  - '8'
+  - '9'
+  optional: false
+- id: US-09-6
+  title: SectionVersionHistoryComponent + SectionPublishComponent
+  requirements:
+  - '16'
+  - '18'
+  optional: false
+- id: US-09-7
+  title: Navigation + landing pages (page vs modal)
+  requirements:
+  - '21'
+  optional: false
+- id: US-09-8
+  title: Component unit tests
+  requirements:
+  - '1'
+  - '10'
+  - '18'
+  - '19'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-template-management
+  labels:
+  - frontend
+  estimateDays: 3.0

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Implement a template management system within the BrytAdminPortal enabling business users to manage contract note PDF templates via a visual editor (pdf-me), rules engine for automated template selection, and a serverless render pipeline. The implementation uses Angular (frontend), AWS Lambda + API Gateway (backend), DynamoDB (metadata), S3 (schema JSON + PDFs), and CDK (infrastructure).
+Implement a template management system within the BrytAdminPortal enabling business users to manage contract note PDF templates via a visual editor (pdf-me), a rules engine for automated template selection and per-section variant selection, controlled publishing of section versions to linked templates, and a Step Functions render pipeline. The implementation uses Angular (frontend), AWS Lambda + API Gateway (backend), AWS Step Functions (render orchestration), DynamoDB (metadata), S3 (schema JSON + PDFs), and CDK (infrastructure).
 
 ## Tasks
 
@@ -15,10 +15,16 @@ Implement a template management system within the BrytAdminPortal enabling busin
 
   - [ ] 1.2 Create shared TypeScript interfaces and types
     - Define `SpecificationNode`, `AndOrNode`, `NotNode`, `ComparisonNode`, `InNode` types
-    - Define `Template`, `Section`, `SharedSection` interfaces
-    - Define DynamoDB record types (Template, Section, SharedSection, Rule, SharedSectionReference)
+    - Define `Template`, `Section`, `SharedSection`, `SectionVariant`, `SectionReference` interfaces
+    - Define DynamoDB record types (Template, Section, SharedSection, SectionVariant, Rule, SharedSectionReference with pinnedVersionId, SectionVersion keyed by variant)
     - Place in a shared `types/` module accessible by both API lambdas and render pipeline
-    - _Requirements: 10.2, 10.3, 10.4_
+    - _Requirements: 10.2, 10.3, 10.4, 18.1, 19.1_
+
+  - [ ] 1.5 Define CDK infrastructure for the Render_State_Machine (Step Functions)
+    - Define the Step Functions state machine: ParseInput, SelectTemplate, RenderSections (Map state), Stitch, WriteOutput, and a HandleFailure catch state
+    - Provision the per-state Lambdas and wire the S3 input event (via S3 notification / EventBridge) to start an execution
+    - Configure per-section retry/catch on the Map state and least-privilege IAM for each state
+    - _Requirements: 20.1, 20.2, 20.3, 20.4_
 
   - [ ] 1.3 Implement specification tree validation utility
     - Validate well-formedness: AND/OR must have leftOperand and rightOperand, NOT must have operand, comparisons must have field + value/values
@@ -125,6 +131,22 @@ Implement a template management system within the BrytAdminPortal enabling busin
     - `list-template-changelog`: Query changelog records by PK `TEMPLATE#{id}` SK begins_with `CHANGELOG#` ordered by timestamp descending
     - _Requirements: 17.1, 17.2, 17.3_
 
+  - [ ] 3.10 Implement section version publishing handlers
+    - `get-linked-templates`: return templates linked to a section with each template's pinnedVersionId and an update-available flag (pinned older than latest)
+    - `publish-section-version`: update the pinnedVersionId on all linked templates to a chosen version (defaulting to latest), and write a change log entry against each affected template
+    - Ensure creating a new version does NOT change any pinnedVersionId (publish is explicit)
+    - _Requirements: 18.1, 18.2, 18.3, 18.4, 18.5_
+
+  - [ ] 3.11 Implement section variant CRUD handlers
+    - `list-section-variants`, `add-section-variant`, `reorder-section-variants`, `update-section-variant` (name, isDefault), `delete-section-variant`
+    - Enforce at most one default variant; treat a section with no variants as a single implicit variant
+    - Key variant version history by `{sectionId}#{variantId}`
+    - _Requirements: 19.1, 19.3, 19.8_
+
+  - [ ] 3.12 Implement variant rule handlers
+    - `get-variant-rule` and `save-variant-rule`, reusing the specification validation utility from task 1.3
+    - _Requirements: 19.2, 19.7_
+
   - [ ]* 3.9 Write property tests for section API logic
     - **Property 7: Sections returned in sort order**
     - **Property 11: Section addition appends to end**
@@ -140,6 +162,14 @@ Implement a template management system within the BrytAdminPortal enabling busin
     - **Property 29: Section version revert creates new version (not destructive)**
     - **Property 30: Template change log records all modifications**
     - **Validates: Requirements 3.3, 6.1, 6.2, 6.4, 6.5, 7.1, 7.3, 8.1, 8.2, 8.3, 8.4, 9.1, 9.2, 9.4, 16.1, 16.4, 17.1**
+
+  - [ ]* 3.13 Write property tests for version publishing and section variants
+    - **Property 31: New section version does not change pinned versions**
+    - **Property 32: Publish updates only selected templates**
+    - **Property 33: Update-available flag correctness**
+    - **Property 35: Variant first-match-wins with default fallback**
+    - **Property 36: Section with no variants preserves single-variant behaviour**
+    - **Validates: Requirements 8.2, 18.2, 18.3, 18.4, 18.5, 19.4, 19.5, 19.8**
 
 - [ ] 4. Rules API Lambda handlers
   - [ ] 4.1 Implement `get-rule` handler
@@ -196,6 +226,27 @@ Implement a template management system within the BrytAdminPortal enabling busin
     - T&C section pages are appended last
     - Write final PDF to output S3 bucket
     - _Requirements: 13.1, 13.2, 13.3_
+
+  - [ ] 6.10 Restructure the render pipeline as Step Functions state handlers
+    - Split the flow into per-state Lambda handlers (parse, select-template, render-section, stitch, write-output, handle-failure) invoked by the state machine
+    - Render-section runs inside the Map state as an independent, retryable unit; failure after retries routes to handle-failure with no partial output
+    - _Requirements: 20.1, 20.2, 20.3, 20.5_
+
+  - [ ] 6.11 Implement pinned-version resolution in section rendering
+    - For each section reference, resolve the schema JSON for the template's pinnedVersionId rather than the latest version
+    - _Requirements: 18.6_
+
+  - [ ] 6.12 Implement section variant selection
+    - For a section with variants, evaluate each Variant_Rule in variant order against contract data and select the first match; fall back to the default variant
+    - If no variant matches and no default exists, log an error and halt (no output)
+    - Reuse the specification evaluator from task 6.1
+    - _Requirements: 19.4, 19.5, 19.6_
+
+  - [ ]* 6.13 Write property tests for variant selection, pinned-version rendering, and failure isolation
+    - **Property 34: Render resolves the pinned version**
+    - **Property 37: No-match with no default halts**
+    - **Property 38: Per-section failure isolation and no partial output**
+    - **Validates: Requirements 18.6, 19.6, 20.2, 20.3**
 
   - [ ]* 6.7 Write property test for PDF stitching
     - **Property 25: PDF stitching preserves page count**
@@ -278,22 +329,38 @@ Implement a template management system within the BrytAdminPortal enabling busin
     - Create/delete shared sections with deletion warning when referenced
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 9.1, 9.3, 9.4_
 
+  - [ ] 9.7 Implement SectionVariantsComponent (Angular)
+    - Inline variants list within the template edit page: name, rule summary, default badge, evaluation order
+    - Add/reorder/set-default/delete variants; open the section editor per variant; open the rules editor per variant (reusing RulesConfigComponent)
+    - _Requirements: 19.1, 19.2, 19.3, 19.7, 21.4_
+
+  - [ ] 9.8 Implement SectionPublishComponent (Angular)
+    - Launched from the section version history; lists linked templates with pinned version and update-available indicator
+    - Publish a chosen version (defaulting to latest) to all linked templates, with confirmation
+    - _Requirements: 18.3, 18.4, 18.5_
+
+  - [ ] 9.9 Add Admin Portal navigation and landing pages (Angular)
+    - Ensure Template List and Shared Sections Library are full landing pages (not modals) with navigation entry points gated by Cognito group
+    - Present section editor and version history as modals launched from within a landing page
+    - _Requirements: 21.1, 21.2, 21.3, 21.5_
+
   - [ ]* 9.6 Write unit tests for Angular components
     - Test TemplateListComponent rendering, empty state, action triggers
     - Test RulesConfigComponent tree manipulation and validation display
     - Test SectionEditorComponent lifecycle and event handling
-    - _Requirements: 1.1, 1.3, 10.5, 7.5_
+    - Test SectionVariantsComponent ordering/default logic and SectionPublishComponent publish-to-all confirmation
+    - _Requirements: 1.1, 1.3, 10.5, 7.5, 19.3, 18.3_
 
 - [ ] 10. Checkpoint - Frontend complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 11. Integration wiring and end-to-end validation
   - [ ] 11.1 Wire CDK deployment for all components
-    - Ensure Lambda functions have correct IAM permissions for DynamoDB and S3
-    - Ensure S3 event notification triggers render pipeline Lambda
+    - Ensure Lambda functions and the Render_State_Machine have correct IAM permissions for DynamoDB and S3
+    - Ensure S3 event notification starts a Render_State_Machine execution
     - Ensure API Gateway routes are connected to correct Lambda handlers
     - Configure CORS for Admin Portal origin
-    - _Requirements: 14.1, 15.1_
+    - _Requirements: 14.1, 15.1, 20.4_
 
   - [ ] 11.2 Add navigation entry in Admin Portal sidebar for Contract Note Templates
     - Add menu item linking to template list route
@@ -307,6 +374,49 @@ Implement a template management system within the BrytAdminPortal enabling busin
 
 - [ ] 12. Final checkpoint
   - Ensure all tests pass, ask the user if questions arise.
+
+## Task Dependency Graph
+
+```mermaid
+graph TD
+    T1[1. Infrastructure & shared types] --> T2[2. Template API]
+    T1 --> T3[3. Section API + variants + publishing]
+    T1 --> T4[4. Rules API]
+    T2 --> T5[5. Checkpoint - Backend API]
+    T3 --> T5
+    T4 --> T5
+    T1 --> T6[6. Render pipeline - Step Functions]
+    T4 --> T6
+    T6 --> T7[7. Checkpoint - Render pipeline]
+    T5 --> T8[8. Angular module & services]
+    T8 --> T9[9. Angular components + variants + publish + navigation]
+    T9 --> T10[10. Checkpoint - Frontend]
+    T7 --> T11[11. Integration wiring & E2E]
+    T10 --> T11
+    T11 --> T12[12. Final checkpoint]
+```
+
+Execution waves (tasks in the same wave have no dependency on each other and may run in parallel):
+
+```json
+{
+  "waves": [
+    { "wave": 1, "tasks": ["1"] },
+    { "wave": 2, "tasks": ["2", "3", "4"] },
+    { "wave": 3, "tasks": ["5", "6"] },
+    { "wave": 4, "tasks": ["7", "8"] },
+    { "wave": 5, "tasks": ["9"] },
+    { "wave": 6, "tasks": ["10", "11"] },
+    { "wave": 7, "tasks": ["12"] }
+  ]
+}
+```
+
+Notes on ordering:
+- Task 1.5 (Step Functions infra) underpins task 6 (render pipeline state handlers).
+- Tasks 3.10-3.13 (publishing + variants) depend on the base section/version handlers (3.5, 3.6) and the rule validation utility (1.3).
+- Tasks 6.11-6.12 (pinned-version resolution, variant selection) depend on the specification evaluator (6.1).
+- Tasks 9.7-9.9 (variants, publish, navigation) depend on the base services (8.2) and the rules editor (9.3).
 
 ## Notes
 

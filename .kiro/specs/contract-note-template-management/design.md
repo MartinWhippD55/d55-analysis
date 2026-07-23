@@ -8,10 +8,20 @@ The system introduces:
 1. An Angular module in the Admin Portal for CRUD operations on templates, sections, and shared sections
 2. A rules engine UI for configuring specification-pattern-based template selection
 3. An embedded pdf-me Designer (React component via Web Component wrapper) for visual section editing
-4. A serverless render pipeline (Lambda) that evaluates rules, renders sections with @pdfme/generator, and stitches PDFs with pdf-lib
-5. DynamoDB for template/section metadata and S3 for schema JSON storage
+4. A serverless render pipeline, orchestrated by an AWS Step Functions state machine, that evaluates rules, selects a section variant per section, renders sections with @pdfme/generator, and stitches PDFs with pdf-lib
+5. DynamoDB for template/section/variant metadata and S3 for schema JSON storage
 
 The architecture maintains the existing S3-triggered pipeline entry point but replaces the internal rendering mechanism entirely.
+
+### Scope changes since the initial estimate
+
+This design was extended after the client playback of Estimate 1. Three changes are folded in:
+
+1. **Section version publishing (Requirement 18)** — shared/linked section edits no longer propagate implicitly. Each template's section reference now resolves to a *pinned version*, and a new *publish* action pushes a chosen version to the linked templates (all or a selected subset).
+2. **Section variants with rules (Requirement 19)** — a section can hold multiple layout variants, each guarded by a rule reusing the existing specification engine. At render time the first matching variant is rendered, with a default fallback.
+3. **Step Functions orchestration (Requirement 20)** — the render pipeline moves from a single Lambda to a Step Functions state machine with a per-section map state. This isolates and retries section work (now more involved because of variant selection) and improves observability for multi-section documents.
+
+Landing/list pages (Template List, Shared Sections Library) were already part of the design as full-page screens; Requirement 21 makes the page-vs-modal distinction explicit and adds a variants list to the template edit page.
 
 ## Architecture
 
@@ -38,10 +48,14 @@ graph TB
         S3S[S3 - Schema JSON]
     end
 
-    subgraph Render Pipeline
+    subgraph Render Pipeline - Step Functions
         S3IN[S3 Input Bucket - XML]
-        XML2JSON[xml-to-json Lambda]
-        RENDER[render-contract-note Lambda]
+        SFN[Render State Machine]
+        PARSE[Parse XML - Lambda]
+        SELECT[Select Template - Lambda]
+        MAP[Map state: per section]
+        RENDERSEC[Select Variant + Render Section - Lambda]
+        STITCH[Stitch PDF - Lambda]
         S3OUT[S3 Output Bucket - PDF]
         S3ERR[S3 Error Bucket]
     end
@@ -58,12 +72,17 @@ graph TB
     SAPI --> S3S
     RAPI --> DDB
 
-    S3IN -->|S3 Event| XML2JSON
-    XML2JSON --> RENDER
-    RENDER --> DDB
-    RENDER --> S3S
-    RENDER --> S3OUT
-    RENDER --> S3ERR
+    S3IN -->|S3 Event| SFN
+    SFN --> PARSE
+    PARSE --> SELECT
+    SELECT --> MAP
+    MAP --> RENDERSEC
+    RENDERSEC --> STITCH
+    SELECT --> DDB
+    RENDERSEC --> DDB
+    RENDERSEC --> S3S
+    STITCH --> S3OUT
+    SFN --> S3ERR
 ```
 
 ### Key Architecture Decisions
@@ -73,8 +92,10 @@ graph TB
 | pdf-me Designer embedding | Web Component wrapper around React | Avoids Angular-React bridge library overhead; isolates React dependency; standard web platform approach |
 | Template metadata storage | DynamoDB | Matches existing Admin Portal pattern; supports fast ordered queries via GSI |
 | Schema JSON storage | S3 | Schema JSON can be large; S3 is cost-effective for blob storage; decouples metadata from content |
-| Render pipeline | Single Lambda (not Step Functions) | Simpler for section-render-and-stitch; retains S3 trigger; avoids Step Function coordination overhead for a synchronous flow |
-| Rules engine | Server-side evaluation in render Lambda | Rules evaluate against runtime contract data; no client-side evaluation needed |
+| Render pipeline | Step Functions state machine with a per-section Map state | Section rendering now includes per-section variant rule evaluation and can fan out over many sections; a state machine isolates and retries each section, handles large multi-section documents beyond a single Lambda's limits, and gives per-section observability. (Supersedes the initial single-Lambda decision.) |
+| Rules engine | Server-side evaluation in render steps | Rules (template selection and variant selection) evaluate against runtime contract data; no client-side evaluation needed |
+| Section version resolution | Pinned version per template reference | Templates resolve a specific section version rather than "latest", so a new version only goes live via an explicit publish action |
+| Section variants | Ordered variants, each with a rule + default fallback | Reuses the specification engine; lets one section slot render alternatives without multiplying whole templates |
 | Section stitching | pdf-lib | Already proven in PoC; lightweight; handles page concatenation well |
 | Priority ordering | Explicit `priority` integer field | Simple to reorder; DynamoDB GSI on priority enables ordered scan |
 
@@ -128,6 +149,8 @@ graph TD
 - Section list showing ordered sections with add/remove/reorder
 - Ability to add new section, add existing shared section, or attach T&Cs
 - Section click opens SectionEditorComponent modal
+- For sections with variants, an inline list of variants (name, rule summary, default badge) rendered on the page (not only in a modal), with add/reorder/edit-rule actions
+- A "pinned version" indicator per section showing whether an update is available
 
 #### RulesConfigComponent
 - Visual tree editor for specification pattern
@@ -144,6 +167,17 @@ graph TD
 - List of all shared sections with name, type (standard/T&C), and reference count
 - Detail panel showing which templates reference a shared section
 - Create/edit/delete actions with referencing-template warnings
+
+#### SectionPublishComponent
+- Launched from the version history for a section
+- Lists the templates linked to the section, each showing its current pinned version and whether an update is available
+- Lets the user publish a chosen version (defaulting to latest) to all linked templates
+- Confirms the change and reports the templates updated
+
+#### SectionVariantsComponent
+- Manages the ordered variants within a section (add, reorder, set default, delete)
+- Each variant links to the SectionEditorComponent for its layout and to the RulesConfigComponent for its Variant_Rule
+- Reuses the same rule editor and validation as template selection rules
 
 ### Backend API (Lambda Functions)
 
@@ -171,6 +205,15 @@ graph TD
 | GET | /contract-note-sections/{id}/versions | list-section-versions | Returns version history for a section |
 | GET | /contract-note-sections/{id}/versions/{versionId} | get-section-version | Returns a specific historical version's schema |
 | POST | /contract-note-sections/{id}/versions/{versionId}/revert | revert-section-version | Creates a new version from a historical version |
+| GET | /contract-note-sections/{id}/linked-templates | get-linked-templates | Returns templates linked to a section with their pinned version + whether an update is available |
+| POST | /contract-note-sections/{id}/versions/{versionId}/publish | publish-section-version | Updates the pinned version of all linked templates to the chosen version |
+| GET | /contract-note-sections/{id}/variants | list-section-variants | Returns the section's variants in evaluation order |
+| POST | /contract-note-sections/{id}/variants | add-section-variant | Adds a variant to the section |
+| PUT | /contract-note-sections/{id}/variants/reorder | reorder-section-variants | Reorders variant evaluation order |
+| PUT | /contract-note-sections/{id}/variants/{variantId} | update-section-variant | Updates variant metadata (name, isDefault) |
+| DELETE | /contract-note-sections/{id}/variants/{variantId} | delete-section-variant | Removes a variant |
+| GET | /contract-note-sections/{id}/variants/{variantId}/rule | get-variant-rule | Returns the variant's specification |
+| PUT | /contract-note-sections/{id}/variants/{variantId}/rule | save-variant-rule | Validates and saves the variant's specification |
 | GET | /contract-note-sections/shared | list-shared-sections | Lists all shared sections |
 | POST | /contract-note-sections/shared | create-shared-section | Creates a new shared section |
 | PUT | /contract-note-sections/shared/{id} | update-shared-section | Updates shared section metadata |
@@ -184,22 +227,30 @@ graph TD
 | GET | /contract-note-templates/{id}/rule | get-rule | Returns specification JSON for template |
 | PUT | /contract-note-templates/{id}/rule | save-rule | Validates and saves specification JSON |
 
-### Render Pipeline Lambda
+### Render Pipeline (Step Functions State Machine)
 
-The `render-contract-note` Lambda replaces the existing CreateHtml + html-to-pdf steps:
+The `render-contract-note` state machine replaces the existing CreateHtml + html-to-pdf steps. It is triggered by the S3 input event (via EventBridge / S3 notification) and coordinates a set of small single-purpose Lambdas:
 
 ```
-Input: JSON contract data (from xml-to-json)
-Process:
-  1. Fetch all templates from DynamoDB ordered by priority
-  2. Evaluate each template's specification against contract data (first match wins)
-  3. For matched template, fetch ordered sections
-  4. For each section, fetch schema JSON from S3
-  5. Render each section independently via @pdfme/generator
-  6. Stitch all section PDFs together via pdf-lib
-  7. Write final PDF to output S3 bucket
+Input: S3 object key for the dropped XML
+States:
+  1. ParseInput (Lambda)      - parse XML to JSON contract data
+  2. SelectTemplate (Lambda)  - fetch templates ordered by priority; evaluate each
+                                specification against contract data; first match wins
+  3. RenderSections (Map)     - for each section of the matched template, in parallel:
+         a. resolve the section reference's Pinned_Version
+         b. if the section has variants, evaluate each Variant_Rule in order and
+            select the first match (else the default variant)
+         c. fetch that variant version's schema JSON from S3
+         d. render the section via @pdfme/generator -> section PDF
+  4. Stitch (Lambda)          - concatenate section PDFs in order via pdf-lib
+  5. WriteOutput (Lambda)     - write final PDF to the output S3 bucket
+Catch (any state):
+     HandleFailure (Lambda)   - write an error record to the error bucket; no partial output
 Output: Stitched PDF in S3
 ```
+
+The Map state processes sections independently with per-section retry, so a transient failure rendering one section does not require re-running the whole document, and documents with many sections are not bound by a single Lambda's execution time or memory.
 
 ### Web Component: pdfme-designer
 
@@ -244,7 +295,8 @@ Single-table design with PK/SK pattern.
 | sortOrder | Number | Position within template |
 | isShared | Boolean | Whether this references a shared section |
 | sharedSectionId | String | (optional) Reference to shared section |
-| schemaS3Key | String | S3 key for schema JSON |
+| schemaS3Key | String | S3 key for schema JSON (default variant, when no variants defined) |
+| pinnedVersionId | String | (optional) The section version this reference resolves to at render time; when absent, resolves to latest |
 | createdAt | String | ISO 8601 timestamp |
 | updatedAt | String | ISO 8601 timestamp |
 
@@ -270,15 +322,34 @@ Single-table design with PK/SK pattern.
 | SK | String | `REF#{templateId}` |
 | templateId | String | Template using this shared section |
 | templateName | String | Denormalised for display |
+| pinnedVersionId | String | The section version this template currently resolves to (updated by a publish action) |
+
+#### Section Variant Record
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| PK | String | `SECTION#{sectionId}` |
+| SK | String | `VARIANT#{variantOrder}#{variantId}` |
+| variantId | String | UUID |
+| name | String | Variant display name |
+| variantOrder | Number | Evaluation order within the section (first match wins) |
+| isDefault | Boolean | Whether this variant is the fallback when no rule matches |
+| schemaS3Key | String | S3 key for this variant's current schema JSON |
+| specification | Map | (optional) Variant_Rule specification tree; absent for the default variant |
+| createdAt | String | ISO 8601 timestamp |
+| updatedAt | String | ISO 8601 timestamp |
+
+Variants have their own version history: Section Version records are keyed by `{sectionId}#{variantId}` so each variant is versioned independently. A section with no Section Variant records behaves as a single implicit variant using the section's own `schemaS3Key` (backwards compatible).
 
 #### Section Version Record
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| PK | String | `SECTION_VERSION#{sectionId}` |
+| PK | String | `SECTION_VERSION#{sectionId}#{variantId}` |
 | SK | String | `VERSION#{timestamp}` |
 | versionId | String | UUID |
 | sectionId | String | Section this version belongs to |
+| variantId | String | Variant this version belongs to (`default` for sections without variants) |
 | schemaS3Key | String | S3 key for this version's schema JSON |
 | createdAt | String | ISO 8601 timestamp |
 | createdBy | String | Cognito username |
@@ -431,6 +502,25 @@ interface Section {
   isShared: boolean;
   sharedSectionId?: string;
   schemaS3Key: string;
+  pinnedVersionId?: string; // version this reference resolves to at render time
+}
+
+// Section Variant
+interface SectionVariant {
+  variantId: string;
+  name: string;
+  variantOrder: number;   // evaluation order; first match wins
+  isDefault: boolean;     // fallback when no rule matches
+  schemaS3Key: string;
+  specification?: SpecificationNode; // Variant_Rule; absent for the default variant
+}
+
+// A template's link to a section, with the version it currently resolves to
+interface SectionReference {
+  templateId: string;
+  templateName: string;
+  pinnedVersionId: string;
+  updateAvailable: boolean; // pinned version is older than the section's latest
 }
 
 // Shared Section
@@ -627,6 +717,54 @@ interface SharedSection {
 *For any* template modification (section add/remove/reorder, metadata update, rule change), the system SHALL record a change log entry with timestamp and user.
 
 **Validates: Requirements 17.1, 17.2**
+
+### Property 31: New section version does not change pinned versions
+
+*For any* section referenced by one or more templates, creating a new section version SHALL leave every linked template's pinnedVersionId unchanged until a publish action is performed.
+
+**Validates: Requirements 8.2, 18.2**
+
+### Property 32: Publish updates all linked templates
+
+*For any* publish of version V for a section, every template linked to that section SHALL have pinnedVersionId = V afterwards.
+
+**Validates: Requirements 18.3, 18.4**
+
+### Property 33: Update-available flag correctness
+
+*For any* linked template, the update-available flag SHALL be true if and only if its pinnedVersionId is older than the section's latest version.
+
+**Validates: Requirements 18.5**
+
+### Property 34: Render resolves the pinned version
+
+*For any* section render, the schema JSON used SHALL be the one belonging to the template reference's pinnedVersionId (not necessarily the latest version).
+
+**Validates: Requirements 18.6**
+
+### Property 35: Variant first-match-wins with default fallback
+
+*For any* section with ordered variants and any contract data, the render SHALL select the first variant (in variant order) whose Variant_Rule evaluates to true; if none match, it SHALL select the designated default variant.
+
+**Validates: Requirements 19.4, 19.5**
+
+### Property 36: Section with no variants preserves single-variant behaviour
+
+*For any* section with no variant records defined, rendering SHALL use the section's own schema (implicit single variant), identical to pre-variant behaviour.
+
+**Validates: Requirements 19.8**
+
+### Property 37: No-match with no default halts
+
+*For any* section that has variants, no matching variant, and no designated default, the render pipeline SHALL log an error and produce no output PDF.
+
+**Validates: Requirements 19.6**
+
+### Property 38: Per-section failure isolation and no partial output
+
+*For any* render run where a section-level Map state fails after its configured retries, the state machine SHALL route to the failure state and the output bucket SHALL NOT contain a PDF for that contract note.
+
+**Validates: Requirements 20.2, 20.3**
 
 ## Error Handling
 

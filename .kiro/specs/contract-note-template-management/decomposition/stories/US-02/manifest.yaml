@@ -1,0 +1,60 @@
+id: US-02
+title: Template CRUD API
+userStory: As a Business_User, I want to create, list, edit, delete and reorder templates,
+  so that I can manage contract note template definitions.
+coversRequirements:
+- '1'
+- '2'
+- '3'
+- '4'
+- '5'
+exports:
+- api-endpoint:GET /contract-note-templates
+- api-endpoint:POST /contract-note-templates
+- api-endpoint:PUT /contract-note-templates/{id}
+- api-endpoint:DELETE /contract-note-templates/{id}
+- api-endpoint:PUT /contract-note-templates/reorder
+- lambda:template-handlers
+dependsOn:
+- shared-lib:types
+- data-table:ContractNoteTemplates
+- gsi:PriorityIndex
+- cdk-construct:ApiGatewayRoutes
+subtasks:
+- id: US-02-1
+  title: list-templates handler (priority-ordered)
+  requirements:
+  - '1'
+  optional: false
+- id: US-02-2
+  title: create-template handler (validation, duplicate check, priority)
+  requirements:
+  - '2'
+  optional: false
+- id: US-02-3
+  title: get/update/delete-template handlers
+  requirements:
+  - '3'
+  - '4'
+  optional: false
+- id: US-02-4
+  title: reorder-templates handler
+  requirements:
+  - '5'
+  optional: false
+- id: US-02-5
+  title: Property tests for template API logic
+  requirements:
+  - '1'
+  - '2'
+  - '3'
+  - '4'
+  - '5'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-template-management
+  labels:
+  - backend
+  - api
+  estimateDays: 1.5

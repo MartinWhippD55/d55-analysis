@@ -1,0 +1,86 @@
+id: US-06
+title: Render pipeline (Step Functions)
+userStory: As a Business_User, I want contract data to be rendered to a PDF automatically
+  via an orchestrated pipeline that selects the template, resolves pinned versions,
+  picks section variants, renders and stitches, so that contract notes are produced
+  reliably.
+coversRequirements:
+- '11'
+- '12'
+- '13'
+- '14'
+- '18'
+- '19'
+- '20'
+exports:
+- state-machine:RenderStateMachine
+- shared-lib:spec-evaluator
+- lambda:parse-input
+- lambda:select-template
+- lambda:render-section
+- lambda:stitch
+- lambda:write-output
+- lambda:handle-failure
+- s3-bucket:input-xml
+- s3-bucket:output-pdf
+dependsOn:
+- shared-lib:types
+- data-table:ContractNoteTemplates
+- gsi:PriorityIndex
+- s3-bucket:schema-json
+- s3-bucket:error-output
+subtasks:
+- id: US-06-1
+  title: Specification evaluator
+  requirements:
+  - '11'
+  optional: false
+- id: US-06-2
+  title: Template selection (first-match-wins)
+  requirements:
+  - '11'
+  optional: false
+- id: US-06-3
+  title: Section renderer (pdf-me) + pinned-version resolution
+  requirements:
+  - '12'
+  - '18'
+  optional: false
+- id: US-06-4
+  title: Section variant selection (first match, default fallback)
+  requirements:
+  - '19'
+  optional: false
+- id: US-06-5
+  title: PDF stitcher (pdf-lib)
+  requirements:
+  - '13'
+  optional: false
+- id: US-06-6
+  title: Step Functions state handlers + Map state + failure state
+  requirements:
+  - '20'
+  optional: false
+- id: US-06-7
+  title: XML-to-JSON parse + S3 trigger
+  requirements:
+  - '14'
+  optional: false
+- id: US-06-8
+  title: 'Property tests: evaluation, variants, stitching, failure isolation'
+  requirements:
+  - '11'
+  - '12'
+  - '13'
+  - '14'
+  - '19'
+  - '20'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-template-management
+  labels:
+  - backend
+  - pipeline
+  - infra
+  estimateDays: 3.0

@@ -1,0 +1,56 @@
+Issue Type,Issue Id,Summary,Description,Epic Name,Epic Link,Parent Id,Labels,Story Points,Blocks,Requirements
+Epic,EPIC-contract-note-template-management,contract-note-template-management (delivery),Umbrella epic decomposed from spec 'contract-note-template-management'.,contract-note-template-management,,,,,,
+Story,US-01,Foundation: infrastructure & shared types,"As a developer, I want the base table, buckets, API Gateway routes, shared types and the specification-tree validator, so that every other story has a stable foundation to build on.",,contract-note-template-management,,infra backend,2.5,"US-02,US-03,US-04,US-05,US-06,US-08","1,5,10,14"
+Sub-task,US-01-1,"CDK: DynamoDB table + PriorityIndex GSI, S3 buckets, API Gateway routes",,,,US-01,,,,"1,5,14"
+Sub-task,US-01-2,Shared TypeScript interfaces and DynamoDB record types,,,,US-01,,,,10
+Sub-task,US-01-3,Specification tree validation utility,,,,US-01,,,,10
+Sub-task,US-01-4,Property tests for specification validation,,,,US-01,optional,,,10
+Story,US-02,Template CRUD API,"As a Business_User, I want to create, list, edit, delete and reorder templates, so that I can manage contract note template definitions.",,contract-note-template-management,,backend api,1.5,"US-08,US-10","1,2,3,4,5"
+Sub-task,US-02-1,list-templates handler (priority-ordered),,,,US-02,,,,1
+Sub-task,US-02-2,"create-template handler (validation, duplicate check, priority)",,,,US-02,,,,2
+Sub-task,US-02-3,get/update/delete-template handlers,,,,US-02,,,,"3,4"
+Sub-task,US-02-4,reorder-templates handler,,,,US-02,,,,5
+Sub-task,US-02-5,Property tests for template API logic,,,,US-02,optional,,,"1,2,3,4,5"
+Story,US-03,"Section, shared-section, version history & change log API","As a Business_User, I want to compose sections, edit their schema with version history, manage shared sections and see a change log, so that I can build and maintain template content.",,contract-note-template-management,,backend api,2.0,"US-04,US-08,US-10","3,6,7,8,9,16,17"
+Sub-task,US-03-1,list/add/remove/reorder-section handlers (incl. T&C positioning),,,,US-03,,,,"3,6,9"
+Sub-task,US-03-2,get/save-section-schema handlers (writes a new version),,,,US-03,,,,"7,16"
+Sub-task,US-03-3,section version history handlers (list/get/revert),,,,US-03,,,,16
+Sub-task,US-03-4,shared section CRUD handlers + references,,,,US-03,,,,"8,9"
+Sub-task,US-03-5,template change log,,,,US-03,,,,17
+Sub-task,US-03-6,Property tests for section API logic,,,,US-03,optional,,,"3,6,7,8,9,16,17"
+Story,US-04,Section version publishing & variants API,"As a Business_User, I want to publish a section version to all linked templates and define rule-driven section variants, so that I control rollout and can render alternatives from one section slot.",,contract-note-template-management,,backend api,1.0,"US-08,US-10","18,19"
+Sub-task,US-04-1,get-linked-templates + publish-section-version handlers,,,,US-04,,,,18
+Sub-task,US-04-2,"section variant CRUD handlers (order, default)",,,,US-04,,,,19
+Sub-task,US-04-3,variant rule get/save handlers (reuse validation),,,,US-04,,,,19
+Sub-task,US-04-4,Property tests for publishing and variants,,,,US-04,optional,,,"18,19"
+Story,US-05,Template selection rules API,"As a Business_User, I want to get and save a template's selection rule, so that the pipeline can pick the right template automatically.",,contract-note-template-management,,backend api,0.5,"US-08,US-10",10
+Sub-task,US-05-1,get-rule handler,,,,US-05,,,,10
+Sub-task,US-05-2,save-rule handler (validate specification),,,,US-05,,,,10
+Story,US-06,Render pipeline (Step Functions),"As a Business_User, I want contract data to be rendered to a PDF automatically via an orchestrated pipeline that selects the template, resolves pinned versions, picks section variants, renders and stitches, so that contract notes are produced reliably.",,contract-note-template-management,,backend pipeline infra,3.0,US-10,"11,12,13,14,18,19,20"
+Sub-task,US-06-1,Specification evaluator,,,,US-06,,,,11
+Sub-task,US-06-2,Template selection (first-match-wins),,,,US-06,,,,11
+Sub-task,US-06-3,Section renderer (pdf-me) + pinned-version resolution,,,,US-06,,,,"12,18"
+Sub-task,US-06-4,"Section variant selection (first match, default fallback)",,,,US-06,,,,19
+Sub-task,US-06-5,PDF stitcher (pdf-lib),,,,US-06,,,,13
+Sub-task,US-06-6,Step Functions state handlers + Map state + failure state,,,,US-06,,,,20
+Sub-task,US-06-7,XML-to-JSON parse + S3 trigger,,,,US-06,,,,14
+Sub-task,US-06-8,"Property tests: evaluation, variants, stitching, failure isolation",,,,US-06,optional,,,"11,12,13,14,19,20"
+Story,US-07,pdf-me Designer web component,"As a Business_User, I want an embedded visual designer, so that I can position fields on a section layout without developer help.",,contract-note-template-management,,frontend,1.0,US-09,7
+Sub-task,US-07-1,<pdfme-designer> web component wrapping the React pdf-me Designer,,,,US-07,,,,7
+Sub-task,US-07-2,schema-json in / schema-save event out; on-demand bundle load,,,,US-07,,,,7
+Story,US-08,"Angular module, routing & services","As a Business_User, I want the contract-note admin module wired into the portal with auth-guarded routes and API services, so that the screens have data and access is restricted.",,contract-note-template-management,,frontend,1.0,US-09,15
+Sub-task,US-08-1,ContractNoteModule with routes + Cognito group route guard,,,,US-08,,,,15
+Sub-task,US-08-2,"TemplateService, SectionService, RulesService wired to the API",,,,US-08,,,,15
+Story,US-09,Angular screens & components,"As a Business_User, I want the full set of screens (template list, template edit, rules config, section editor, shared sections, version history, variants, publish) and navigation, so that I can manage everything from the portal.",,contract-note-template-management,,frontend,3.0,US-10,"1,2,3,4,5,6,7,8,9,10,16,17,18,19,21"
+Sub-task,US-09-1,TemplateListComponent (landing page),,,,US-09,,,,"1,4,5"
+Sub-task,US-09-2,TemplateEditComponent + change log + variant list,,,,US-09,,,,"2,3,6,17,19"
+Sub-task,US-09-3,RulesConfigComponent (shared by template + variant rules),,,,US-09,,,,10
+Sub-task,US-09-4,SectionEditorComponent host (modal),,,,US-09,,,,7
+Sub-task,US-09-5,SharedSectionsComponent + detail,,,,US-09,,,,"8,9"
+Sub-task,US-09-6,SectionVersionHistoryComponent + SectionPublishComponent,,,,US-09,,,,"16,18"
+Sub-task,US-09-7,Navigation + landing pages (page vs modal),,,,US-09,,,,21
+Sub-task,US-09-8,Component unit tests,,,,US-09,optional,,,"1,10,18,19"
+Story,US-10,Integration wiring & end-to-end validation,"As a developer, I want all components deployed and wired (IAM, S3 trigger, API Gateway, portal navigation) with end-to-end tests, so that the feature works as a whole.",,contract-note-template-management,,infra integration,1.0,,"14,15,20"
+Sub-task,US-10-1,"CDK deployment wiring: IAM, S3-triggered state machine, API routes, CORS",,,,US-10,,,,"14,20"
+Sub-task,US-10-2,Portal sidebar navigation entry (Cognito-gated),,,,US-10,,,,15
+Sub-task,US-10-3,End-to-end pipeline integration tests,,,,US-10,optional,,,14

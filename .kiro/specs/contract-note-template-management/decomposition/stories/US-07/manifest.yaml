@@ -1,0 +1,26 @@
+id: US-07
+title: pdf-me Designer web component
+userStory: As a Business_User, I want an embedded visual designer, so that I can position
+  fields on a section layout without developer help.
+coversRequirements:
+- '7'
+exports:
+- web-component:pdfme-designer
+dependsOn: []
+subtasks:
+- id: US-07-1
+  title: <pdfme-designer> web component wrapping the React pdf-me Designer
+  requirements:
+  - '7'
+  optional: false
+- id: US-07-2
+  title: schema-json in / schema-save event out; on-demand bundle load
+  requirements:
+  - '7'
+  optional: false
+jira:
+  issueType: Story
+  epic: contract-note-template-management
+  labels:
+  - frontend
+  estimateDays: 1.0

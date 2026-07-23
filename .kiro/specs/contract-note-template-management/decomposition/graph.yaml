@@ -1,0 +1,187 @@
+parentSpec: contract-note-template-management
+stories:
+- US-01
+- US-02
+- US-03
+- US-04
+- US-05
+- US-06
+- US-07
+- US-08
+- US-09
+- US-10
+components:
+  api-endpoint:DELETE /contract-note-templates/{id}: US-02
+  api-endpoint:GET /contract-note-templates: US-02
+  api-endpoint:POST /contract-note-templates: US-02
+  api-endpoint:PUT /contract-note-templates/reorder: US-02
+  api-endpoint:PUT /contract-note-templates/{id}: US-02
+  api-endpoint:section-publish: US-04
+  api-endpoint:section-schema: US-03
+  api-endpoint:section-variants-crud: US-04
+  api-endpoint:section-versions: US-03
+  api-endpoint:sections-crud: US-03
+  api-endpoint:shared-sections-crud: US-03
+  api-endpoint:template-changelog: US-03
+  api-endpoint:template-rule: US-05
+  api-endpoint:variant-rule: US-04
+  cdk-construct:ApiGatewayRoutes: US-01
+  cdk-instance:deployment: US-10
+  data-table:ContractNoteTemplates: US-01
+  frontend-component:ContractNoteModule: US-08
+  frontend-component:Navigation: US-09
+  frontend-component:RulesConfigComponent: US-09
+  frontend-component:SectionEditorComponent: US-09
+  frontend-component:SectionPublishComponent: US-09
+  frontend-component:SectionVariantsComponent: US-09
+  frontend-component:SectionVersionHistoryComponent: US-09
+  frontend-screen:SharedSectionsLibrary: US-09
+  frontend-screen:TemplateEdit: US-09
+  frontend-screen:TemplateList: US-09
+  gsi:PriorityIndex: US-01
+  lambda:handle-failure: US-06
+  lambda:parse-input: US-06
+  lambda:render-section: US-06
+  lambda:rules-handlers: US-05
+  lambda:section-handlers: US-03
+  lambda:select-template: US-06
+  lambda:stitch: US-06
+  lambda:template-handlers: US-02
+  lambda:variant-publish-handlers: US-04
+  lambda:write-output: US-06
+  s3-bucket:error-output: US-01
+  s3-bucket:input-xml: US-06
+  s3-bucket:output-pdf: US-06
+  s3-bucket:schema-json: US-01
+  service:RulesService: US-08
+  service:SectionService: US-08
+  service:TemplateService: US-08
+  shared-lib:spec-evaluator: US-06
+  shared-lib:spec-validation: US-01
+  shared-lib:types: US-01
+  state-machine:RenderStateMachine: US-06
+  web-component:pdfme-designer: US-07
+edges:
+- from: US-02
+  to: US-01
+  via:
+  - cdk-construct:ApiGatewayRoutes
+  - data-table:ContractNoteTemplates
+  - gsi:PriorityIndex
+  - shared-lib:types
+- from: US-03
+  to: US-01
+  via:
+  - cdk-construct:ApiGatewayRoutes
+  - data-table:ContractNoteTemplates
+  - s3-bucket:schema-json
+  - shared-lib:types
+- from: US-04
+  to: US-01
+  via:
+  - data-table:ContractNoteTemplates
+  - shared-lib:spec-validation
+  - shared-lib:types
+- from: US-04
+  to: US-03
+  via:
+  - api-endpoint:section-versions
+- from: US-05
+  to: US-01
+  via:
+  - cdk-construct:ApiGatewayRoutes
+  - data-table:ContractNoteTemplates
+  - shared-lib:spec-validation
+  - shared-lib:types
+- from: US-06
+  to: US-01
+  via:
+  - data-table:ContractNoteTemplates
+  - gsi:PriorityIndex
+  - s3-bucket:error-output
+  - s3-bucket:schema-json
+  - shared-lib:types
+- from: US-08
+  to: US-01
+  via:
+  - shared-lib:types
+- from: US-08
+  to: US-02
+  via:
+  - api-endpoint:GET /contract-note-templates
+- from: US-08
+  to: US-03
+  via:
+  - api-endpoint:section-versions
+  - api-endpoint:sections-crud
+  - api-endpoint:shared-sections-crud
+- from: US-08
+  to: US-04
+  via:
+  - api-endpoint:section-publish
+  - api-endpoint:section-variants-crud
+  - api-endpoint:variant-rule
+- from: US-08
+  to: US-05
+  via:
+  - api-endpoint:template-rule
+- from: US-09
+  to: US-07
+  via:
+  - web-component:pdfme-designer
+- from: US-09
+  to: US-08
+  via:
+  - frontend-component:ContractNoteModule
+  - service:RulesService
+  - service:SectionService
+  - service:TemplateService
+- from: US-10
+  to: US-02
+  via:
+  - lambda:template-handlers
+- from: US-10
+  to: US-03
+  via:
+  - lambda:section-handlers
+- from: US-10
+  to: US-04
+  via:
+  - lambda:variant-publish-handlers
+- from: US-10
+  to: US-05
+  via:
+  - lambda:rules-handlers
+- from: US-10
+  to: US-06
+  via:
+  - state-machine:RenderStateMachine
+- from: US-10
+  to: US-09
+  via:
+  - frontend-component:Navigation
+waves:
+- wave: 1
+  stories:
+  - US-01
+  - US-07
+- wave: 2
+  stories:
+  - US-02
+  - US-03
+  - US-05
+  - US-06
+- wave: 3
+  stories:
+  - US-04
+- wave: 4
+  stories:
+  - US-08
+- wave: 5
+  stories:
+  - US-09
+- wave: 6
+  stories:
+  - US-10
+issues: []
+ok: true

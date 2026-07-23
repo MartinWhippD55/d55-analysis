@@ -1,0 +1,39 @@
+id: US-08
+title: Angular module, routing & services
+userStory: As a Business_User, I want the contract-note admin module wired into the
+  portal with auth-guarded routes and API services, so that the screens have data
+  and access is restricted.
+coversRequirements:
+- '15'
+exports:
+- frontend-component:ContractNoteModule
+- service:TemplateService
+- service:SectionService
+- service:RulesService
+dependsOn:
+- shared-lib:types
+- api-endpoint:GET /contract-note-templates
+- api-endpoint:sections-crud
+- api-endpoint:section-versions
+- api-endpoint:section-publish
+- api-endpoint:section-variants-crud
+- api-endpoint:variant-rule
+- api-endpoint:shared-sections-crud
+- api-endpoint:template-rule
+subtasks:
+- id: US-08-1
+  title: ContractNoteModule with routes + Cognito group route guard
+  requirements:
+  - '15'
+  optional: false
+- id: US-08-2
+  title: TemplateService, SectionService, RulesService wired to the API
+  requirements:
+  - '15'
+  optional: false
+jira:
+  issueType: Story
+  epic: contract-note-template-management
+  labels:
+  - frontend
+  estimateDays: 1.0

@@ -1,0 +1,49 @@
+id: US-01
+title: 'Foundation: infrastructure & shared types'
+userStory: As a developer, I want the base table, buckets, API Gateway routes, shared
+  types and the specification-tree validator, so that every other story has a stable
+  foundation to build on.
+coversRequirements:
+- '1'
+- '5'
+- '10'
+- '14'
+exports:
+- shared-lib:types
+- shared-lib:spec-validation
+- data-table:ContractNoteTemplates
+- gsi:PriorityIndex
+- s3-bucket:schema-json
+- s3-bucket:error-output
+- cdk-construct:ApiGatewayRoutes
+dependsOn: []
+subtasks:
+- id: US-01-1
+  title: 'CDK: DynamoDB table + PriorityIndex GSI, S3 buckets, API Gateway routes'
+  requirements:
+  - '1'
+  - '5'
+  - '14'
+  optional: false
+- id: US-01-2
+  title: Shared TypeScript interfaces and DynamoDB record types
+  requirements:
+  - '10'
+  optional: false
+- id: US-01-3
+  title: Specification tree validation utility
+  requirements:
+  - '10'
+  optional: false
+- id: US-01-4
+  title: Property tests for specification validation
+  requirements:
+  - '10'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-template-management
+  labels:
+  - infra
+  - backend
+  estimateDays: 2.5

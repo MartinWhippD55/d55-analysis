@@ -1,0 +1,32 @@
+id: US-05
+title: Template selection rules API
+userStory: As a Business_User, I want to get and save a template's selection rule,
+  so that the pipeline can pick the right template automatically.
+coversRequirements:
+- '10'
+exports:
+- api-endpoint:template-rule
+- lambda:rules-handlers
+dependsOn:
+- shared-lib:types
+- shared-lib:spec-validation
+- data-table:ContractNoteTemplates
+- cdk-construct:ApiGatewayRoutes
+subtasks:
+- id: US-05-1
+  title: get-rule handler
+  requirements:
+  - '10'
+  optional: false
+- id: US-05-2
+  title: save-rule handler (validate specification)
+  requirements:
+  - '10'
+  optional: false
+jira:
+  issueType: Story
+  epic: contract-note-template-management
+  labels:
+  - backend
+  - api
+  estimateDays: 0.5

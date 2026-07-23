@@ -1,0 +1,42 @@
+id: US-10
+title: Integration wiring & end-to-end validation
+userStory: As a developer, I want all components deployed and wired (IAM, S3 trigger,
+  API Gateway, portal navigation) with end-to-end tests, so that the feature works
+  as a whole.
+coversRequirements:
+- '14'
+- '15'
+- '20'
+exports:
+- cdk-instance:deployment
+dependsOn:
+- lambda:template-handlers
+- lambda:section-handlers
+- lambda:variant-publish-handlers
+- lambda:rules-handlers
+- state-machine:RenderStateMachine
+- frontend-component:Navigation
+subtasks:
+- id: US-10-1
+  title: 'CDK deployment wiring: IAM, S3-triggered state machine, API routes, CORS'
+  requirements:
+  - '14'
+  - '20'
+  optional: false
+- id: US-10-2
+  title: Portal sidebar navigation entry (Cognito-gated)
+  requirements:
+  - '15'
+  optional: false
+- id: US-10-3
+  title: End-to-end pipeline integration tests
+  requirements:
+  - '14'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-template-management
+  labels:
+  - infra
+  - integration
+  estimateDays: 1.0

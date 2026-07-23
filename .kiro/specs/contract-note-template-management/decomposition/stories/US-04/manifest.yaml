@@ -1,0 +1,47 @@
+id: US-04
+title: Section version publishing & variants API
+userStory: As a Business_User, I want to publish a section version to all linked templates
+  and define rule-driven section variants, so that I control rollout and can render
+  alternatives from one section slot.
+coversRequirements:
+- '18'
+- '19'
+exports:
+- api-endpoint:section-publish
+- api-endpoint:section-variants-crud
+- api-endpoint:variant-rule
+- lambda:variant-publish-handlers
+dependsOn:
+- shared-lib:types
+- shared-lib:spec-validation
+- data-table:ContractNoteTemplates
+- api-endpoint:section-versions
+subtasks:
+- id: US-04-1
+  title: get-linked-templates + publish-section-version handlers
+  requirements:
+  - '18'
+  optional: false
+- id: US-04-2
+  title: section variant CRUD handlers (order, default)
+  requirements:
+  - '19'
+  optional: false
+- id: US-04-3
+  title: variant rule get/save handlers (reuse validation)
+  requirements:
+  - '19'
+  optional: false
+- id: US-04-4
+  title: Property tests for publishing and variants
+  requirements:
+  - '18'
+  - '19'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-template-management
+  labels:
+  - backend
+  - api
+  estimateDays: 1.0

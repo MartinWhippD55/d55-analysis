@@ -20,6 +20,12 @@ The solution covers template CRUD operations, a visual section editor, shared/re
 - **Render_Pipeline**: The automated process that renders each section independently using @pdfme/generator and stitches the results using pdf-lib
 - **Schema_JSON**: The pdf-me template definition containing a schemas array (one entry per page) with positioned field definitions including type, position, dimensions, and font
 - **Business_User**: An authenticated Admin Portal user with appropriate Cognito group membership to manage contract note templates
+- **Section_Variant**: One of several alternative layouts (each its own Schema_JSON with its own version history) belonging to a single section, guarded by a Variant_Rule that determines when it is rendered
+- **Variant_Rule**: A Specification attached to a Section_Variant that is evaluated at render time to decide whether that variant is the one to render for the current contract data
+- **Pinned_Version**: The specific section version that a template's section reference resolves to at render time, rather than always resolving to the latest version
+- **Section_Publish**: The explicit action of pushing a chosen section version (defaulting to the latest) out to all templates linked to that section, updating their Pinned_Version
+- **Render_State_Machine**: The AWS Step Functions state machine that orchestrates the render pipeline (parse, template selection, per-section variant selection and rendering, stitching, and output)
+- **Landing_Page**: A full-screen list/management view in the Admin Portal (as distinct from a modal dialog), used as an entry point to a management area
 
 ## Requirements
 
@@ -105,7 +111,7 @@ The solution covers template CRUD operations, a visual section editor, shared/re
 #### Acceptance Criteria
 
 1. WHEN a Business_User marks a section as shared, THE Admin_Portal SHALL make that section available for selection in all templates
-2. WHEN a Business_User edits a Shared_Section, THE Admin_Portal SHALL apply the changes to all templates referencing that section
+2. WHEN a Business_User edits a Shared_Section, THE Admin_Portal SHALL create a new section version WITHOUT automatically changing the Pinned_Version resolved by templates that reference it (see Requirement 18 for controlled publishing)
 3. THE Admin_Portal SHALL display which templates reference a given Shared_Section
 4. IF a Business_User attempts to delete a Shared_Section that is referenced by one or more templates, THEN THE Admin_Portal SHALL display a warning listing the affected templates and require confirmation
 
@@ -152,7 +158,7 @@ The solution covers template CRUD operations, a visual section editor, shared/re
 
 #### Acceptance Criteria
 
-1. WHEN the Render_Pipeline processes a template, THE Render_Pipeline SHALL render each section independently using @pdfme/generator with the section's Schema_JSON and contract data
+1. WHEN the Render_Pipeline processes a template, THE Render_Pipeline SHALL render each section independently using @pdfme/generator with the section's selected variant Schema_JSON (per Requirement 19) at the Pinned_Version (per Requirement 18) and contract data
 2. THE Render_Pipeline SHALL supply the configured font and plugin options (text, multiVariableText, table) to @pdfme/generator for each section render
 3. IF a section render fails, THEN THE Render_Pipeline SHALL log the error with section identifier and template context, and halt processing for that contract note
 
@@ -208,3 +214,55 @@ The solution covers template CRUD operations, a visual section editor, shared/re
 1. WHEN a Business_User modifies a template (adds/removes/reorders sections, changes name/description), THE Admin_Portal SHALL record a change event with timestamp, user, and description of what changed
 2. THE Admin_Portal SHALL display a change log for each template, showing the chronological list of changes
 3. THE change log SHALL be accessible from the template edit screen
+
+### Requirement 18: Section Version Publishing to Linked Templates
+
+**User Story:** As a Business_User, I want to publish a specific section version to the templates that use that section, so that I control exactly when a design change goes live rather than having every edit take effect immediately.
+
+#### Acceptance Criteria
+
+1. THE Admin_Portal SHALL record, for each template's use of a section, the Pinned_Version that the template resolves to at render time
+2. WHEN a Business_User creates a new section version, THE Admin_Portal SHALL NOT change the Pinned_Version of any linked template until an explicit Section_Publish action is performed
+3. WHEN a Business_User initiates a Section_Publish for a chosen version (defaulting to the latest), THE Admin_Portal SHALL display the list of templates linked to that section for confirmation
+4. WHEN a Business_User confirms a Section_Publish, THE Admin_Portal SHALL update the Pinned_Version of every template linked to that section to the chosen version and record a change log entry against each affected template
+5. THE Admin_Portal SHALL indicate, for each linked template, whether it is on the latest section version or an earlier Pinned_Version (i.e. an update is available)
+6. THE Render_State_Machine SHALL render each section using the Pinned_Version recorded on the template's section reference
+
+### Requirement 19: Section Variants and Variant Selection Rules
+
+**User Story:** As a Business_User, I want a section to contain multiple layout variants each governed by a rule, so that a single section slot can render different content depending on the contract data without creating separate templates for every combination.
+
+#### Acceptance Criteria
+
+1. THE Admin_Portal SHALL allow a Business_User to define one or more Section_Variants within a section, each with its own Schema_JSON and its own version history
+2. THE Admin_Portal SHALL allow a Business_User to attach a Variant_Rule (a Specification, per Requirement 10) to each Section_Variant
+3. THE Admin_Portal SHALL allow a Business_User to designate exactly one Section_Variant as the default, used when no Variant_Rule matches
+4. WHEN a Business_User orders the Section_Variants, THE Admin_Portal SHALL evaluate Variant_Rules in that order and treat the first match as the variant to render
+5. WHEN the Render_State_Machine renders a section that has variants, THE Render_State_Machine SHALL evaluate each Variant_Rule against the contract data in variant order and select the first matching variant, falling back to the default variant if none match
+6. IF a section has variants but no variant matches and no default is designated, THEN THE Render_State_Machine SHALL log an error identifying the section and halt processing for that contract note
+7. THE Admin_Portal SHALL reuse the same rule editor (Requirement 10) and validation for Variant_Rules as for template selection rules
+8. WHERE a section has no variants defined, THE Admin_Portal SHALL treat the section as having a single implicit variant, preserving existing behaviour
+
+### Requirement 20: Render Orchestration
+
+**User Story:** As a Business_User, I want the render pipeline to be orchestrated as discrete, observable steps, so that failures are isolated, retryable, and diagnosable, and so that documents with many sections render reliably.
+
+#### Acceptance Criteria
+
+1. THE Render_State_Machine SHALL orchestrate the render as discrete states: parse input, select template, select-and-render each section, stitch, and write output
+2. THE Render_State_Machine SHALL render sections using a map/parallel state so that each section (including its variant selection) is processed as an independent, retryable unit of work
+3. WHEN a section-level state fails after its configured retries, THE Render_State_Machine SHALL route to a failure state that logs an error record and SHALL NOT write a partial output PDF
+4. THE Render_State_Machine SHALL be triggered by the arrival of an XML file in the configured S3 input bucket, preserving the existing entry point
+5. THE Render_State_Machine SHALL record the outcome (success or the failing state and reason) for each processed contract note for observability
+
+### Requirement 21: Navigation and Landing Pages
+
+**User Story:** As a Business_User, I want dedicated full-page landing/list screens for the areas I manage, so that I can find and manage templates, shared sections, and section variants without everything being buried in modal dialogs.
+
+#### Acceptance Criteria
+
+1. THE Admin_Portal SHALL provide a Template_List as a full Landing_Page listing all previously configured templates, reachable from the Admin Portal navigation
+2. THE Admin_Portal SHALL provide a Shared Sections Library as a full Landing_Page listing all shared sections
+3. THE Admin_Portal SHALL present the Section_Editor and the section version history as modal dialogs launched from within a Landing_Page, distinguishing transient editing surfaces from persistent list views
+4. WHERE a section has multiple Section_Variants, THE Admin_Portal SHALL list those variants (with their rule summary and default indicator) within the template edit page rather than only inside a modal
+5. THE Admin_Portal navigation SHALL expose entry points to the Template_List and Shared Sections Library, gated by Cognito group membership

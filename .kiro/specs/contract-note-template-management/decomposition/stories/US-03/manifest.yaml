@@ -1,0 +1,73 @@
+id: US-03
+title: Section, shared-section, version history & change log API
+userStory: As a Business_User, I want to compose sections, edit their schema with
+  version history, manage shared sections and see a change log, so that I can build
+  and maintain template content.
+coversRequirements:
+- '3'
+- '6'
+- '7'
+- '8'
+- '9'
+- '16'
+- '17'
+exports:
+- api-endpoint:sections-crud
+- api-endpoint:section-schema
+- api-endpoint:section-versions
+- api-endpoint:shared-sections-crud
+- api-endpoint:template-changelog
+- lambda:section-handlers
+dependsOn:
+- shared-lib:types
+- data-table:ContractNoteTemplates
+- s3-bucket:schema-json
+- cdk-construct:ApiGatewayRoutes
+subtasks:
+- id: US-03-1
+  title: list/add/remove/reorder-section handlers (incl. T&C positioning)
+  requirements:
+  - '3'
+  - '6'
+  - '9'
+  optional: false
+- id: US-03-2
+  title: get/save-section-schema handlers (writes a new version)
+  requirements:
+  - '7'
+  - '16'
+  optional: false
+- id: US-03-3
+  title: section version history handlers (list/get/revert)
+  requirements:
+  - '16'
+  optional: false
+- id: US-03-4
+  title: shared section CRUD handlers + references
+  requirements:
+  - '8'
+  - '9'
+  optional: false
+- id: US-03-5
+  title: template change log
+  requirements:
+  - '17'
+  optional: false
+- id: US-03-6
+  title: Property tests for section API logic
+  requirements:
+  - '3'
+  - '6'
+  - '7'
+  - '8'
+  - '9'
+  - '16'
+  - '17'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-template-management
+  labels:
+  - backend
+  - api
+  estimateDays: 2.0
