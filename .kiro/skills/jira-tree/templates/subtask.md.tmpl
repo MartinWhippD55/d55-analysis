@@ -1,0 +1,39 @@
+<!--
+  Sub-task description template. House style: greppable, bullet-first, code-forward.
+  - Lead with What / Why / Done when bullets so a developer can scan fast.
+  - Include a Suggested approach code fence: a small, honest starting point the dev
+    could run with (handler stub, CDK snippet, request/response JSON, component mock).
+    Keep code, API names and error strings verbatim. Prefer real names over generic.
+  - The snippet is also a cross-reference: an API response shape here should match the
+    OpenAPI spec, a component mock should match its backing endpoint — mismatches
+    surface gaps in the parent spec.
+  Replace every <...> placeholder. TODO markers flag content to enrich before push.
+-->
+---
+issue_type: Sub-task
+key: <US-xx-n>
+summary: <summary>
+parent: <US-xx>
+identity_label: s2s-<parent>-<US-xx-n>
+labels:
+  - s2s-<parent>
+  - s2s-<parent>-<US-xx-n>
+requirements: []
+optional: false
+---
+
+# <US-xx-n> — <summary>
+
+- **What:** <one line — the concrete change>
+- **Why:** <where it fits / what it unblocks>
+- **Done when:**
+  - <checkable outcome>
+  - <checkable outcome>
+
+### Suggested approach
+
+```<lang>
+// TODO: suggestive starting point — replace with real implementation
+```
+
+_Requirements: <list>_
