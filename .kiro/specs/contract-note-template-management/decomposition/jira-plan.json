@@ -1,0 +1,1055 @@
+{
+  "parent_spec": "contract-note-template-management",
+  "set_label": "s2s-contract-note-template-management",
+  "epic": {
+    "summary": "contract-note-template-management (delivery)",
+    "epic_name": "contract-note-template-management",
+    "description": "Umbrella epic decomposed from spec 'contract-note-template-management' by spec-to-stories.",
+    "identity_label": "s2s-contract-note-template-management-epic",
+    "labels": [
+      "s2s-contract-note-template-management",
+      "s2s-contract-note-template-management-epic"
+    ]
+  },
+  "stories": [
+    {
+      "sid": "US-01",
+      "summary": "Foundation: infrastructure & shared types",
+      "description": "As a developer, I want the base table, buckets, API Gateway routes, shared types and the specification-tree validator, so that every other story has a stable foundation to build on.\n\nCovers parent requirements: 1, 5, 10, 14\nTraceability: s2s-contract-note-template-management-US-01",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-template-management-US-01",
+      "labels": [
+        "s2s-contract-note-template-management",
+        "s2s-contract-note-template-management-US-01",
+        "infra",
+        "backend"
+      ],
+      "covers_requirements": [
+        "1",
+        "5",
+        "10",
+        "14"
+      ],
+      "estimate_days": 2.5,
+      "subtasks": [
+        {
+          "tid": "US-01-1",
+          "summary": "CDK: DynamoDB table + PriorityIndex GSI, S3 buckets, API Gateway routes",
+          "identity_label": "s2s-contract-note-template-management-US-01-1",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-01-1"
+          ],
+          "requirements": [
+            "1",
+            "5",
+            "14"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-01-2",
+          "summary": "Shared TypeScript interfaces and DynamoDB record types",
+          "identity_label": "s2s-contract-note-template-management-US-01-2",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-01-2"
+          ],
+          "requirements": [
+            "10"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-01-3",
+          "summary": "Specification tree validation utility",
+          "identity_label": "s2s-contract-note-template-management-US-01-3",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-01-3"
+          ],
+          "requirements": [
+            "10"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-01-4",
+          "summary": "Property tests for specification validation",
+          "identity_label": "s2s-contract-note-template-management-US-01-4",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-01-4",
+            "optional"
+          ],
+          "requirements": [
+            "10"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-02",
+      "summary": "Template CRUD API",
+      "description": "As a Business_User, I want to create, list, edit, delete and reorder templates, so that I can manage contract note template definitions.\n\nCovers parent requirements: 1, 2, 3, 4, 5\nTraceability: s2s-contract-note-template-management-US-02",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-template-management-US-02",
+      "labels": [
+        "s2s-contract-note-template-management",
+        "s2s-contract-note-template-management-US-02",
+        "backend",
+        "api"
+      ],
+      "covers_requirements": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "estimate_days": 1.5,
+      "subtasks": [
+        {
+          "tid": "US-02-1",
+          "summary": "list-templates handler (priority-ordered)",
+          "identity_label": "s2s-contract-note-template-management-US-02-1",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-02-1"
+          ],
+          "requirements": [
+            "1"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-02-2",
+          "summary": "create-template handler (validation, duplicate check, priority)",
+          "identity_label": "s2s-contract-note-template-management-US-02-2",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-02-2"
+          ],
+          "requirements": [
+            "2"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-02-3",
+          "summary": "get/update/delete-template handlers",
+          "identity_label": "s2s-contract-note-template-management-US-02-3",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-02-3"
+          ],
+          "requirements": [
+            "3",
+            "4"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-02-4",
+          "summary": "reorder-templates handler",
+          "identity_label": "s2s-contract-note-template-management-US-02-4",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-02-4"
+          ],
+          "requirements": [
+            "5"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-02-5",
+          "summary": "Property tests for template API logic",
+          "identity_label": "s2s-contract-note-template-management-US-02-5",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-02-5",
+            "optional"
+          ],
+          "requirements": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-03",
+      "summary": "Section, shared-section, version history & change log API",
+      "description": "As a Business_User, I want to compose sections, edit their schema with version history, manage shared sections and see a change log, so that I can build and maintain template content.\n\nCovers parent requirements: 3, 6, 7, 8, 9, 16, 17\nTraceability: s2s-contract-note-template-management-US-03",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-template-management-US-03",
+      "labels": [
+        "s2s-contract-note-template-management",
+        "s2s-contract-note-template-management-US-03",
+        "backend",
+        "api"
+      ],
+      "covers_requirements": [
+        "3",
+        "6",
+        "7",
+        "8",
+        "9",
+        "16",
+        "17"
+      ],
+      "estimate_days": 2.0,
+      "subtasks": [
+        {
+          "tid": "US-03-1",
+          "summary": "list/add/remove/reorder-section handlers (incl. T&C positioning)",
+          "identity_label": "s2s-contract-note-template-management-US-03-1",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-03-1"
+          ],
+          "requirements": [
+            "3",
+            "6",
+            "9"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-2",
+          "summary": "get/save-section-schema handlers (writes a new version)",
+          "identity_label": "s2s-contract-note-template-management-US-03-2",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-03-2"
+          ],
+          "requirements": [
+            "7",
+            "16"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-3",
+          "summary": "section version history handlers (list/get/revert)",
+          "identity_label": "s2s-contract-note-template-management-US-03-3",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-03-3"
+          ],
+          "requirements": [
+            "16"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-4",
+          "summary": "shared section CRUD handlers + references",
+          "identity_label": "s2s-contract-note-template-management-US-03-4",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-03-4"
+          ],
+          "requirements": [
+            "8",
+            "9"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-5",
+          "summary": "template change log",
+          "identity_label": "s2s-contract-note-template-management-US-03-5",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-03-5"
+          ],
+          "requirements": [
+            "17"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-6",
+          "summary": "Property tests for section API logic",
+          "identity_label": "s2s-contract-note-template-management-US-03-6",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-03-6",
+            "optional"
+          ],
+          "requirements": [
+            "3",
+            "6",
+            "7",
+            "8",
+            "9",
+            "16",
+            "17"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-04",
+      "summary": "Section version publishing & variants API",
+      "description": "As a Business_User, I want to publish a section version to all linked templates and define rule-driven section variants, so that I control rollout and can render alternatives from one section slot.\n\nCovers parent requirements: 18, 19\nTraceability: s2s-contract-note-template-management-US-04",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-template-management-US-04",
+      "labels": [
+        "s2s-contract-note-template-management",
+        "s2s-contract-note-template-management-US-04",
+        "backend",
+        "api"
+      ],
+      "covers_requirements": [
+        "18",
+        "19"
+      ],
+      "estimate_days": 1.0,
+      "subtasks": [
+        {
+          "tid": "US-04-1",
+          "summary": "get-linked-templates + publish-section-version handlers",
+          "identity_label": "s2s-contract-note-template-management-US-04-1",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-04-1"
+          ],
+          "requirements": [
+            "18"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-04-2",
+          "summary": "section variant CRUD handlers (order, default)",
+          "identity_label": "s2s-contract-note-template-management-US-04-2",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-04-2"
+          ],
+          "requirements": [
+            "19"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-04-3",
+          "summary": "variant rule get/save handlers (reuse validation)",
+          "identity_label": "s2s-contract-note-template-management-US-04-3",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-04-3"
+          ],
+          "requirements": [
+            "19"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-04-4",
+          "summary": "Property tests for publishing and variants",
+          "identity_label": "s2s-contract-note-template-management-US-04-4",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-04-4",
+            "optional"
+          ],
+          "requirements": [
+            "18",
+            "19"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-05",
+      "summary": "Template selection rules API",
+      "description": "As a Business_User, I want to get and save a template's selection rule, so that the pipeline can pick the right template automatically.\n\nCovers parent requirements: 10\nTraceability: s2s-contract-note-template-management-US-05",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-template-management-US-05",
+      "labels": [
+        "s2s-contract-note-template-management",
+        "s2s-contract-note-template-management-US-05",
+        "backend",
+        "api"
+      ],
+      "covers_requirements": [
+        "10"
+      ],
+      "estimate_days": 0.5,
+      "subtasks": [
+        {
+          "tid": "US-05-1",
+          "summary": "get-rule handler",
+          "identity_label": "s2s-contract-note-template-management-US-05-1",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-05-1"
+          ],
+          "requirements": [
+            "10"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-05-2",
+          "summary": "save-rule handler (validate specification)",
+          "identity_label": "s2s-contract-note-template-management-US-05-2",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-05-2"
+          ],
+          "requirements": [
+            "10"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "sid": "US-06",
+      "summary": "Render pipeline (Step Functions)",
+      "description": "As a Business_User, I want contract data to be rendered to a PDF automatically via an orchestrated pipeline that selects the template, resolves pinned versions, picks section variants, renders and stitches, so that contract notes are produced reliably.\n\nCovers parent requirements: 11, 12, 13, 14, 18, 19, 20\nTraceability: s2s-contract-note-template-management-US-06",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-template-management-US-06",
+      "labels": [
+        "s2s-contract-note-template-management",
+        "s2s-contract-note-template-management-US-06",
+        "backend",
+        "pipeline",
+        "infra"
+      ],
+      "covers_requirements": [
+        "11",
+        "12",
+        "13",
+        "14",
+        "18",
+        "19",
+        "20"
+      ],
+      "estimate_days": 3.0,
+      "subtasks": [
+        {
+          "tid": "US-06-1",
+          "summary": "Specification evaluator",
+          "identity_label": "s2s-contract-note-template-management-US-06-1",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-06-1"
+          ],
+          "requirements": [
+            "11"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-2",
+          "summary": "Template selection (first-match-wins)",
+          "identity_label": "s2s-contract-note-template-management-US-06-2",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-06-2"
+          ],
+          "requirements": [
+            "11"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-3",
+          "summary": "Section renderer (pdf-me) + pinned-version resolution",
+          "identity_label": "s2s-contract-note-template-management-US-06-3",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-06-3"
+          ],
+          "requirements": [
+            "12",
+            "18"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-4",
+          "summary": "Section variant selection (first match, default fallback)",
+          "identity_label": "s2s-contract-note-template-management-US-06-4",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-06-4"
+          ],
+          "requirements": [
+            "19"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-5",
+          "summary": "PDF stitcher (pdf-lib)",
+          "identity_label": "s2s-contract-note-template-management-US-06-5",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-06-5"
+          ],
+          "requirements": [
+            "13"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-6",
+          "summary": "Step Functions state handlers + Map state + failure state",
+          "identity_label": "s2s-contract-note-template-management-US-06-6",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-06-6"
+          ],
+          "requirements": [
+            "20"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-7",
+          "summary": "XML-to-JSON parse + S3 trigger",
+          "identity_label": "s2s-contract-note-template-management-US-06-7",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-06-7"
+          ],
+          "requirements": [
+            "14"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-8",
+          "summary": "Property tests: evaluation, variants, stitching, failure isolation",
+          "identity_label": "s2s-contract-note-template-management-US-06-8",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-06-8",
+            "optional"
+          ],
+          "requirements": [
+            "11",
+            "12",
+            "13",
+            "14",
+            "19",
+            "20"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-07",
+      "summary": "pdf-me Designer web component",
+      "description": "As a Business_User, I want an embedded visual designer, so that I can position fields on a section layout without developer help.\n\nCovers parent requirements: 7\nTraceability: s2s-contract-note-template-management-US-07",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-template-management-US-07",
+      "labels": [
+        "s2s-contract-note-template-management",
+        "s2s-contract-note-template-management-US-07",
+        "frontend"
+      ],
+      "covers_requirements": [
+        "7"
+      ],
+      "estimate_days": 1.0,
+      "subtasks": [
+        {
+          "tid": "US-07-1",
+          "summary": "<pdfme-designer> web component wrapping the React pdf-me Designer",
+          "identity_label": "s2s-contract-note-template-management-US-07-1",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-07-1"
+          ],
+          "requirements": [
+            "7"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-07-2",
+          "summary": "schema-json in / schema-save event out; on-demand bundle load",
+          "identity_label": "s2s-contract-note-template-management-US-07-2",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-07-2"
+          ],
+          "requirements": [
+            "7"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "sid": "US-08",
+      "summary": "Angular module, routing & services",
+      "description": "As a Business_User, I want the contract-note admin module wired into the portal with auth-guarded routes and API services, so that the screens have data and access is restricted.\n\nCovers parent requirements: 15\nTraceability: s2s-contract-note-template-management-US-08",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-template-management-US-08",
+      "labels": [
+        "s2s-contract-note-template-management",
+        "s2s-contract-note-template-management-US-08",
+        "frontend"
+      ],
+      "covers_requirements": [
+        "15"
+      ],
+      "estimate_days": 1.0,
+      "subtasks": [
+        {
+          "tid": "US-08-1",
+          "summary": "ContractNoteModule with routes + Cognito group route guard",
+          "identity_label": "s2s-contract-note-template-management-US-08-1",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-08-1"
+          ],
+          "requirements": [
+            "15"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-08-2",
+          "summary": "TemplateService, SectionService, RulesService wired to the API",
+          "identity_label": "s2s-contract-note-template-management-US-08-2",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-08-2"
+          ],
+          "requirements": [
+            "15"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "sid": "US-09",
+      "summary": "Angular screens & components",
+      "description": "As a Business_User, I want the full set of screens (template list, template edit, rules config, section editor, shared sections, version history, variants, publish) and navigation, so that I can manage everything from the portal.\n\nCovers parent requirements: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 18, 19, 21\nTraceability: s2s-contract-note-template-management-US-09",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-template-management-US-09",
+      "labels": [
+        "s2s-contract-note-template-management",
+        "s2s-contract-note-template-management-US-09",
+        "frontend"
+      ],
+      "covers_requirements": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "16",
+        "17",
+        "18",
+        "19",
+        "21"
+      ],
+      "estimate_days": 3.0,
+      "subtasks": [
+        {
+          "tid": "US-09-1",
+          "summary": "TemplateListComponent (landing page)",
+          "identity_label": "s2s-contract-note-template-management-US-09-1",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-09-1"
+          ],
+          "requirements": [
+            "1",
+            "4",
+            "5"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-09-2",
+          "summary": "TemplateEditComponent + change log + variant list",
+          "identity_label": "s2s-contract-note-template-management-US-09-2",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-09-2"
+          ],
+          "requirements": [
+            "2",
+            "3",
+            "6",
+            "17",
+            "19"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-09-3",
+          "summary": "RulesConfigComponent (shared by template + variant rules)",
+          "identity_label": "s2s-contract-note-template-management-US-09-3",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-09-3"
+          ],
+          "requirements": [
+            "10"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-09-4",
+          "summary": "SectionEditorComponent host (modal)",
+          "identity_label": "s2s-contract-note-template-management-US-09-4",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-09-4"
+          ],
+          "requirements": [
+            "7"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-09-5",
+          "summary": "SharedSectionsComponent + detail",
+          "identity_label": "s2s-contract-note-template-management-US-09-5",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-09-5"
+          ],
+          "requirements": [
+            "8",
+            "9"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-09-6",
+          "summary": "SectionVersionHistoryComponent + SectionPublishComponent",
+          "identity_label": "s2s-contract-note-template-management-US-09-6",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-09-6"
+          ],
+          "requirements": [
+            "16",
+            "18"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-09-7",
+          "summary": "Navigation + landing pages (page vs modal)",
+          "identity_label": "s2s-contract-note-template-management-US-09-7",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-09-7"
+          ],
+          "requirements": [
+            "21"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-09-8",
+          "summary": "Component unit tests",
+          "identity_label": "s2s-contract-note-template-management-US-09-8",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-09-8",
+            "optional"
+          ],
+          "requirements": [
+            "1",
+            "10",
+            "18",
+            "19"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-10",
+      "summary": "Integration wiring & end-to-end validation",
+      "description": "As a developer, I want all components deployed and wired (IAM, S3 trigger, API Gateway, portal navigation) with end-to-end tests, so that the feature works as a whole.\n\nCovers parent requirements: 14, 15, 20\nTraceability: s2s-contract-note-template-management-US-10",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-template-management-US-10",
+      "labels": [
+        "s2s-contract-note-template-management",
+        "s2s-contract-note-template-management-US-10",
+        "infra",
+        "integration"
+      ],
+      "covers_requirements": [
+        "14",
+        "15",
+        "20"
+      ],
+      "estimate_days": 1.0,
+      "subtasks": [
+        {
+          "tid": "US-10-1",
+          "summary": "CDK deployment wiring: IAM, S3-triggered state machine, API routes, CORS",
+          "identity_label": "s2s-contract-note-template-management-US-10-1",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-10-1"
+          ],
+          "requirements": [
+            "14",
+            "20"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-10-2",
+          "summary": "Portal sidebar navigation entry (Cognito-gated)",
+          "identity_label": "s2s-contract-note-template-management-US-10-2",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-10-2"
+          ],
+          "requirements": [
+            "15"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-10-3",
+          "summary": "End-to-end pipeline integration tests",
+          "identity_label": "s2s-contract-note-template-management-US-10-3",
+          "labels": [
+            "s2s-contract-note-template-management",
+            "s2s-contract-note-template-management-US-10-3",
+            "optional"
+          ],
+          "requirements": [
+            "14"
+          ],
+          "optional": true
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-02",
+      "via": [
+        "cdk-construct:ApiGatewayRoutes",
+        "data-table:ContractNoteTemplates",
+        "gsi:PriorityIndex",
+        "shared-lib:types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-03",
+      "via": [
+        "cdk-construct:ApiGatewayRoutes",
+        "data-table:ContractNoteTemplates",
+        "s3-bucket:schema-json",
+        "shared-lib:types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-04",
+      "via": [
+        "data-table:ContractNoteTemplates",
+        "shared-lib:spec-validation",
+        "shared-lib:types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-03",
+      "inward": "US-04",
+      "via": [
+        "api-endpoint:section-versions"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-05",
+      "via": [
+        "cdk-construct:ApiGatewayRoutes",
+        "data-table:ContractNoteTemplates",
+        "shared-lib:spec-validation",
+        "shared-lib:types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-06",
+      "via": [
+        "data-table:ContractNoteTemplates",
+        "gsi:PriorityIndex",
+        "s3-bucket:error-output",
+        "s3-bucket:schema-json",
+        "shared-lib:types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-08",
+      "via": [
+        "shared-lib:types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-02",
+      "inward": "US-08",
+      "via": [
+        "api-endpoint:GET /contract-note-templates"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-03",
+      "inward": "US-08",
+      "via": [
+        "api-endpoint:section-versions",
+        "api-endpoint:sections-crud",
+        "api-endpoint:shared-sections-crud"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-04",
+      "inward": "US-08",
+      "via": [
+        "api-endpoint:section-publish",
+        "api-endpoint:section-variants-crud",
+        "api-endpoint:variant-rule"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-05",
+      "inward": "US-08",
+      "via": [
+        "api-endpoint:template-rule"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-07",
+      "inward": "US-09",
+      "via": [
+        "web-component:pdfme-designer"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-08",
+      "inward": "US-09",
+      "via": [
+        "frontend-component:ContractNoteModule",
+        "service:RulesService",
+        "service:SectionService",
+        "service:TemplateService"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-02",
+      "inward": "US-10",
+      "via": [
+        "lambda:template-handlers"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-03",
+      "inward": "US-10",
+      "via": [
+        "lambda:section-handlers"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-04",
+      "inward": "US-10",
+      "via": [
+        "lambda:variant-publish-handlers"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-05",
+      "inward": "US-10",
+      "via": [
+        "lambda:rules-handlers"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-06",
+      "inward": "US-10",
+      "via": [
+        "state-machine:RenderStateMachine"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-09",
+      "inward": "US-10",
+      "via": [
+        "frontend-component:Navigation"
+      ]
+    }
+  ],
+  "waves": [
+    [
+      "US-01",
+      "US-07"
+    ],
+    [
+      "US-02",
+      "US-03",
+      "US-05",
+      "US-06"
+    ],
+    [
+      "US-04"
+    ],
+    [
+      "US-08"
+    ],
+    [
+      "US-09"
+    ],
+    [
+      "US-10"
+    ]
+  ]
+}

@@ -150,6 +150,16 @@ templates already include them):
 - Sanity-check the graph: the wave count and edges in `README.md` match the design's
   intent; no story is stranded; totals of covered requirements == parent requirements.
 
+### 7. (Optional) Push to Jira
+
+Once `dec.ok` and the mini-specs are authored and verified, you can create the live
+Jira issues (epic → stories → sub-tasks → "blocks" links) directly instead of
+importing the CSV by hand. Hand the decomposition folder off to the
+**`decomposition-to-jira`** skill (`.kiro/skills/decomposition-to-jira/SKILL.md`):
+it builds a deterministic, idempotent plan from `graph.yaml` + the manifests and
+creates the issues via the Atlassian Jira MCP (trialling against the `TEST` project
+first). This step is optional and only runs on request.
+
 ## Correctness properties (engine)
 
 The engine is covered by property tests in `tests/test_graph.py`:
