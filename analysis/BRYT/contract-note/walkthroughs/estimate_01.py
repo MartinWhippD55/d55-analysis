@@ -46,6 +46,18 @@ DOC = {
                 "rendered by pdf-me and stitched with pdf-lib.",
             ],
         },
+        {
+            "type": "callout",
+            "heading": "Updated after the client playback",
+            "body": [
+                "Following the Estimate 1 playback, three refinements are folded in: (1) section version "
+                "changes are published to linked templates explicitly rather than taking effect automatically; "
+                "(2) a section can hold multiple rule-driven variants, so one slot renders different content "
+                "depending on the contract data; and (3) the render pipeline is orchestrated as a Step Functions "
+                "state machine with per-section processing. The management screens remain full landing pages, "
+                "with the visual editor and version history as modals launched from them.",
+            ],
+        },
         # ---------------------------------------------------------------
         {
             "type": "section",
@@ -76,10 +88,10 @@ DOC = {
                  "Visual tree editor for the selection rule that picks a template automatically"],
                 ["Section editor", "Embedded pdf-me Designer (React web component)",
                  "Visual field placement on a base PDF, opened in a modal"],
-                ["Render pipeline", "Single AWS Lambda",
-                 "Evaluates rules, renders each section with @pdfme/generator, stitches with pdf-lib"],
+                ["Render pipeline", "AWS Step Functions state machine",
+                 "Parses data, selects a template, then renders each section (with variant selection) in a per-section Map state, and stitches with pdf-lib"],
                 ["Storage", "DynamoDB + S3",
-                 "DynamoDB holds template/section metadata and rules; S3 holds the schema JSON and output PDFs"],
+                 "DynamoDB holds template/section/variant metadata and rules; S3 holds the schema JSON and output PDFs"],
             ],
         },
         {
@@ -92,31 +104,35 @@ DOC = {
             ],
             "lanes": [
                 {"label": "Admin Portal (Angular)",
-                 "nodes": ["Template List", "Template Edit", "Rules Config", "Section Editor", "Shared Sections"]},
+                 "nodes": ["Template List", "Template Edit", "Rules & Variants", "Section Editor", "Shared Sections"]},
                 {"label": "Lambda APIs",
                  "nodes": ["Template API", "Section API", "Rules API"]},
                 {"label": "Storage",
                  "nodes": ["DynamoDB - metadata & rules", "S3 - schema JSON & output PDFs"]},
+                {"label": "Render (Step Functions)",
+                 "nodes": ["Parse", "Select Template", "Render Sections (Map)", "Stitch", "Write PDF"]},
             ],
-            "caption": "Admin Portal (top) manages content; APIs persist it; the render pipeline consumes the same storage.",
+            "caption": "Admin Portal (top) manages content; APIs persist it; the Step Functions render pipeline consumes the same storage.",
         },
         {
             "type": "pipeline",
             "heading": "Render pipeline flow",
             "body": [
-                "When an XML file lands in the input bucket, a single Lambda runs the whole flow end to end: "
-                "parse the data, pick the template by evaluating rules in priority order, render each section, "
-                "stitch them into one PDF, and write the result out.",
+                "When an XML file lands in the input bucket, a Step Functions state machine runs the flow: "
+                "parse the data, pick the template by evaluating rules in priority order, then render each "
+                "section in a per-section Map state (resolving its pinned version and selecting the matching "
+                "variant), stitch them into one PDF, and write the result out.",
             ],
             "steps": [
                 "XML lands in S3",
                 "Parse to JSON",
                 "Select template (rules, first match)",
-                "Render sections (pdf-me)",
+                "Render sections (Map: variant + pdf-me)",
                 "Stitch PDF (pdf-lib)",
                 "Write PDF to S3",
             ],
-            "caption": "A failure at any stage halts the run and logs an error record; no partial PDF is written.",
+            "caption": "Each section renders as an independent, retryable step. A failure after retries routes to a "
+                       "failure state, logs an error record, and writes no partial PDF.",
         },
         # ---------------------------------------------------------------
         {
@@ -134,12 +150,16 @@ DOC = {
                  "No special upload mechanism; T&Cs use the same editor and are always placed at the end"],
                 ["Selection rules", "Specification pattern (rule tree)",
                  "AND/OR/NOT logic with EQUALS/IN/LESS_THAN/MORE_THAN leaves; first match by priority wins"],
+                ["Section variants", "Ordered variants, each with a rule + default",
+                 "One section slot can render alternatives; reuses the same rule engine; first matching variant wins"],
+                ["Version publishing", "Pinned version per template link",
+                 "A section edit creates a new version but only goes live when explicitly published to linked templates"],
                 ["Editor embedding", "pdf-me Designer as a web component",
                  "Wraps the React designer as a custom element, embedded in Angular via a modal; avoids a bridge library"],
                 ["Storage", "DynamoDB single-table + S3",
                  "Fast ordered queries for metadata; S3 is cost-effective for the larger schema JSON blobs"],
-                ["Pipeline", "Single Lambda (not Step Functions)",
-                 "Render-and-stitch is a synchronous flow; one Lambda avoids step-function coordination overhead"],
+                ["Pipeline", "Step Functions state machine (per-section Map)",
+                 "Isolates and retries each section's variant selection + render; handles many-section documents; better observability"],
             ],
         },
         # ---------------------------------------------------------------
@@ -147,15 +167,17 @@ DOC = {
             "type": "screens",
             "heading": "Screen-by-screen walkthrough",
             "pageBreak": True,
-            "intro": "Six screens make up the template management experience. Each is shown below with the user "
-                     "interactions it supports and the data model working behind it.",
+            "intro": "Six screens make up the template management experience. Screens 1, 2 and 5 are full landing "
+                     "pages reached from the Admin Portal navigation; screens 4 and 6 are modals launched from within "
+                     "them. Each is shown below with the user interactions it supports and the data model behind it.",
             "screens": [
                 {
                     "image": f"{MOCKUPS}/01-template-list.png",
-                    "title": "1. Template List",
+                    "title": "1. Template List (landing page)",
                     "body": [
-                        "The entry point. An ordered table of every configured template. The order is meaningful: "
-                        "it is the priority in which selection rules are evaluated at render time.",
+                        "The entry point: a full landing page listing every previously configured template in an "
+                        "ordered table. The order is meaningful, it is the priority in which selection rules are "
+                        "evaluated at render time.",
                     ],
                     "interactions": [
                         "Drag the handle to reorder priority (top = evaluated first)",
@@ -173,24 +195,26 @@ DOC = {
                 },
                 {
                     "image": f"{MOCKUPS}/02-template-edit.png",
-                    "title": "2. Template Edit",
+                    "title": "2. Template Edit (landing page)",
                     "body": [
                         "Where a template's metadata and section composition are managed. The centre panel is the "
                         "ordered section list; the right panel adds new or shared sections; the bottom panel is the "
-                        "change log.",
+                        "change log. Sections with variants show their variants inline on this page.",
                     ],
                     "interactions": [
                         "Drag to reorder sections within the template",
                         "Edit in Designer opens the pdf-me section editor",
-                        "History opens the version history for that section",
+                        "History opens the version history (and the publish action) for that section",
                         "Add Shared Section picks from the shared library; T&Cs auto-position at the end",
-                        "A version badge (e.g. v3) shows each section's current version",
+                        "Expand a section to manage its variants (add, reorder, set default, edit each variant's rule)",
+                        "A version badge (e.g. v3) plus an 'update available' hint shows the pinned version state",
                     ],
                     "data": [
                         "Sections are Section records keyed by sortOrder within the template",
                         "Shared sections are stored as references (sharedSectionId), never duplicated",
+                        "A reference records the pinned version the template resolves to at render time",
+                        "Variants are Section Variant records, each with its own rule and version history",
                         "Every change writes a Template Change Log record (who, what, when)",
-                        "Adding a section appends it at max sortOrder + 1",
                     ],
                 },
                 {
@@ -198,7 +222,8 @@ DOC = {
                     "title": "3. Rules Configuration",
                     "body": [
                         "The visual editor for a template's selection rule. The rule is a specification tree: logical "
-                        "operators (AND, OR, NOT) combining comparison leaves (EQUALS, IN, LESS_THAN, MORE_THAN).",
+                        "operators (AND, OR, NOT) combining comparison leaves (EQUALS, IN, LESS_THAN, MORE_THAN). "
+                        "The same editor is reused to configure a section variant's rule.",
                     ],
                     "interactions": [
                         "Click a node to select it and edit it in the right panel",
@@ -255,20 +280,23 @@ DOC = {
                 },
                 {
                     "image": f"{MOCKUPS}/06-version-history.png",
-                    "title": "6. Section Version History",
+                    "title": "6. Section Version History (modal)",
                     "body": [
-                        "Every save of a section creates a new version, so nothing is ever lost. This screen lists "
-                        "the versions and lets a user preview or revert to an earlier one.",
+                        "Every save of a section creates a new version, so nothing is ever lost. This modal lists "
+                        "the versions, lets a user preview or revert to an earlier one, and publishes a chosen "
+                        "version out to the templates linked to that section.",
                     ],
                     "interactions": [
                         "The current version is highlighted at the top",
                         "View in Designer opens the current version read-only",
                         "Preview opens a historical version read-only",
                         "Revert creates a new version from the selected one (non-destructive)",
+                        "Publish pushes a chosen version (latest by default) to all linked templates",
                     ],
                     "data": [
                         "Each save writes a Section Version record (timestamp, user, schema location)",
                         "Reverting copies an old version forward as a new version; intermediate versions remain",
+                        "Publishing updates the pinned version on every linked template's reference",
                         "All versions are retained indefinitely (no automatic purging)",
                     ],
                 },
@@ -311,13 +339,14 @@ DOC = {
             "columns": ["Record", "Holds", "Notes"],
             "rows": [
                 ["Template", "Name, description, priority, section count", "One per template; ordered via a priority GSI"],
-                ["Section", "Name, sort order, shared reference, schema location", "Owned by a template; ordered by sortOrder"],
+                ["Section", "Name, sort order, shared reference, pinned version", "Owned by a template; ordered by sortOrder"],
+                ["Section Variant", "Name, order, default flag, rule, schema location", "Ordered variants within a section; first matching rule wins"],
                 ["Shared Section", "Name, T&C flag, schema location", "Reusable; referenced by many templates"],
-                ["Reference", "Template-to-shared-section link", "Tracks which templates use a shared section"],
-                ["Section Version", "Timestamp, user, schema location", "One per save; enables history and revert"],
-                ["Rule", "Specification tree JSON", "One per template; drives selection"],
+                ["Reference", "Template link + pinned version", "Tracks which templates use a section and the version each resolves to"],
+                ["Section Version", "Timestamp, user, schema location", "One per save, per variant; enables history, revert, publish"],
+                ["Rule", "Specification tree JSON", "Drives template selection and variant selection"],
                 ["Change Log", "Change type, description, user, time", "Audit trail of template changes"],
-                ["Schema JSON (S3)", "pdf-me field layout per section", "Referenced by sections and versions"],
+                ["Schema JSON (S3)", "pdf-me field layout per section/variant", "Referenced by sections, variants, and versions"],
             ],
         },
         # ---------------------------------------------------------------
@@ -328,20 +357,21 @@ DOC = {
             "intro": f"Estimate 1 is ~{F.fmt(_f.required)} required days plus optional testing, ~{F.fmt(_f.total)} days in total. Work is grouped as follows.",
             "columns": ["Area", "Scope"],
             "rows": [
-                ["Infrastructure & types", "DynamoDB table + GSI, S3 buckets, API Gateway routes, shared TypeScript types, rule validation"],
+                ["Infrastructure & types", "DynamoDB table + GSI, S3 buckets, API Gateway routes, Step Functions state machine, shared TypeScript types, rule validation"],
                 ["Template API", "List, create, get, update, delete, reorder handlers with priority management"],
-                ["Section API", "Section CRUD, schema get/save, version history + revert, shared section CRUD, change log"],
+                ["Section API", "Section CRUD, schema get/save, version history + revert, version publishing, variant CRUD + variant rules, shared section CRUD, change log"],
                 ["Rules API", "Get and save the specification tree, with validation"],
-                ["Render pipeline", "Rule evaluator, template selection, section renderer, PDF stitcher, XML-to-JSON + S3 trigger"],
-                ["Angular frontend", "Template list, template edit, rules config, section editor web component, shared sections, version history"],
-                ["Integration", "CDK wiring, IAM, S3 event trigger, portal navigation, end-to-end validation"],
+                ["Render pipeline", "Step Functions orchestration, rule evaluator, template selection, per-section variant selection, pinned-version resolution, section renderer, PDF stitcher, XML-to-JSON + S3 trigger"],
+                ["Angular frontend", "Template list, template edit, rules config, section editor web component, shared sections, version history, section variants, version publishing, navigation/landing pages"],
+                ["Integration", "CDK wiring, IAM, S3-triggered state machine, portal navigation, end-to-end validation"],
             ],
         },
         {
             "type": "callout",
             "heading": "Testing note",
             "body": [
-                "The build is designed around 30 correctness properties (ordering, round-trips, rule evaluation, "
+                "The build is designed around 38 correctness properties (ordering, round-trips, rule and variant "
+                "evaluation, version publishing, per-section failure isolation, "
                 "PDF page-count preservation, and so on). Property-based and integration tests are marked optional "
                 "in the plan and can be deferred for a faster MVP, but they are recommended given the pipeline's "
                 "role in producing legally significant documents.",

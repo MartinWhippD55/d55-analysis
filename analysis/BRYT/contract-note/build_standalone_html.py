@@ -237,10 +237,10 @@ html = f'''<!DOCTYPE html>
     <ul>
         <li>Self-service template editor replacing the current developer-dependent pipeline</li>
         <li>Visual section editor (pdf-me) embedded in the Admin Portal</li>
-        <li>Rules engine for automated template selection (first-match-wins)</li>
+        <li>Rules engine for template selection and per-section variants (first-match-wins)</li>
         <li>Shared sections for headers, footers, T&amp;Cs</li>
-        <li>Render pipeline: section render + PDF stitch (single Lambda)</li>
-        <li>Version history with revert on all sections</li>
+        <li>Render pipeline: Step Functions, per-section render + PDF stitch</li>
+        <li>Version history with revert, plus publish-to-linked-templates</li>
     </ul>
     <span class="slide-number">3 / 8</span>
 </div>
