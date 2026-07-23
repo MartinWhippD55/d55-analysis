@@ -9,3 +9,6 @@ reference-repos/
 
 # Derived client delivery bundles (regenerable via client_bundle)
 programmes/*-client-bundle/
+
+# MCP secrets — never commit API tokens
+.kiro/settings/*.env

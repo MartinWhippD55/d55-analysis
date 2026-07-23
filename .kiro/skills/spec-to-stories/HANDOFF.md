@@ -24,37 +24,50 @@ working tree — that's the starting point for step 1 below.
 Four steps, roughly in order. 2 → 4 build on each other (Jira MCP must exist before the
 Jira-export skill can push).
 
-### Step 1 — Commit and push all current changes
+### Step 1 — Commit and push all current changes — DONE
 
-Goal: get the working tree committed and pushed so nothing is at risk before we start the
-new work.
+Pushed to `main` (`243d172..d6277e7`) as four logical commits: (1) spec-to-stories skill,
+(2) contract-note spec rework + 10-story decomposition, (3) BRYT contract-note analysis/
+estimates/discussion notes, (4) ESG consolidated-update notes. Cache dirs stayed out via
+the bundle `.gitignore`. Working tree clean.
 
-- Review what's changed first (`git status`, `git diff --stat`) — this includes the whole
-  spec-to-stories skill, the contract-note decomposition, and prior BRYT contract-note
-  analysis edits.
-- Watch for anything that shouldn't be committed: the skill has `.hypothesis/`,
-  `.pytest_cache/`, `__pycache__/` (already gitignored in the bundle — confirm), and check
-  the repo root `.gitignore`. Flag any file that looks like it holds secrets before staging.
-- Per git-safety: push to a **new branch** (not main/master) with `-u`, and only commit
-  because the user explicitly asked here.
-- Suggested: a branch like `feature/spec-to-stories` (confirm name), one cohesive commit or
-  a couple of logical commits (skill vs decomposition vs BRYT analysis).
-- Open a PR if the user wants one (confirm remote host — likely GitHub `gh`).
+### Step 2 — Configure the Atlassian Jira MCP server — DONE (verified)
 
-### Step 2 — Configure the Atlassian Jira MCP server
+Verified working: `jira_get_user_profile` returned Martin Whipp
+(account_id `5c4b3c44cc3a1d3d8a2bc81b`) and `jira_get_all_projects` listed the instance.
+Tool prefix is `mcp_atlassian_jira_*` (e.g. `jira_create_issue`, `jira_create_issue_link`,
+`jira_get_project_issue_types`, `jira_link_to_epic`). Useful project keys: **BRYT** (Bryt)
+for the real epic; **TEST** (Bryt MSP Project) as a safe sandbox for the step-4 skill.
 
-Goal: a working MCP server that can read/write the user's Jira.
 
-- Config lives in `.kiro/settings/mcp.json` (workspace) or `~/.kiro/settings/mcp.json`
-  (user-level). Do NOT clobber existing config — merge/edit only.
-- Decide which server: the official Atlassian remote MCP vs a community server
-  (e.g. `mcp-atlassian`). Needs the Jira site URL, auth (API token / OAuth), and the
-  user's account email. **Ask the user** which Jira (cloud/site URL) and how they want to
-  authenticate; never hard-code a token into the repo — use env vars / the user config.
-- After configuring, TEST by making a sample call (list projects / read an issue) rather
-  than inspecting config — per the MCP guidance, only open config if a call fails.
-- Record the final server name + tool names once confirmed working (the Jira-export skill
-  in step 4 will call them).
+Decisions: community **`mcp-atlassian`** server, **workspace** config
+(`.kiro/settings/mcp.json`), Jira Cloud `https://d55ltd.atlassian.net`, user
+`martin.whipp@d55.co.uk`.
+
+What's set up:
+- `uv`/`uvx` was not installed → installed via `pip install uv` (v0.11.31). It landed in
+  the Store-Python Scripts dir and is **not on PATH**, so `mcp.json` uses the **full path**
+  to `uvx.exe`
+  (`...\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\Scripts\uvx.exe`).
+  `uvx mcp-atlassian --help` runs (installs 109 pkgs on first run) — server binary is good.
+- `mcp.json` server entry `atlassian`: command = full uvx path, args =
+  `mcp-atlassian --env-file <abs path to .kiro/settings/atlassian.env>`, env =
+  `JIRA_URL` + `JIRA_USERNAME` (non-secret, tracked). `autoApprove: []` (writes not
+  auto-approved yet — revisit for the step-4 skill).
+- **Secret handling:** token goes in `.kiro/settings/atlassian.env` (created with a
+  placeholder), which is git-ignored via a new rule `.kiro/settings/*.env`. Confirmed
+  `git check-ignore` catches it. `mcp.json` stays secret-free and committable.
+
+Outstanding to finish step 2 (needs the user):
+1. Create a Jira API token at https://id.atlassian.com/manage-profile/security/api-tokens.
+2. Paste it into `.kiro/settings/atlassian.env` (replace `REPLACE_WITH_YOUR_JIRA_API_TOKEN`).
+3. Reconnect the `atlassian` server from the Kiro MCP panel (re-spawns and re-reads the
+   env file — no full restart needed).
+4. Then TEST with a live call (e.g. list Jira projects / get current user / read an issue).
+   Record the working tool names for the step-4 skill.
+
+Gotcha for step 3/4: the full `uvx.exe` path and the `--env-file` absolute path are
+machine-specific — the config-sharing skill (step 3) must normalise these.
 
 ### Step 3 — Skill: replicate my MCP setup onto another developer's Kiro workspace
 

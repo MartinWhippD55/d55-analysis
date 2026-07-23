@@ -25,6 +25,20 @@
       "autoApprove": [
         "create-excalidraw-diagram"
       ]
+    },
+    "atlassian": {
+      "command": "C:\\Users\\marti\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python310\\Scripts\\uvx.exe",
+      "args": [
+        "mcp-atlassian",
+        "--env-file",
+        "C:\\Code\\d55-analysis\\.kiro\\settings\\atlassian.env"
+      ],
+      "env": {
+        "JIRA_URL": "https://d55ltd.atlassian.net",
+        "JIRA_USERNAME": "martin.whipp@d55.co.uk"
+      },
+      "disabled": false,
+      "autoApprove": []
     }
   }
 }
