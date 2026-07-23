@@ -1,0 +1,24 @@
+# Machine-readable manifest for one mini-spec (user story).
+# Kiro ignores this file for spec purposes; the skill uses it to build the
+# dependency graph and the Jira import. Component refs are `kind:name`.
+id: US-00
+title: Short story title
+parentSpec: <parent-spec-folder-name>
+userStory: >-
+  As a <role>, I want <capability>, so that <benefit>.
+coversRequirements: [1, 2]        # requirement numbers from the parent spec
+exports:                          # components this story creates
+  - data-table:ExampleTable
+  - api-endpoint:GET /example
+dependsOn:                        # components this story needs (exported elsewhere)
+  - shared-lib:types
+subtasks:                         # coding sub-tasks (become Jira sub-tasks)
+  - id: US-00-1
+    title: Implement the example handler
+    requirements: [1]
+    optional: false
+jira:
+  issueType: Story
+  epic: <parent-spec-folder-name>
+  labels: [backend]
+  estimateDays: 1.0

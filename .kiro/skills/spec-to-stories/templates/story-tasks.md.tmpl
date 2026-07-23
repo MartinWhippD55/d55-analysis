@@ -1,0 +1,56 @@
+# Implementation Plan: {STORY_TITLE}
+
+> Mini-spec derived from parent spec **{PARENT_SPEC}**, story **{STORY_ID}**.
+> Implement only after the stories this one depends on (see `manifest.yaml` /
+> `../../graph.yaml`) are complete.
+>
+> NOTE: Kiro's spec-format checks require the `## Task Dependency Graph` section to
+> include BOTH a mermaid graph and a JSON `waves` block. `## Overview` and `## Notes`
+> are recommended. Keep them all so the folder is a valid, pullable Kiro spec.
+
+## Overview
+
+{One paragraph: what this story implements and its place in the wave plan.}
+
+## Tasks
+
+{Lift the relevant sub-tasks from the parent tasks.md that belong to this story's
+components. Each references parent requirement ids for traceability. Optional tasks
+(e.g. property tests) keep the `*` marker.}
+
+- [ ] 1. {First task}
+  - {detail}
+  - _Requirements: {local req ids}_
+
+- [ ]* 2. {Optional test task}
+  - {detail}
+  - _Requirements: {local req ids}_
+
+## Task Dependency Graph
+
+```mermaid
+graph TD
+    T1[1. First task] --> T2[2. Optional test task]
+```
+
+Execution waves (tasks in the same wave have no dependency on each other and may run in parallel):
+
+```json
+{
+  "waves": [
+    { "wave": 1, "tasks": ["1"] },
+    { "wave": 2, "tasks": ["2"] }
+  ]
+}
+```
+
+## Upstream story dependencies
+
+{BULLET_LIST — story ids this depends on, from the graph. If none: "None — this is a
+wave-1 story."}
+
+## Notes
+
+- Tasks marked with `*` are optional and can be deferred for a faster MVP.
+- Task requirement ids are local; they annotate their parent requirement ids for
+  traceability back to {PARENT_SPEC}.

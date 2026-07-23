@@ -1,0 +1,63 @@
+# Design Document
+
+**Story {STORY_ID} — {STORY_TITLE}**
+
+> Mini-spec derived from parent spec **{PARENT_SPEC}**, story **{STORY_ID}**.
+> This design is an excerpt of the parent design scoped to this story's components.
+>
+> NOTE: the sections `## Overview`, `## Architecture`, `## Components and Interfaces`
+> and `## Data Models` are REQUIRED by Kiro's spec-format checks; the sections
+> `## Correctness Properties`, `## Error Handling` and `## Testing Strategy` are
+> recommended. Keep all of them so the folder is a valid, pullable Kiro spec.
+
+## Overview
+
+{SHORT_OVERVIEW — the slice of the architecture this story implements.}
+
+## Architecture
+
+{The part of the parent architecture this story owns, and how it plugs into the
+whole. A small mermaid diagram scoped to this story helps.}
+
+## Components and Interfaces
+
+{For each exported component, the design detail lifted from the parent design.md —
+the endpoint signature + request/response, the frontend component responsibilities,
+the CDK construct, the shared library surface, etc. Then two sub-sections:}
+
+### Interfaces consumed (dependencies)
+
+{For each dependency, the contract this story relies on and which story owns it.
+Or "None — this is a wave-1 foundation story."}
+
+### Touch points with other stories
+
+{The seams: what this story exposes for others and what it assumes others expose —
+the human-readable form of the graph edges.}
+
+## Data Models
+
+{The records / tables / schema shapes this story creates or reads, lifted from the
+parent data model. If this story defines no data, say so and describe what it reads.}
+
+## Correctness Properties
+
+{Parent correctness properties this story's components validate, with parent numbers.
+Each MUST be a `### Property N: Title` heading where N is a PLAIN INTEGER (no suffixes
+like 15A), followed by the exact phrase `**Validates: Requirements X.Y**`. Reuse the
+parent property numbers the story validates. If the section is present it must have at
+least one such heading; a story with no natural parent property should either omit this
+whole section or add ONE story-local property continuing the parent's numbering (parent
+1..N → N+1). Example:}
+
+### Property N: {Title}
+
+*For any* {condition}, {expected behaviour}. **Validates: Requirements X.Y**
+
+## Error Handling
+
+{The failure modes relevant to this story's components and how they are handled.}
+
+## Testing Strategy
+
+{Unit / property / integration tests for this story's components.}

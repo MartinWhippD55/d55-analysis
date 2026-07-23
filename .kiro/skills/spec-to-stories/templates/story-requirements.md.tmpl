@@ -1,0 +1,48 @@
+# Requirements Document
+
+**Story {STORY_ID} — {STORY_TITLE}**
+
+> Mini-spec derived from parent spec **{PARENT_SPEC}**.
+> Delivers user story **{STORY_ID}**. See `manifest.yaml` for the component
+> exports/dependencies and `../../graph.yaml` for the full delivery graph.
+>
+> NOTE: the top heading MUST be exactly `# Requirements Document` and the sections
+> below (Introduction, Glossary, Requirements) MUST be present so the folder passes
+> Kiro's spec-format checks and a developer can pull it straight into `.kiro/specs/`.
+
+## Introduction
+
+{ONE_PARAGRAPH_SCOPE — what this story delivers, as a vertical slice of the parent
+spec, and how it fits the whole. Note its wave and upstream/downstream stories.}
+
+## Glossary
+
+{Key terms used by this story, lifted from the parent glossary where relevant.}
+
+## Delivered components
+
+This story is responsible for creating and owning:
+
+{BULLET_LIST_OF_EXPORTS — one per exported component, e.g.
+- `data-table:ContractNoteTemplates` — the metadata table + priority GSI}
+
+## Dependencies
+
+This story depends on components delivered by other stories (must be available first):
+
+{BULLET_LIST_OF_DEPENDS — one per dependency with the owning story id, e.g.
+- `shared-lib:types` (from US-00) — shared TypeScript interfaces
+Or "None — this is a wave-1 foundation story."}
+
+## Requirements
+
+{COPY the covered acceptance criteria from the parent spec, renumbered locally but
+annotated with the parent requirement id for traceability. Keep EARS format.}
+
+### Requirement 1: {TITLE}  _(parent: Requirement {N})_
+
+**User Story:** {USER_STORY}
+
+#### Acceptance Criteria
+
+1. {EARS criterion copied/adapted from the parent spec} _(parent {N}.1)_
