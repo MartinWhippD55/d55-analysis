@@ -16,8 +16,9 @@ markdown body *is* its Jira description, so you can enrich, diff and review it i
 before anything lands.
 
 Like its siblings this is a **hybrid skill**: a small **deterministic engine** renders
-/ parses / validates the tree; the **agent** pushes the parsed tree to Jira via the
-Atlassian MCP (look up first, then create). The engine never touches Jira.
+/ parses / validates the tree. Authoring (generate → enrich → validate) lives here;
+the actual push to live Jira is handed off to the **jira-push** skill (see step 4).
+The engine never touches Jira.
 
 ## Self-sufficient bundle
 
@@ -205,54 +206,29 @@ It doesn't block a push, but surface the count to the user: pushing placeholder 
 into Jira is rarely intended. Show the summary + placeholder count + target project and
 get a go-ahead (writes are **not** auto-approved).
 
-### 4. Confirm the target project and issue types
+### 4. Push to Jira — hand off to **jira-push**
 
-- Confirm the project key with the user (sandbox `TEST` first).
-- Discover issue types with `jira_get_project_issue_types <PROJECT>`. On some
-  team-managed projects this returns empty — if so, fall back to the standard names
-  `Epic` / `Story` / `Sub-task`, or inspect an existing issue for the exact sub-task
-  type name (some instances use `Subtask`). Adapt the `issue_type` you pass.
+Once the tree is enriched and `validate_tree` is `[]`, the actual push to live Jira is
+owned by the **jira-push** skill (`.kiro/skills/jira-push/`). It loads this tree,
+builds an ordered, idempotent push plan (epic → stories → sub-tasks → links),
+reconciles it against what already exists in Jira, and creates only what's missing —
+reusing issues by identity label and skipping links that already exist.
 
-### 5. Create (or reuse) the Epic
+Follow `.kiro/skills/jira-push/SKILL.md`. In short:
 
-- Search first: `jira_search` with
-  `jql = project = <PROJECT> AND labels = "<tree.epic.identity_label>"`.
-- Reuse the key if a match exists; otherwise `jira_create_issue` with
-  `issue_type = "Epic"`, `summary = tree.epic.summary`,
-  `description = tree.epic.description` (the markdown body),
-  `additional_fields = {"labels": tree.epic.labels}`.
-- Record the epic key.
+```python
+from engine.push import load_tree_view, build_push_plan, validate_plan, reconcile, summarize_plan
+tree, problems = load_tree_view(".kiro/specs/<parent>/decomposition/jira-tree")
+assert not problems, problems
+plan = build_push_plan(tree)
+assert not validate_plan(plan), validate_plan(plan)
+print(summarize_plan(reconcile(plan)))   # dry summary before any Jira write
+```
 
-### 6. Create (or reuse) each Story, then its Sub-tasks
-
-Process `tree.stories` in order (wave/topological). For each story:
-
-1. Search `jql = project = <PROJECT> AND labels = "<story.identity_label>"`. Reuse if
-   found; else `jira_create_issue` with `issue_type = story.issue_type`,
-   `summary = story.summary`, `description = story.description`,
-   `additional_fields = {"labels": story.labels, "epic_link": "<epicKey>"}`. If the
-   instance rejects `epic_link`, fall back to `jira_link_to_epic(storyKey, epicKey)`.
-   If `story.estimate_days` is set and the project has a Story Points field you can
-   add it; skip rather than guessing the field id.
-2. For each `subtask` in `story.subtasks`: search by `subtask.identity_label`; reuse
-   or `jira_create_issue` with `issue_type = "Sub-task"`, `summary = subtask.summary`,
-   `description = subtask.description`, `additional_fields = {"parent": "<storyKey>",
-   "labels": subtask.labels}`.
-3. Keep a map `{story_key -> jira_key}` (and sub-task keys) as you go.
-
-### 7. Make the dependency links
-
-For each `link` in `tree.links` (all `Blocks`): resolve `link.outward` and
-`link.inward` to Jira keys from step 6, then `jira_create_issue_link(link_type=
-"Blocks", outward_issue_key=<key(outward)>, inward_issue_key=<key(inward)>)`.
-Semantics: **outward blocks inward** — the dependency ships first. Skip a link that
-already exists (re-fetch the issue's links if unsure) to stay idempotent.
-
-### 8. Return a summary
-
-Report the target project, the epic key, the story keys (key → Jira key), sub-tasks
-created vs reused, and links made. Note anything skipped as already present. Do **not**
-print secrets.
+Then confirm the project/issue types, reconcile against existing issues+links, and
+execute the plan (epic first, each story before its sub-tasks, links last). Same
+idempotency-by-label and sandbox-`TEST`-first rules apply — writes are **not**
+auto-approved. jira-push returns the created/reused keys.
 
 ## Verify
 
