@@ -1,6 +1,6 @@
 # Handoff — Jira integration & MCP-config sharing
 
-_Last updated: 2026-07-23 (step 5 `jira-tree` skill built). Purpose: let a fresh session resume without re-deriving context._
+_Last updated: 2026-07-24 (HTML Gantt done; `jira-push` skill built + trial-pushed to SQP; attachments mode added). Purpose: let a fresh session resume without re-deriving context._
 
 ## Where we are (done — archived for lineage)
 
@@ -40,9 +40,23 @@ now **committed and pushed to `main`** — see steps 1–2 below.
   **Not yet run against live Jira; not yet committed.** Next sub-idea:
   **content templates** for epic / user story / sub-task descriptions (see below).
 
-Steps 3 and the live step-4/5 trials are independent. Suggested next: **define the
-content templates** (below), then **run a trial push against `TEST`** via `jira-tree`
-(then commit), or start **step 3**.
+- 🟡 **Step 6** — delivery-plan visualisations (HTML): a data-driven wave roadmap
+  (`delivery-plan.html`) is **built and rendering**; mermaid dependency/wave/Gantt
+  diagrams were also produced. **Next task: an HTML version of the Gantt chart**
+  (proportional timeline bars in HTML/CSS, not mermaid). Nothing committed; PNG renders
+  are throwaway.
+
+- ✅ **Step 6** — HTML Gantt done (`jira-tree/delivery-gantt.html`, data-driven
+  critical-path timeline; `delivery-gantt.png` is a throwaway export).
+- 🟡 **Step 7** — `jira-push` skill: **built, tested (25 passing), wired in, and
+  trial-pushed to SQP** (epic + US-01 + 4 sub-tasks — SQP-4951..SQP-4956). Extracts
+  the push out of `jira-tree` (which now hands off to it). Includes an **opt-in
+  mini-spec attachment mode** (`attach_specs`). Not yet run for the full tree; links
+  not yet pushed. See "Step 7" below.
+
+Steps 3 and the live full-tree push are independent. Suggested next: **decide on the
+SQP trial** (clean up vs continue), **push the remaining stories/sub-tasks/links**, or
+start **step 3**.
 
 ## New plan
 
@@ -231,6 +245,93 @@ Still to do:
 - **Commit** the `jira-tree` skill + templates (not yet committed). The generated tree
   is a regenerable output and is not tracked.
 
+### Step 6 — Delivery-plan visualisations (HTML) — IN PROGRESS
+
+Turn the decomposition into shareable visuals under
+`.kiro/specs/<parent>/decomposition/jira-tree/`. What's done:
+
+- **`delivery-plan.html`** — a data-driven wave roadmap. Stories live in a `waves` JS
+  array (id / title / estimate / tags), rendered with CSS: colour-coded wave headers,
+  story cards with estimate badges + layer tags, a totals header (16.5d effort / ~11.5d
+  critical path), down-arrows between waves. Fixed **780px** sheet so it never crops in
+  a viewer/paste; Wave 2's four cards wrap to a tidy 2×2. This is the **primary
+  deliverable** (resizable, diffable) — a PNG is only an optional export.
+- **Mermaid diagrams** were also produced (dependency graph, wave-banded flowchart,
+  Gantt) and rendered to PNG. Useful, but the hand-rolled HTML gives more layout control.
+
+**Next task — an HTML version of the Gantt chart.** Build a proportional timeline in
+HTML/CSS (not mermaid): one row per story, bars positioned by start offset and sized by
+estimate, grouped/tinted by wave, along the critical path (wave N starts after wave
+N-1's longest story; ~11.5d total). Reuse the `waves` data shape from
+`delivery-plan.html` (add `start`/`duration` or derive from estimates + wave order).
+Keep it data-driven and in the same house style.
+
+**Rendering / iteration recipe (Playwright MCP) — gotchas learned:**
+- Serve the folder over `python -m http.server <port>` and navigate to
+  `http://localhost:<port>/<file>.html`. **`file:` URLs are blocked** in the Playwright
+  MCP; a local HTTP server is required.
+- **The Playwright viewport is clamped (~853px)** regardless of `browser_resize`. A
+  `fullPage` screenshot therefore **crops any sheet wider than ~853px**. Fixes: keep the
+  sheet ≤ ~820px, **and/or screenshot the element** (`#sheet`) rather than the page —
+  an element screenshot captures the full element even when larger than the viewport.
+- The agent can't see PNGs it saves; **inspect the DOM** via `browser_evaluate`
+  (`rowsPerWave`, card widths, `scrollWidth` for overflow, clipped titles) to catch
+  layout regressions, then have the **user eyeball** the render for visual sign-off.
+- Verify a saved PNG's true size by reading the PNG IHDR (bytes 16–24) — a cropped-
+  looking paste is usually the user's viewer showing a full-width file at 100% in a
+  narrow window, **not** a bad file.
+- Fastest way for the user to view: `Start-Process delivery-plan.html` (opens in a
+  browser, fits-to-window).
+- Clean up: PNGs and `.playwright-mcp/` renders are throwaway; keep the `.html` sources.
+
+**HTML Gantt — DONE (2026-07-24).** `jira-tree/delivery-gantt.html`: data-driven,
+reuses the `waves` shape, proportional HTML/CSS bars on the critical path (Wave 1 0–2.5
+→ Wave 6 10.5–11.5; 16.5d effort / ~11.5d critical path), per-wave colour bands, day
+axis, totals badges. Verified via DOM (bar offsets, no clipped labels, ≤820px sheet).
+`delivery-gantt.png` is a throwaway export.
+
+### Step 7 — Skill: push a validated jira-tree to live Jira — BUILT + TRIAL-PUSHED
+
+A new skill `.kiro/skills/jira-push/` takes a reviewed `jira-tree` and creates the
+issues in live Jira, idempotently. It's the delivery step; `jira-tree` now owns only
+authoring (generate → enrich → validate) and **hands off** to `jira-push` (its old
+push steps 4–8 were replaced by a handoff). What's done:
+
+- **Engine** `engine/push.py` (pure, no Jira): `build_push_plan(tree)` → ordered
+  action list (epic → each story then its sub-tasks → links); `reconcile(plan,
+  existing_labels, existing_links, existing_attachments)` → marks each action
+  create/reuse/skip from what's already in Jira; `validate_plan`; `summarize_plan`;
+  `load_tree_view(dir)` (reuses the sibling jira-tree engine by file-path import to
+  avoid an `engine` package clash — needs the module registered in `sys.modules`
+  before exec so dataclass field resolution works). Idempotency: issues by identity
+  label, links by `(outward, inward)` pair, attachments by filename.
+- **Opt-in attachments** (`attach_specs(plan, stories_dir)`): attaches the mini-spec
+  files (`requirements.md`/`design.md`/`tasks.md`) to each **story** (epics/sub-tasks
+  never), deduped by filename. Off by default; documented as a traceability aid that
+  can drift from the description (repo copy stays canonical). Chosen by the user over
+  the remote-link option.
+- **Tests** `tests/test_push.py`: 25 passing — mapping, ordering, reconcile
+  idempotency (incl. full second-run = all reuse/skip), validation, attachments, and
+  two property-based tests.
+- **Docs:** `SKILL.md` + `USER-README.md`. `jira-tree/SKILL.md` updated to hand off.
+- **Live trial (SQP / SO board):** pushed epic + US-01 + its 4 sub-tasks:
+  - Epic **SQP-4951**; Story **SQP-4952** (epic_link worked directly); Sub-tasks
+    **SQP-4953..SQP-4956** (all parented to SQP-4952).
+  - SQP issue types confirmed: Epic / Story / Sub-task (standard names, no fallback).
+  - Verified via `labels = "s2s-contract-note-template-management"` search → exactly
+    the 6 created. No blocks-links pushed (US-01's dependents don't exist yet).
+  - **Cosmetic gotcha:** bare `US-02`/`US-06` text in descriptions gets auto-linked by
+    Jira to non-existent `/browse/US-02` URLs. Harmless; could write story refs as
+    backticked/plain text in the jira-tree templates to avoid it.
+
+Still to do:
+- **Decide the SQP trial's fate** — clean up (delete `labels = "s2s-..."`) or continue.
+- **Push the rest** — remaining stories, all sub-tasks, and the 19 blocks-links (and
+  optionally the mini-spec attachments) — after a go-ahead.
+- **Attachments live check** — not yet exercised against Jira (upload path is
+  `jira_update_issue(key, attachments=[...])`; dedupe reads `jira_get_issue
+  fields="attachment"`).
+
 ## Key conventions carried over (unchanged)
 
 - Component ref syntax `kind:name`; one exporter per component.
@@ -250,6 +351,10 @@ and verified but not yet committed**. Neither has been run against live Jira. Th
 immediate next task the user asked for is **content templates for epic / user story /
 sub-task descriptions** (see step 5 "Still to do"). Pick up by either:
 
+- **Building the HTML Gantt (step 6, next visual):** follow step 6 above — reuse the
+  `waves` data shape in `delivery-plan.html`, render a proportional HTML/CSS timeline,
+  and iterate with the Playwright recipe (serve → element-screenshot `#sheet`; mind the
+  ~853px viewport clamp).
 - **Defining the content templates (next):** agree the section layout for each issue
   type, add `templates/*.md.tmpl` to `.kiro/skills/jira-tree/` and a format rule in its
   `SKILL.md` (mirror how spec-to-stories bakes its property-heading rule into a
