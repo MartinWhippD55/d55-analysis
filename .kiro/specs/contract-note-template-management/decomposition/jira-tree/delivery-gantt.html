@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Contract Note Template Management — Delivery Gantt</title>
+<style>
+  :root {
+    --ink: #1c2430;
+    --muted: #667085;
+    --line: #e4e8ee;
+    --sheet-w: 820px;
+    /* per-wave colour ramp */
+    --w1: #2f6fed; --w1b: #dbe6ff;
+    --w2: #7a41d6; --w2b: #ece0fb;
+    --w3: #0f9d8f; --w3b: #d5f2ee;
+    --w4: #d98324; --w4b: #fbebd6;
+    --w5: #d94f6e; --w5b: #fbe0e6;
+    --w6: #4b5563; --w6b: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #f4f6f9;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    padding: 24px;
+  }
+  #sheet {
+    width: var(--sheet-w);
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(28,36,48,.08);
+    padding: 26px 30px 30px;
+  }
+  h1 { font-size: 20px; margin: 0 0 3px; letter-spacing: -.01em; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+  .totals { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+  .badge {
+    background: #f7f9fc; border: 1px solid var(--line); border-radius: 8px;
+    padding: 7px 12px; font-size: 12px; line-height: 1.1;
+  }
+  .badge b { display: block; font-size: 16px; margin-top: 3px; }
+
+  /* Gantt layout: label column + timeline track */
+  .gantt { --label-w: 300px; --track-w: 458px; }
+  .axis { display: flex; align-items: flex-end; height: 20px; margin-bottom: 2px; }
+  .axis .spacer { width: var(--label-w); flex: 0 0 var(--label-w); }
+  .axis .scale { position: relative; width: var(--track-w); flex: 0 0 var(--track-w); height: 100%; }
+  .tick { position: absolute; top: 0; transform: translateX(-50%);
+          font-size: 10px; color: var(--muted); }
+  .tick.q { color: #aeb6c2; }
+
+  .waveband { margin-top: 10px; }
+  .waveband .whead {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; margin-bottom: 4px;
+  }
+  .wdot { width: 10px; height: 10px; border-radius: 3px; }
+  .wmeta { color: var(--muted); font-weight: 400; }
+
+  .row { display: flex; align-items: center; height: 30px; }
+  .rlabel {
+    width: var(--label-w); flex: 0 0 var(--label-w); padding-right: 12px;
+    font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .rlabel .id { font-weight: 600; }
+  .rlabel .tag {
+    display: inline-block; margin-left: 6px; font-size: 10px; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; vertical-align: 1px;
+  }
+  .track {
+    position: relative; width: var(--track-w); flex: 0 0 var(--track-w);
+    height: 100%;
+    background-image: repeating-linear-gradient(
+      to right, var(--line) 0, var(--line) 1px, transparent 1px, transparent var(--daypx));
+  }
+  .bar {
+    position: absolute; top: 6px; height: 18px; border-radius: 5px;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 0 7px; font-size: 10px; font-weight: 600; color: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,.12); min-width: 26px;
+  }
+  .foot { margin-top: 20px; font-size: 11px; color: var(--muted); }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+</style>
+</head>
+<body>
+<div id="sheet">
+  <h1>Contract Note Template Management</h1>
+  <p class="sub">Delivery Gantt — critical-path timeline (wave N starts after wave N-1's longest story)</p>
+  <div class="totals" id="totals"></div>
+  <div class="gantt" id="gantt"></div>
+  <div class="foot">
+    Bars are sized by story estimate and positioned on the critical path.
+    Effort is the sum of all story estimates; the critical path is shorter because stories within a wave run in parallel.
+    <div class="legend" id="legend"></div>
+  </div>
+</div>
+
+<script>
+// ---- Data (mirrors epic.md story index + graph.yaml waves) --------------
+const WAVES = [
+  { wave: 1, stories: [
+      { id: "US-01", title: "Foundation: infra & shared types", est: 2.5, tag: "infra" },
+      { id: "US-07", title: "pdf-me Designer web component",     est: 1.0, tag: "frontend" },
+  ]},
+  { wave: 2, stories: [
+      { id: "US-06", title: "Render pipeline (Step Functions)",  est: 3.0, tag: "pipeline" },
+      { id: "US-03", title: "Section / version / changelog API",  est: 2.0, tag: "api" },
+      { id: "US-02", title: "Template CRUD API",                  est: 1.5, tag: "api" },
+      { id: "US-05", title: "Template selection rules API",       est: 0.5, tag: "api" },
+  ]},
+  { wave: 3, stories: [
+      { id: "US-04", title: "Section publishing & variants API", est: 1.0, tag: "api" },
+  ]},
+  { wave: 4, stories: [
+      { id: "US-08", title: "Angular module & services", est: 1.0, tag: "frontend" },
+  ]},
+  { wave: 5, stories: [
+      { id: "US-09", title: "Angular screens & components",       est: 3.0, tag: "frontend" },
+  ]},
+  { wave: 6, stories: [
+      { id: "US-10", title: "Integration wiring & end-to-end",    est: 1.0, tag: "integration" },
+  ]},
+];
+const WCOL = { 1:"--w1", 2:"--w2", 3:"--w3", 4:"--w4", 5:"--w5", 6:"--w6" };
+
+// ---- Derive critical-path start offsets ---------------------------------
+let cursor = 0;
+for (const w of WAVES) {
+  w.start = cursor;
+  w.span  = Math.max(...w.stories.map(s => s.est));   // longest story in wave
+  for (const s of w.stories) s.start = cursor;         // parallel within wave
+  cursor += w.span;
+}
+const TOTAL = cursor;                                   // critical path (days)
+const EFFORT = WAVES.flatMap(w => w.stories).reduce((a, s) => a + s.est, 0);
+const NSTORIES = WAVES.flatMap(w => w.stories).length;
+const cssv = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+// ---- Totals badges -------------------------------------------------------
+document.getElementById("totals").innerHTML = [
+  ["Stories", NSTORIES],
+  ["Waves", WAVES.length],
+  ["Total effort", EFFORT.toFixed(1) + " d"],
+  ["Critical path", "~" + TOTAL.toFixed(1) + " d"],
+].map(([k, v]) => `<div class="badge">${k}<b>${v}</b></div>`).join("");
+
+// ---- Timeline axis (one tick per day, quarter ticks light) --------------
+const gantt = document.getElementById("gantt");
+const TRACK_PX = 458;
+document.documentElement.style.setProperty("--daypx", (TRACK_PX / TOTAL) + "px");
+const pct = d => (d / TOTAL) * 100;
+
+let axis = `<div class="axis"><div class="spacer"></div><div class="scale">`;
+for (let d = 0; d <= Math.ceil(TOTAL); d++) {
+  if (d <= TOTAL) axis += `<div class="tick" style="left:${pct(d)}%">${d}d</div>`;
+}
+axis += `</div></div>`;
+gantt.insertAdjacentHTML("beforeend", axis);
+
+// ---- Wave bands ----------------------------------------------------------
+for (const w of WAVES) {
+  const col = cssv(WCOL[w.wave]);
+  const bg  = cssv(WCOL[w.wave] + "b");
+  let html = `<div class="waveband">
+    <div class="whead">
+      <span class="wdot" style="background:${col}"></span>
+      Wave ${w.wave}
+      <span class="wmeta">· ${w.stories.length} ${w.stories.length === 1 ? "story" : "stories"}
+        · day ${w.start.toFixed(1)}–${(w.start + w.span).toFixed(1)}</span>
+    </div>`;
+  for (const s of w.stories) {
+    html += `<div class="row">
+      <div class="rlabel"><span class="id">${s.id}</span> ${s.title}
+        <span class="tag">${s.tag}</span></div>
+      <div class="track">
+        <div class="bar" style="left:${pct(s.start)}%; width:${pct(s.est)}%; background:${col}">
+          ${s.est}d</div>
+      </div>
+    </div>`;
+  }
+  html += `</div>`;
+  gantt.insertAdjacentHTML("beforeend", html);
+}
+
+// ---- Legend --------------------------------------------------------------
+document.getElementById("legend").innerHTML = WAVES.map(w =>
+  `<span><span class="wdot" style="background:${cssv(WCOL[w.wave])}"></span>Wave ${w.wave}</span>`
+).join("");
+</script>
+</body>
+</html>
