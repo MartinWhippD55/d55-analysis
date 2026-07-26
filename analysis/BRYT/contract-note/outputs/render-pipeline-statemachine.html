@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', 'Amazon Ember', 'Segoe UI', sans-serif; }
+
+#diagram {
+  width: 620px;
+  background: #f4f6f8;
+  background-image: radial-gradient(#e2e6ea 1px, transparent 1px);
+  background-size: 18px 18px;
+  padding: 26px 30px 30px;
+  border: 1px solid #d5dbdb;
+}
+
+.hdr { text-align: center; margin-bottom: 20px; }
+.hdr .machine { font-size: 17px; font-weight: 700; color: #16191f; }
+.hdr .machine .sub { font-weight: 500; color: #687078; font-size: 12.5px; }
+.hdr .trigger {
+  display: inline-block; margin-top: 8px; font-size: 11px; color: #46515c;
+  background: #eef1f4; border: 1px solid #d5dbdb; border-radius: 20px; padding: 4px 12px;
+}
+.hdr .trigger b { color: #16191f; font-weight: 600; }
+
+.flow { display: flex; flex-direction: column; align-items: center; }
+
+/* connector: vertical line + arrowhead */
+.conn { width: 2px; height: 22px; background: #aab7b8; position: relative; }
+.conn::after {
+  content: ''; position: absolute; left: 50%; bottom: -1px; transform: translateX(-50%);
+  border-left: 5px solid transparent; border-right: 5px solid transparent;
+  border-top: 7px solid #aab7b8;
+}
+
+/* state card */
+.state {
+  width: 340px; background: #fff; border: 1.5px solid #d5dbdb; border-radius: 10px;
+  padding: 11px 14px; display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.09);
+}
+.icon {
+  flex: 0 0 auto; width: 34px; height: 34px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 16px;
+}
+.icon.lambda { background: #ED7100; }        /* AWS Lambda orange */
+.icon.map    { background: #8a3ffc; }         /* Map = purple */
+.icon.term   { border-radius: 50%; font-size: 15px; }
+.icon.start  { background: #1a7f37; }
+.icon.ok     { background: #1a7f37; }
+.icon.fail   { background: #d13212; }
+.body { min-width: 0; }
+.name { font-size: 13.5px; font-weight: 600; color: #16191f; display: flex; align-items: center; gap: 8px; }
+.desc { font-size: 11px; color: #687078; margin-top: 2px; line-height: 1.35; }
+.tag {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
+  color: #5b2bb3; background: #f1eafe; border: 1px solid #d9c7fb; border-radius: 4px; padding: 1px 6px;
+}
+.badge {
+  font-size: 9.5px; font-weight: 600; color: #46515c;
+  background: #eef1f4; border: 1px solid #d5dbdb; border-radius: 4px; padding: 1px 6px;
+}
+
+/* Map container */
+.mapstate {
+  width: 380px; border: 1.5px solid #c3a6f7; border-radius: 12px; background: #faf7ff;
+  padding: 12px 14px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.map-hdr { display: flex; align-items: center; gap: 12px; }
+.map-foreach { font-size: 10.5px; color: #7a5bb0; margin: 9px 2px 8px; font-weight: 500; }
+.mapstate .state { width: 100%; border-color: #e5d9fa; }
+
+/* Catch / error lane */
+.catch-div {
+  width: 100%; margin: 26px 0 14px; display: flex; align-items: center; gap: 10px;
+  color: #b32d0f; font-size: 11px; font-weight: 600;
+}
+.catch-div .line { flex: 1; height: 0; border-top: 2px dashed #e39b86; }
+.catch-lane { display: flex; align-items: center; justify-content: center; gap: 0; }
+.hconn { width: 26px; height: 2px; background: #d13212; position: relative; }
+.hconn::after {
+  content: ''; position: absolute; right: -1px; top: 50%; transform: translateY(-50%);
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  border-left: 7px solid #d13212;
+}
+.state.err { border-color: #f0b0a0; background: #fff8f6; width: 250px; }
+.caption { text-align: center; font-size: 10.5px; color: #687078; margin-top: 10px; font-style: italic; }
+</style>
+</head>
+<body>
+<div id="diagram">
+  <div class="hdr">
+    <div class="machine">RenderStateMachine <span class="sub">&middot; AWS Step Functions</span></div>
+    <div class="trigger">Trigger: XML dropped in <b>input-xml</b> S3 bucket</div>
+  </div>
+
+  <div class="flow">
+    <div class="state">
+      <div class="icon term start">&#9654;</div>
+      <div class="body"><div class="name">Start</div><div class="desc">Execution begins on S3 object-created event</div></div>
+    </div>
+    <div class="conn"></div>
+
+    <div class="state">
+      <div class="icon lambda">&#955;</div>
+      <div class="body"><div class="name">ParseInput</div><div class="desc">Parse contract XML &rarr; JSON (all fields preserved)</div></div>
+    </div>
+    <div class="conn"></div>
+
+    <div class="state">
+      <div class="icon lambda">&#955;</div>
+      <div class="body"><div class="name">SelectTemplate</div><div class="desc">Evaluate rules in priority order &middot; first match wins</div></div>
+    </div>
+    <div class="conn"></div>
+
+    <div class="mapstate">
+      <div class="map-hdr">
+        <div class="icon map">&#8862;</div>
+        <div class="body"><div class="name">RenderSections <span class="tag">Map</span></div><div class="desc">Each section is an independent, retryable iteration</div></div>
+      </div>
+      <div class="map-foreach">&#8618; for each section in the selected template</div>
+      <div class="state">
+        <div class="icon lambda">&#955;</div>
+        <div class="body">
+          <div class="name">RenderSection <span class="badge">Retry &times;2</span></div>
+          <div class="desc">Resolve pinned version &middot; pick variant &middot; render with pdf-me</div>
+        </div>
+      </div>
+    </div>
+    <div class="conn"></div>
+
+    <div class="state">
+      <div class="icon lambda">&#955;</div>
+      <div class="body"><div class="name">Stitch</div><div class="desc">Concatenate section PDFs with pdf-lib &middot; T&amp;C pages last</div></div>
+    </div>
+    <div class="conn"></div>
+
+    <div class="state">
+      <div class="icon lambda">&#955;</div>
+      <div class="body"><div class="name">WriteOutput</div><div class="desc">Write stitched PDF &rarr; output-pdf S3 bucket</div></div>
+    </div>
+    <div class="conn"></div>
+
+    <div class="state">
+      <div class="icon term ok">&#10003;</div>
+      <div class="body"><div class="name">Success</div><div class="desc">Contract note PDF delivered</div></div>
+    </div>
+
+    <div class="catch-div"><div class="line"></div>&#9092; Catch &mdash; any state, after retries<div class="line"></div></div>
+
+    <div class="catch-lane">
+      <div class="state err">
+        <div class="icon fail">&#955;</div>
+        <div class="body"><div class="name">HandleFailure</div><div class="desc">Write JSON error record &middot; no partial PDF</div></div>
+      </div>
+      <div class="hconn"></div>
+      <div class="state err" style="width:150px;">
+        <div class="icon term fail">&#10005;</div>
+        <div class="body"><div class="name">Fail</div></div>
+      </div>
+    </div>
+
+    <div class="caption">Any state routes to HandleFailure on error; the output bucket never receives a partial document.</div>
+  </div>
+</div>
+</body>
+</html>
