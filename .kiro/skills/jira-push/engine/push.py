@@ -34,10 +34,15 @@ in isolation.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Iterable, Optional
 
 BLOCKS_LINK_TYPE = "Blocks"
+
+# A tree cross-reference token: a story key (US-04) or a sub-task key (US-04-2).
+# Used to decide which map entries are substitutable references (vs 'epic').
+_US_KEY_RE = re.compile(r"US-\d+(?:-\d+)?")
 
 # Action kinds
 EPIC = "epic"
@@ -401,6 +406,149 @@ def summarize_plan(plan: PushPlan) -> str:
         n_skip = sum(1 for x in atts if x.op == SKIP)
         base += f" attachments: {n_create} upload / {n_skip} skip."
     return base
+
+
+# --------------------------------------------------------------------------- #
+# Key substitution: rewrite tree-key cross-references to real Jira keys
+# --------------------------------------------------------------------------- #
+# The tree bodies talk about each other by *tree key* — "blocked by US-03", "the
+# render pipeline (US-06)", "variant rules (US-04-3)". Pushed verbatim, those stay as
+# US-xx strings in Jira instead of becoming the real, clickable issue keys. Once the
+# issues exist we know each mapping (identity label -> Jira key), so we can rewrite the
+# references and push the descriptions again. Going forward jira-push can create thin
+# placeholder issues first to learn the keys up front; right now we reconstruct the map
+# straight from the issues already in Jira. Either way the substitution below is the
+# same pure, testable core.
+@dataclass
+class UpdateAction:
+    """A description-only update to push to an already-created Jira issue."""
+
+    ref: str  # identity label (the idempotency key)
+    tree_key: str  # US-04 / US-04-2 / epic_name (for reporting)
+    jira_key: str  # e.g. SQP-4960 — the live issue to update
+    description: str  # body with tree-key references rewritten to Jira keys
+    changed: bool  # True if substitution actually altered the original body
+
+
+def build_key_map(existing_key: dict[str, str], set_label: str) -> dict[str, str]:
+    """Turn ``{identity_label -> jira_key}`` into ``{tree_key -> jira_key}``.
+
+    The tree key is the identity label with the ``<set_label>-`` prefix stripped:
+    ``s2s-<parent>-US-04 -> US-04``, ``s2s-<parent>-US-04-2 -> US-04-2``,
+    ``s2s-<parent>-epic -> epic``. Labels without the prefix are ignored. This is the
+    ``_placeholders.md`` correlation, derived from what the agent found in Jira.
+    """
+    prefix = f"{set_label}-"
+    out: dict[str, str] = {}
+    for label, jira_key in existing_key.items():
+        if label.startswith(prefix):
+            out[label[len(prefix):]] = jira_key
+    return out
+
+
+def substitute_keys(text: str, key_map: dict[str, str]) -> str:
+    """Replace tree-key cross-references (US-01, US-04-2, …) in ``text`` with the Jira
+    keys from ``key_map``. Pure; returns a new string.
+
+    Only whole-token references are rewritten: a match may not be flanked by a word
+    character or a hyphen. That guard does the heavy lifting —
+
+    * identity labels printed in a body (``…-US-04``) are preceded by ``-`` and so are
+      left untouched;
+    * ``US-04`` inside ``US-04-2`` is not partially rewritten, because the trailing
+      ``-2`` fails the right-hand guard.
+
+    Longer keys are tried first so ``US-04-2`` wins over ``US-04`` at the same
+    position. The ``epic`` entry is never used as a substitution token (it is not a
+    US-reference). Only keys matching the ``US-<n>[-<n>]`` shape are considered, so a
+    stray map entry can't corrupt the body.
+    """
+    tokens = sorted(
+        (k for k in key_map if _US_KEY_RE.fullmatch(k)),
+        key=len,
+        reverse=True,
+    )
+    if not tokens:
+        return text
+    alt = "|".join(re.escape(t) for t in tokens)
+    pattern = re.compile(rf"(?<![\w-])(?:{alt})(?![\w-])")
+    return pattern.sub(lambda m: key_map[m.group(0)], text)
+
+
+def plan_description_updates(
+    plan: PushPlan,
+    key_map: dict[str, str],
+    existing_key: dict[str, str],
+) -> list[UpdateAction]:
+    """Build the description-only update actions for an already-pushed ``plan``.
+
+    For every issue, rewrite tree-key references in its description via ``key_map`` and
+    pair the result with the issue's live Jira key (looked up in ``existing_key`` by
+    identity label). ``changed`` flags whether substitution actually altered the body —
+    the agent should only push updates where ``changed`` is True, so the pass is a
+    no-op on a tree with no cross-references. Issues absent from ``existing_key`` (not
+    yet pushed) are skipped. Pure; does not mutate ``plan``.
+    """
+    updates: list[UpdateAction] = []
+    for a in plan.issues:
+        jira_key = existing_key.get(a.ref)
+        if not jira_key:
+            continue
+        new_desc = substitute_keys(a.description, key_map)
+        updates.append(
+            UpdateAction(
+                ref=a.ref,
+                tree_key=a.key,
+                jira_key=jira_key,
+                description=new_desc,
+                changed=new_desc != a.description,
+            )
+        )
+    return updates
+
+
+def render_placeholder_doc(
+    plan: PushPlan,
+    existing_key: dict[str, str],
+    project_key: str = "",
+) -> str:
+    """Render the ``_placeholders.md`` mirror: the ``tree key -> Jira key`` correlation
+    used to rewrite cross-references before the update pass.
+
+    The document carries a machine-readable ``key_map`` in its frontmatter (so a later
+    run can reload it without re-querying) plus a human table in plan order (epic, then
+    each story followed by its sub-tasks). Issues not yet in ``existing_key`` render
+    with a blank/``—`` key. Pure — the agent writes the returned string to disk.
+    """
+    kind_label = {EPIC: "Epic", STORY: "Story", SUBTASK: "Sub-task"}
+
+    lines = ["---"]
+    if project_key:
+        lines.append(f"project: {project_key}")
+    lines.append(f"set_label: {plan.set_label}")
+    lines.append("key_map:")
+    for a in plan.issues:
+        lines.append(f"  {a.key}: {existing_key.get(a.ref, '')}")
+    lines.append("---")
+    lines.append("")
+    lines.append("# Placeholder key map")
+    lines.append("")
+    lines.append(
+        "Correlates each tree key to the live Jira issue it was pushed to. jira-push "
+        "uses this to rewrite cross-references (US-01, US-04-2, …) in issue "
+        "descriptions to real Jira keys before the update pass. Regenerated from live "
+        "Jira on each run; safe to delete once descriptions are finalised."
+    )
+    lines.append("")
+    lines.append("| Tree key | Jira | Type | Summary |")
+    lines.append("|----------|------|------|---------|")
+    for a in plan.issues:
+        jira_key = existing_key.get(a.ref) or "—"
+        lines.append(
+            f"| {a.key} | {jira_key} | {kind_label.get(a.kind, a.kind)} | {a.summary} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
 
 
 # --------------------------------------------------------------------------- #

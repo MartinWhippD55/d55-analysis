@@ -37,10 +37,13 @@ reconciliation) be unit-tested without a tree generator or a live Jira.
   requirements.txt         pyyaml, hypothesis, pytest
   engine/
     push.py                build_push_plan, attach_specs, reconcile,
-                           validate_plan, summarize_plan, load_tree_view
+                           validate_plan, summarize_plan, load_tree_view,
+                           build_key_map, substitute_keys,
+                           plan_description_updates, render_placeholder_doc
   tests/
     test_push.py           mapping, ordering, idempotency (reconcile),
-                           validation, determinism (property-based)
+                           validation, determinism (property-based),
+                           key substitution + placeholder map
 ```
 
 Run the engine from the bundle root (`python -m pytest`, or import `engine.push`).
@@ -197,12 +200,65 @@ For each `link` in `plan.links` with `op == "create"`: resolve `link.outward` an
 inward_issue_key=<key(inward)>)`. Semantics: **outward blocks inward** — the
 dependency ships first. Links marked `skip` already exist; do nothing.
 
-### 6. Return a summary
+### 6. Rewrite cross-references to real Jira keys (placeholder → key)
+
+The tree bodies refer to each other by **tree key** — "blocked by US-03", "the render
+pipeline (US-06)", "variant rules (US-04-3)". Pushed verbatim (step 4) those stay as
+`US-xx` strings in Jira instead of the real, clickable issue keys. Once every issue
+exists you know the mapping, so rewrite the descriptions and push them again.
+
+You already hold `key_of = {identity_label -> jira_key}` from steps 3–4 (the
+`existing_key` map plus every key you created). Turn it into a tree-key map, snapshot
+it to disk, and build the update actions:
+
+```python
+from engine.push import (
+    build_key_map, plan_description_updates, render_placeholder_doc,
+)
+
+key_map = build_key_map(key_of, plan.set_label)   # {US-04 -> JIRA-KEY, US-04-2 -> ...}
+
+# snapshot the correlation next to the tree (human + machine readable); handy to
+# review, and lets a later run reload the map without re-querying Jira.
+open(f"{tree_dir}/_placeholders.md", "w", encoding="utf-8").write(
+    render_placeholder_doc(plan, key_of, project_key=PROJECT)
+)
+
+updates = plan_description_updates(plan, key_map, key_of)
+```
+
+`substitute_keys` (used inside) only rewrites whole-token references and refuses to
+touch a `US-xx` that is flanked by a word char or hyphen — so identity labels printed
+in a body (`…-US-04`) survive intact and `US-04` inside `US-04-2` is never partially
+rewritten (longer keys win). It is idempotent: re-running over already-rewritten text
+is a no-op because `JIRA-KEY` doesn't match the `US-<n>` shape.
+
+Then push **only the changed** descriptions:
+
+```python
+for u in updates:
+    if u.changed:
+        # jira_update_issue(u.jira_key, fields={"description": u.description})
+        ...
+```
+
+Skipping `changed == False` keeps the pass a no-op on a tree with no cross-references
+and avoids needless writes. This step is optional but recommended when the bodies
+cross-reference each other.
+
+> **Placeholder-first variant (up-front keys).** Instead of pushing full bodies then
+> rewriting, you can create **thin placeholder issues** in step 4 (summary + labels
+> only), write `_placeholders.md`, then run this rewrite so the *first* real
+> description already carries live keys — one create pass, one update pass. The engine
+> is the same; only the ordering differs. Either way `_placeholders.md` is a scratch
+> correlation, safe to delete once descriptions are finalised.
+
+### 7. Return a summary
 
 Report: the target project, the epic key, the story keys (`US-xx → JIRA-KEY`),
-sub-tasks created vs reused, links created vs skipped, and (if attachment mode was on)
-spec files uploaded vs skipped. Note anything reused/skipped as already present. Do
-**not** print secrets.
+sub-tasks created vs reused, links created vs skipped, descriptions rewritten (if the
+cross-reference pass ran), and (if attachment mode was on) spec files uploaded vs
+skipped. Note anything reused/skipped as already present. Do **not** print secrets.
 
 ## Verify
 

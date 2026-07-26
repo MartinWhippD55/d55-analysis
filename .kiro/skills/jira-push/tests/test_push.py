@@ -25,8 +25,12 @@ from engine.push import (  # noqa: E402
     STORY,
     SUBTASK,
     attach_specs,
+    build_key_map,
     build_push_plan,
+    plan_description_updates,
     reconcile,
+    render_placeholder_doc,
+    substitute_keys,
     summarize_plan,
     validate_plan,
 )
@@ -369,6 +373,142 @@ def test_second_run_with_attachments_uploads_nothing(tmp_path):
 
 
 # --------------------------------------------------------------------------- #
+# build_key_map — identity label -> tree key
+# --------------------------------------------------------------------------- #
+def test_build_key_map_strips_set_label_prefix():
+    existing = {
+        "s2s-demo-spec-epic": "SQP-1",
+        "s2s-demo-spec-US-01": "SQP-2",
+        "s2s-demo-spec-US-01-1": "SQP-3",
+    }
+    km = build_key_map(existing, "s2s-demo-spec")
+    assert km == {"epic": "SQP-1", "US-01": "SQP-2", "US-01-1": "SQP-3"}
+
+
+def test_build_key_map_ignores_foreign_labels():
+    existing = {"s2s-demo-spec-US-01": "SQP-2", "some-other-label": "SQP-9"}
+    km = build_key_map(existing, "s2s-demo-spec")
+    assert km == {"US-01": "SQP-2"}
+
+
+# --------------------------------------------------------------------------- #
+# substitute_keys — the core rewrite
+# --------------------------------------------------------------------------- #
+KM = {
+    "epic": "SQP-1",
+    "US-01": "SQP-10",
+    "US-04": "SQP-40",
+    "US-04-2": "SQP-42",
+    "US-04-3": "SQP-43",
+    "US-06": "SQP-60",
+    "US-09": "SQP-90",
+    "US-10": "SQP-100",
+}
+
+
+def test_substitute_plain_reference():
+    assert substitute_keys("blocked by US-01 today", KM) == "blocked by SQP-10 today"
+
+
+def test_substitute_reference_in_parentheses_and_slashes():
+    assert substitute_keys("the frontend (US-09/US-10)", KM) == "the frontend (SQP-90/SQP-100)"
+
+
+def test_substitute_longest_key_wins_over_prefix():
+    # US-04-2 must map to SQP-42, not "SQP-40-2"
+    assert substitute_keys("variant rules (US-04-3) attach", KM) == "variant rules (SQP-43) attach"
+    assert substitute_keys("see US-04-2 for detail", KM) == "see SQP-42 for detail"
+
+
+def test_substitute_leaves_identity_label_intact():
+    # The Traceability footer prints the identity label; the leading hyphen guards it.
+    body = "Covers 18 · `s2s-contract-note-template-management-US-04`"
+    assert substitute_keys(body, KM) == body
+
+
+def test_substitute_bare_story_key_still_rewritten_next_to_identity_label():
+    body = "depends on US-04 · label s2s-demo-US-04"
+    # the free-standing US-04 is rewritten; the labelled one is not
+    assert substitute_keys(body, KM) == "depends on SQP-40 · label s2s-demo-US-04"
+
+
+def test_substitute_does_not_touch_requirement_numbers():
+    assert substitute_keys("parent 18.2 and 19.3", KM) == "parent 18.2 and 19.3"
+
+
+def test_substitute_empty_map_is_identity():
+    assert substitute_keys("US-01 and US-04-2", {}) == "US-01 and US-04-2"
+
+
+def test_substitute_epic_token_is_never_used():
+    # 'epic' is not a US-reference, so it is never matched even if present in text.
+    assert substitute_keys("the epic body", KM) == "the epic body"
+
+
+# --------------------------------------------------------------------------- #
+# plan_description_updates — pairs substituted bodies with live keys
+# --------------------------------------------------------------------------- #
+def test_plan_description_updates_flags_changed_only_when_body_differs():
+    tree = sample_tree(2, 1)
+    # give US-01's body a reference to US-02; US-02's body has no cross-reference
+    tree.stories[0].description = "This story is blocked-by US-02 downstream."
+    tree.stories[1].description = "A self-contained story with no cross-references."
+    plan = build_push_plan(tree)
+    existing = {
+        "s2s-demo-spec-epic": "SQP-1",
+        "s2s-demo-spec-US-01": "SQP-2",
+        "s2s-demo-spec-US-01-1": "SQP-3",
+        "s2s-demo-spec-US-02": "SQP-4",
+        "s2s-demo-spec-US-02-1": "SQP-5",
+    }
+    km = build_key_map(existing, "s2s-demo-spec")
+    updates = plan_description_updates(plan, km, existing)
+    by_key = {u.tree_key: u for u in updates}
+    assert by_key["US-01"].description == "This story is blocked-by SQP-4 downstream."
+    assert by_key["US-01"].changed is True
+    assert by_key["US-01"].jira_key == "SQP-2"
+    # a body with no cross-reference is unchanged
+    assert by_key["US-02"].changed is False
+
+
+def test_plan_description_updates_skips_unpushed_issues():
+    plan = build_push_plan(sample_tree(2, 0))
+    existing = {"s2s-demo-spec-epic": "SQP-1", "s2s-demo-spec-US-01": "SQP-2"}
+    km = build_key_map(existing, "s2s-demo-spec")
+    updates = plan_description_updates(plan, km, existing)
+    # US-02 has no Jira key -> not in the update list
+    assert {u.tree_key for u in updates} == {"demo-spec", "US-01"}
+
+
+# --------------------------------------------------------------------------- #
+# render_placeholder_doc — the _placeholders.md mirror
+# --------------------------------------------------------------------------- #
+def test_render_placeholder_doc_has_frontmatter_map_and_table():
+    plan = build_push_plan(sample_tree(2, 1))
+    existing = {
+        "s2s-demo-spec-epic": "SQP-1",
+        "s2s-demo-spec-US-01": "SQP-2",
+        "s2s-demo-spec-US-01-1": "SQP-3",
+        "s2s-demo-spec-US-02": "SQP-4",
+        "s2s-demo-spec-US-02-1": "SQP-5",
+    }
+    doc = render_placeholder_doc(plan, existing, project_key="SQP")
+    assert "project: SQP" in doc
+    assert "set_label: s2s-demo-spec" in doc
+    assert "US-01: SQP-2" in doc
+    assert "US-01-1: SQP-3" in doc
+    assert "| US-01 | SQP-2 | Story |" in doc
+    assert "| US-01-1 | SQP-3 | Sub-task |" in doc
+
+
+def test_render_placeholder_doc_marks_unpushed_with_dash():
+    plan = build_push_plan(sample_tree(2, 0))
+    existing = {"s2s-demo-spec-epic": "SQP-1", "s2s-demo-spec-US-01": "SQP-2"}
+    doc = render_placeholder_doc(plan, existing)
+    assert "| US-02 | — |" in doc
+
+
+# --------------------------------------------------------------------------- #
 # Property-based: plan is well-formed and reconcile is idempotent, any tree size
 # --------------------------------------------------------------------------- #
 @given(
@@ -384,6 +524,30 @@ def test_property_plan_always_valid_and_ordered(n_stories, subs):
         if a.kind == SUBTASK:
             assert a.parent_ref in seen
         seen.add(a.ref)
+
+
+@given(
+    story=st.integers(min_value=1, max_value=10),
+    sub=st.integers(min_value=1, max_value=9),
+)
+def test_property_substitution_is_idempotent(story, sub):
+    """Substituting an already-substituted body is a no-op: Jira keys (SQP-n) don't
+    match the US-<n> token shape, so a second pass changes nothing."""
+    km = {f"US-{story:02d}": "SQP-500", f"US-{story:02d}-{sub}": "SQP-600"}
+    text = f"blocks US-{story:02d} and detail in (US-{story:02d}-{sub})."
+    once = substitute_keys(text, km)
+    assert substitute_keys(once, km) == once
+    assert f"US-{story:02d}" not in once  # both references were rewritten
+
+
+@given(parent=st.integers(min_value=1, max_value=99), n=st.integers(min_value=1, max_value=99))
+def test_property_identity_label_suffix_never_rewritten(parent, n):
+    """A US key appearing as the suffix of an identity label (…-US-04) is guarded by
+    the preceding hyphen and must survive substitution verbatim."""
+    key = f"US-{parent:02d}"
+    km = {key: "SQP-999"}
+    label = f"s2s-some-spec-{key}"
+    assert substitute_keys(label, km) == label
 
 
 @given(
