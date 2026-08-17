@@ -45,18 +45,16 @@ the conventions Estimate 1's backend established.
 
 ## Stories
 
-| Story | Summary | Est (days) |
-|-------|---------|------------|
-| US-01 | Foundation: DocuSign pipeline infra, shared types & utilities | 2.5 |
-| US-02 | Salesforce integration client (greenfield) | 2.0 |
-| US-03 | DocuSign integration client | 2.5 |
-| US-04 | Envelope metadata service | 1.0 |
-| US-05 | Send Envelope Lambda | 1.5 |
-| US-06 | Webhook Lambda (completion + declined/expired) | 2.0 |
-| US-07 | Estimate 1 metadata surfacing (Requirement 12) | 1.0 |
-| US-08 | Integration wiring & deployment | 1.5 |
-
-_Total estimate: 14 days (excludes optional test sub-tasks)._
+| Story | Summary |
+|-------|---------|
+| US-01 | Foundation: DocuSign pipeline infra, shared types & utilities |
+| US-02 | Salesforce integration client (greenfield) |
+| US-03 | DocuSign integration client |
+| US-04 | Envelope metadata service |
+| US-05 | Send Envelope Lambda |
+| US-06 | Webhook Lambda (completion + declined/expired) |
+| US-07 | Estimate 1 metadata surfacing (Requirement 12) |
+| US-08 | Integration wiring & deployment |
 
 ## Definition of done
 
