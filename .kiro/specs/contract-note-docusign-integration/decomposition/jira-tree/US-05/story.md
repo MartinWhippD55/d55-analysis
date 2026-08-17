@@ -55,3 +55,9 @@ The Send Envelope Lambda (`api/src/docusign/send-envelope.ts`) is the handler in
 ## Traceability
 
 Covers parent requirements: 1, 2, 3, 4, 5, 10 · `s2s-contract-note-docusign-integration-US-05`
+
+## Architecture
+
+Builds `lambda:send-envelope`, the orchestration invoked by the `SendEnvelope` task (wired by US-08): extract + validate metadata, idempotency check by contract note S3 key, then `lookupContact` (US-02) → auth + `createEnvelope` (US-03) → `createRecord` (US-04), using US-01 types and error-writer.
+
+See the attached `US-05.png` for what this story builds and where each piece is used.

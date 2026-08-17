@@ -60,3 +60,9 @@ the conventions Estimate 1's backend established.
 
 - All 8 stories delivered.
 - Parent requirements covered: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12.
+
+## Service interaction
+
+End-to-end runtime flow: the render pipeline (US-07) hands the contract PDF and `Contract_Metadata` to the Send Envelope Lambda (US-05), which looks up the contact (US-02), creates the envelope (US-03), and stores the record (US-04). DocuSign emails the customer for signature; the Connect callback hits the Webhook Lambda (US-06), which validates the HMAC, downloads the signed PDF, stores it in the signed bucket (US-01), uploads it to Salesforce, and updates status — routing declined/expired/failures to the reused error bucket (US-01). US-08 wires the `SendEnvelope` task and webhook route together.
+
+See the attached `epic-service-interaction.png`, annotated with the delivering story (US-xx / SQP key) for each participant.

@@ -68,3 +68,9 @@ pipeline. It depends on US-05, US-06 and US-07 being complete.
 ## Traceability
 
 Covers parent requirements: 1, 6, 11 · `s2s-contract-note-docusign-integration-US-08`
+
+## Architecture
+
+The assembly story: wires `cdk-instance:deployment` — appends the `SendEnvelope` task after `WriteOutput` (with its own catch) so it invokes the Send Envelope Lambda (US-05), binds the `POST /docusign-webhook` route to the Webhook Lambda (US-06), threads US-07's `WriteOutput` metadata into the task, and sets env vars + least-privilege IAM for both Lambdas.
+
+See the attached `US-08.png` for what this story builds and where each piece is used.

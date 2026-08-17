@@ -44,3 +44,9 @@ Delivers the envelope metadata service: a thin, well-tested DynamoDB access laye
 ## Traceability
 
 Covers parent requirements: 5 · `s2s-contract-note-docusign-integration-US-04`
+
+## Architecture
+
+Builds `service:metadata-service` — the DynamoDB `create` / `get` / `update` / `queryByGSI` access layer over the US-01 `DocuSignEnvelopes` table and `SalesforceRefIndex` GSI. Consumed by the Send Envelope Lambda (US-05, create) and the Webhook Lambda (US-06, get + update status).
+
+See the attached `US-04.png` for what this story builds and where each piece is used.

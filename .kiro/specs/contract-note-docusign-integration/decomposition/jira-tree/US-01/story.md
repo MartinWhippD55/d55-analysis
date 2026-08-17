@@ -62,3 +62,9 @@ US-01 provisions the wave-1 foundation for the DocuSign e-signature pipeline ins
 ## Traceability
 
 Covers parent requirements: 5, 6, 7, 8, 10, 11 · `s2s-contract-note-docusign-integration-US-01`
+
+## Architecture
+
+The stable substrate every other story builds on: the `DocuSignPipeline` CDK construct, the shared library (`docusign-types`, `withRetry`, `writeErrorRecord`), the `DocuSignEnvelopes` table with its `SalesforceRefIndex` GSI, and the `signed-contract-notes` bucket. It is consumed by US-02 and US-03 (types + retry), US-04 (table + GSI + types), US-05 (types + error-writer), and US-06 (construct + bucket + error-writer).
+
+See the attached `US-01.png` for what this story builds and where each piece is used.

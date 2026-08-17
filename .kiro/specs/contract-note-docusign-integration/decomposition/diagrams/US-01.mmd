@@ -1,0 +1,26 @@
+%% US-01 / SQP-5046 — Foundation: the substrate every other story builds on.
+flowchart LR
+  subgraph BUILDS["US-01 / SQP-5046 builds"]
+    direction TB
+    CDK["cdk-construct:<br/>DocuSignPipeline"]
+    LIB["shared-lib:<br/>docusign-types · withRetry · writeErrorRecord"]
+    TBL[("data-table:<br/>DocuSignEnvelopes + SalesforceRefIndex GSI")]
+    BKT[("s3-bucket:<br/>signed-contract-notes")]
+  end
+
+  U02["US-02 / SQP-5047<br/>Salesforce client"]
+  U03["US-03 / SQP-5048<br/>DocuSign client"]
+  U04["US-04 / SQP-5049<br/>Metadata service"]
+  U05["US-05 / SQP-5050<br/>Send Envelope Lambda"]
+  U06["US-06 / SQP-5051<br/>Webhook Lambda"]
+
+  BUILDS -->|"types + retry"| U02
+  BUILDS -->|"types + retry"| U03
+  BUILDS -->|"table + GSI + types"| U04
+  BUILDS -->|"types + error-writer"| U05
+  BUILDS -->|"construct + bucket + error-writer"| U06
+
+  classDef build fill:#eef4ff,stroke:#4066b3,color:#16324f;
+  classDef use fill:#f4f6f8,stroke:#8a94a6,color:#2b3440;
+  class CDK,LIB,TBL,BKT build;
+  class U02,U03,U04,U05,U06 use;

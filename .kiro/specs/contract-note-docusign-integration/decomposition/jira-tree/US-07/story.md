@@ -45,3 +45,9 @@ This is a cross-team change to Estimate 1 code, coordinated and reviewed with th
 ## Traceability
 
 Covers parent requirements: 12 · `s2s-contract-note-docusign-integration-US-07`
+
+## Architecture
+
+Builds `state-machine:render-metadata-passthrough`: an additive Estimate 1 change that extracts `customersalesforceref` at `ParseInput` and threads `Contract_Metadata` through the state payload to `WriteOutput` and the `SendEnvelope` stage. Its output feeds the Send Envelope Lambda (US-05) and is wired into the state machine by US-08.
+
+See the attached `US-07.png` for what this story builds and where each piece is used.

@@ -58,3 +58,9 @@ Implements the Webhook Lambda (`api/src/docusign/webhook.ts`) behind the `POST /
 ## Traceability
 
 Covers parent requirements: 6, 7, 8, 9, 10 · `s2s-contract-note-docusign-integration-US-06`
+
+## Architecture
+
+Builds `lambda:webhook` and the `POST /docusign-webhook` route (bound by US-08): HMAC gate (US-03) then routing — on `completed`, download (US-03) + store in the signed bucket (US-01) + upload to Salesforce (US-02) + update metadata (US-04); on `declined`/`expired`, update metadata and write a notification to the error bucket (US-01).
+
+See the attached `US-06.png` for what this story builds and where each piece is used.

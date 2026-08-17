@@ -47,3 +47,9 @@ Builds the DocuSign client that wraps the eSignature REST API: JWT-grant authent
 ## Traceability
 
 Covers parent requirements: 3, 4, 6, 7 · `s2s-contract-note-docusign-integration-US-03`
+
+## Architecture
+
+Builds `service:docusign-client` (JWT auth → `createEnvelope`, `downloadSigned`, `validateHmac`) on the US-01 shared types and retry utility. Auth + envelope creation feed the Send Envelope Lambda (US-05); HMAC validation + signed-document download feed the Webhook Lambda (US-06).
+
+See the attached `US-03.png` for what this story builds and where each piece is used.

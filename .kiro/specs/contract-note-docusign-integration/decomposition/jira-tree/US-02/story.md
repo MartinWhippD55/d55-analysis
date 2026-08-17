@@ -46,3 +46,9 @@ Builds the Salesforce integration client from scratch — there is no reusable S
 ## Traceability
 
 Covers parent requirements: 2, 8 · `s2s-contract-note-docusign-integration-US-02`
+
+## Architecture
+
+Builds `service:salesforce-client` (OAuth authenticate → `lookupContact` → `uploadDocument`) on the US-01 shared types and retry utility. Its lookup feeds the Send Envelope Lambda (US-05) and its signed-document upload feeds the Webhook Lambda (US-06).
+
+See the attached `US-02.png` for what this story builds and where each piece is used.
