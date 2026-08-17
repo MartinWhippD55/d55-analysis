@@ -1,0 +1,45 @@
+id: US-02
+title: Salesforce integration client (greenfield)
+userStory: As a system operator, I want a Salesforce client that authenticates, looks
+  up customer contacts, and uploads signed documents, so that contract notes reach
+  the right recipient and land back on the record.
+coversRequirements:
+- '2'
+- '8'
+exports:
+- service:salesforce-client
+dependsOn:
+- shared-lib:docusign-types
+- shared-lib:retry
+subtasks:
+- id: US-02-1
+  title: 'Salesforce OAuth client: read credentials from Secrets Manager, obtain/cache
+    access token (client credentials flow), refresh before expiry'
+  requirements:
+  - '2'
+  optional: false
+- id: US-02-2
+  title: 'Customer contact lookup by customersalesforceref: return name + email; throw
+    on not-found, missing email, or network error'
+  requirements:
+  - '2'
+  optional: false
+- id: US-02-3
+  title: 'Signed document upload: ContentVersion + ContentDocumentLink, filename Contract-Note-{offerReference}-Signed-{date}.pdf,
+    using the retry utility'
+  requirements:
+  - '8'
+  optional: false
+- id: US-02-4
+  title: 'Property tests for the Salesforce client (Property 2: lookup correctness;
+    Property 3: missing contact halts)'
+  requirements:
+  - '2'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-docusign-integration
+  labels:
+  - backend
+  - salesforce
+  estimateDays: 2.0

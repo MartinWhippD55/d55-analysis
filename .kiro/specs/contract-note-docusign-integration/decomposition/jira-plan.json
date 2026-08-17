@@ -1,0 +1,682 @@
+{
+  "parent_spec": "contract-note-docusign-integration",
+  "set_label": "s2s-contract-note-docusign-integration",
+  "epic": {
+    "summary": "contract-note-docusign-integration (delivery)",
+    "epic_name": "contract-note-docusign-integration",
+    "description": "Umbrella epic decomposed from spec 'contract-note-docusign-integration' by spec-to-stories.",
+    "identity_label": "s2s-contract-note-docusign-integration-epic",
+    "labels": [
+      "s2s-contract-note-docusign-integration",
+      "s2s-contract-note-docusign-integration-epic"
+    ]
+  },
+  "stories": [
+    {
+      "sid": "US-01",
+      "summary": "Foundation: DocuSign pipeline infra, shared types & utilities",
+      "description": "As a developer, I want the DocuSign pipeline's base infrastructure (envelope table, signed-docs bucket, credential secrets, webhook API surface), the shared TypeScript types, and the retry + error-writer utilities, so that every other story has a stable foundation to build on.\n\nCovers parent requirements: 5, 6, 7, 8, 10, 11\nTraceability: s2s-contract-note-docusign-integration-US-01",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-docusign-integration-US-01",
+      "labels": [
+        "s2s-contract-note-docusign-integration",
+        "s2s-contract-note-docusign-integration-US-01",
+        "infra",
+        "backend"
+      ],
+      "covers_requirements": [
+        "5",
+        "6",
+        "7",
+        "8",
+        "10",
+        "11"
+      ],
+      "estimate_days": 2.5,
+      "subtasks": [
+        {
+          "tid": "US-01-1",
+          "summary": "DocuSignPipeline CDK construct: envelopes table + SalesforceRefIndex GSI, signed-contract-notes bucket, DocuSign/Salesforce secret placeholders, webhook API route surface, least-privilege IAM scaffolding, CfnOutputs; reuse Estimate 1's error bucket (docusign/ prefix)",
+          "identity_label": "s2s-contract-note-docusign-integration-US-01-1",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-01-1"
+          ],
+          "requirements": [
+            "6",
+            "11"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-01-2",
+          "summary": "Shared TypeScript interfaces and types (EnvelopeRecord, EnvelopeStatus, ContractMetadata, SalesforceContact, CreateEnvelopeRequest, DocuSignWebhookEvent, error-record type) in shared-lib/src",
+          "identity_label": "s2s-contract-note-docusign-integration-US-01-2",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-01-2"
+          ],
+          "requirements": [
+            "5",
+            "6"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-01-3",
+          "summary": "Retry utility with exponential backoff (1s/2s/4s + jitter), configurable per-call",
+          "identity_label": "s2s-contract-note-docusign-integration-US-01-3",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-01-3"
+          ],
+          "requirements": [
+            "7",
+            "8"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-01-4",
+          "summary": "Error record writer utility (JSON records to the reused error bucket)",
+          "identity_label": "s2s-contract-note-docusign-integration-US-01-4",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-01-4"
+          ],
+          "requirements": [
+            "10"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "sid": "US-02",
+      "summary": "Salesforce integration client (greenfield)",
+      "description": "As a system operator, I want a Salesforce client that authenticates, looks up customer contacts, and uploads signed documents, so that contract notes reach the right recipient and land back on the record.\n\nCovers parent requirements: 2, 8\nTraceability: s2s-contract-note-docusign-integration-US-02",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-docusign-integration-US-02",
+      "labels": [
+        "s2s-contract-note-docusign-integration",
+        "s2s-contract-note-docusign-integration-US-02",
+        "backend",
+        "salesforce"
+      ],
+      "covers_requirements": [
+        "2",
+        "8"
+      ],
+      "estimate_days": 2.0,
+      "subtasks": [
+        {
+          "tid": "US-02-1",
+          "summary": "Salesforce OAuth client: read credentials from Secrets Manager, obtain/cache access token (client credentials flow), refresh before expiry",
+          "identity_label": "s2s-contract-note-docusign-integration-US-02-1",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-02-1"
+          ],
+          "requirements": [
+            "2"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-02-2",
+          "summary": "Customer contact lookup by customersalesforceref: return name + email; throw on not-found, missing email, or network error",
+          "identity_label": "s2s-contract-note-docusign-integration-US-02-2",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-02-2"
+          ],
+          "requirements": [
+            "2"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-02-3",
+          "summary": "Signed document upload: ContentVersion + ContentDocumentLink, filename Contract-Note-{offerReference}-Signed-{date}.pdf, using the retry utility",
+          "identity_label": "s2s-contract-note-docusign-integration-US-02-3",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-02-3"
+          ],
+          "requirements": [
+            "8"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-02-4",
+          "summary": "Property tests for the Salesforce client (Property 2: lookup correctness; Property 3: missing contact halts)",
+          "identity_label": "s2s-contract-note-docusign-integration-US-02-4",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-02-4",
+            "optional"
+          ],
+          "requirements": [
+            "2"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-03",
+      "summary": "DocuSign integration client",
+      "description": "As a system operator, I want a DocuSign client that authenticates via JWT, creates/sends envelopes, downloads signed documents, and validates webhook signatures, so that the pipeline can drive e-signature end to end.\n\nCovers parent requirements: 3, 4, 6, 7\nTraceability: s2s-contract-note-docusign-integration-US-03",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-docusign-integration-US-03",
+      "labels": [
+        "s2s-contract-note-docusign-integration",
+        "s2s-contract-note-docusign-integration-US-03",
+        "backend",
+        "docusign"
+      ],
+      "covers_requirements": [
+        "3",
+        "4",
+        "6",
+        "7"
+      ],
+      "estimate_days": 2.5,
+      "subtasks": [
+        {
+          "tid": "US-03-1",
+          "summary": "DocuSign JWT authentication: build assertion (integration key, impersonated user, scope), exchange for access token, cache + refresh before expiry",
+          "identity_label": "s2s-contract-note-docusign-integration-US-03-1",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-03-1"
+          ],
+          "requirements": [
+            "3"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-2",
+          "summary": "Envelope creation: document (base64 PDF), signer recipient, signing tab, per-envelope Connect webhook, status 'sent'; return envelope ID",
+          "identity_label": "s2s-contract-note-docusign-integration-US-03-2",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-03-2"
+          ],
+          "requirements": [
+            "4"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-3",
+          "summary": "Signed document download (combined) by envelope ID, using the retry utility",
+          "identity_label": "s2s-contract-note-docusign-integration-US-03-3",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-03-3"
+          ],
+          "requirements": [
+            "7"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-4",
+          "summary": "HMAC webhook signature validation (X-DocuSign-Signature-1, HMAC-SHA256)",
+          "identity_label": "s2s-contract-note-docusign-integration-US-03-4",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-03-4"
+          ],
+          "requirements": [
+            "6"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-5",
+          "summary": "Property tests for the DocuSign client (Property 4: token management; Property 5: envelope contents; Property 6: HMAC validation)",
+          "identity_label": "s2s-contract-note-docusign-integration-US-03-5",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-03-5",
+            "optional"
+          ],
+          "requirements": [
+            "3",
+            "4",
+            "6"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-04",
+      "summary": "Envelope metadata service",
+      "description": "As a developer, I want envelope metadata persisted and queryable, so that the webhook can find records by envelope ID and I can debug by Salesforce reference.\n\nCovers parent requirements: 5\nTraceability: s2s-contract-note-docusign-integration-US-04",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-docusign-integration-US-04",
+      "labels": [
+        "s2s-contract-note-docusign-integration",
+        "s2s-contract-note-docusign-integration-US-04",
+        "backend",
+        "data"
+      ],
+      "covers_requirements": [
+        "5"
+      ],
+      "estimate_days": 1.0,
+      "subtasks": [
+        {
+          "tid": "US-04-1",
+          "summary": "DynamoDB metadata operations: create record on send, get by envelope ID, update status on webhook events, query by Salesforce_Ref via GSI",
+          "identity_label": "s2s-contract-note-docusign-integration-US-04-1",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-04-1"
+          ],
+          "requirements": [
+            "5"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-04-2",
+          "summary": "Property tests for the metadata service (Property 8: record reflects current status)",
+          "identity_label": "s2s-contract-note-docusign-integration-US-04-2",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-04-2",
+            "optional"
+          ],
+          "requirements": [
+            "5"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-05",
+      "summary": "Send Envelope Lambda",
+      "description": "As a system operator, I want a Lambda that, on the SendEnvelope task, reads the contract metadata, looks up the customer, and creates a DocuSign envelope idempotently, so that signing starts automatically without duplicates.\n\nCovers parent requirements: 1, 2, 3, 4, 5, 10\nTraceability: s2s-contract-note-docusign-integration-US-05",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-docusign-integration-US-05",
+      "labels": [
+        "s2s-contract-note-docusign-integration",
+        "s2s-contract-note-docusign-integration-US-05",
+        "backend",
+        "lambda"
+      ],
+      "covers_requirements": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "10"
+      ],
+      "estimate_days": 1.5,
+      "subtasks": [
+        {
+          "tid": "US-05-1",
+          "summary": "SendEnvelope task handler + contract-metadata extraction from the state payload; validate required fields (halt if missing); idempotency check by contract note S3 key",
+          "identity_label": "s2s-contract-note-docusign-integration-US-05-1",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-05-1"
+          ],
+          "requirements": [
+            "1"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-05-2",
+          "summary": "Send-envelope orchestration: Salesforce lookup -> DocuSign auth -> create envelope -> store metadata; on failure write error record + structured CloudWatch log",
+          "identity_label": "s2s-contract-note-docusign-integration-US-05-2",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-05-2"
+          ],
+          "requirements": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "10"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-05-3",
+          "summary": "Property tests for the send flow (Property 1: trigger-to-envelope correlation / idempotency)",
+          "identity_label": "s2s-contract-note-docusign-integration-US-05-3",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-05-3",
+            "optional"
+          ],
+          "requirements": [
+            "1",
+            "4",
+            "5"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-06",
+      "summary": "Webhook Lambda (completion + declined/expired)",
+      "description": "As a system operator, I want a webhook Lambda that validates DocuSign callbacks and, on completion, stores the signed PDF in S3 and Salesforce (or notifies on declined/expired), so that post-signing actions happen automatically.\n\nCovers parent requirements: 6, 7, 8, 9, 10\nTraceability: s2s-contract-note-docusign-integration-US-06",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-docusign-integration-US-06",
+      "labels": [
+        "s2s-contract-note-docusign-integration",
+        "s2s-contract-note-docusign-integration-US-06",
+        "backend",
+        "lambda",
+        "api"
+      ],
+      "covers_requirements": [
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "estimate_days": 2.0,
+      "subtasks": [
+        {
+          "tid": "US-06-1",
+          "summary": "Webhook request handler: HMAC validation (401 if invalid), parse event, route by status, return 200 to acknowledge",
+          "identity_label": "s2s-contract-note-docusign-integration-US-06-1",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-06-1"
+          ],
+          "requirements": [
+            "6"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-2",
+          "summary": "Completion flow: download signed PDF (retries) -> store in S3 -> upload to Salesforce (retries) -> update metadata; on final failure write to error bucket",
+          "identity_label": "s2s-contract-note-docusign-integration-US-06-2",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-06-2"
+          ],
+          "requirements": [
+            "7",
+            "8"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-3",
+          "summary": "Declined/expired flow: update metadata with status + reason, write notification record to the error bucket",
+          "identity_label": "s2s-contract-note-docusign-integration-US-06-3",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-06-3"
+          ],
+          "requirements": [
+            "9"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-4",
+          "summary": "Property tests for the webhook handler (Property 7: completed -> S3 + Salesforce; Property 9: declined/expired notification; Property 10: no partial state)",
+          "identity_label": "s2s-contract-note-docusign-integration-US-06-4",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-06-4",
+            "optional"
+          ],
+          "requirements": [
+            "7",
+            "8",
+            "9",
+            "10"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-07",
+      "summary": "Estimate 1 metadata surfacing (Requirement 12)",
+      "description": "As a developer, I want the Estimate 1 render pipeline to surface the customer reference and related metadata alongside the produced PDF, so that the DocuSign pipeline knows who to send each contract note to.\n\nCovers parent requirements: 12\nTraceability: s2s-contract-note-docusign-integration-US-07",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-docusign-integration-US-07",
+      "labels": [
+        "s2s-contract-note-docusign-integration",
+        "s2s-contract-note-docusign-integration-US-07",
+        "backend",
+        "estimate-1",
+        "cross-team"
+      ],
+      "covers_requirements": [
+        "12"
+      ],
+      "estimate_days": 1.0,
+      "subtasks": [
+        {
+          "tid": "US-07-1",
+          "summary": "Extend render/parse-input.ts buildContractSummary to extract customersalesforceref, offerReference and customerName; thread Contract_Metadata through the state payload from parseInput to write-output and on to the SendEnvelope task. Coordinate with Estimate 1 owner (Jabez)",
+          "identity_label": "s2s-contract-note-docusign-integration-US-07-1",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-07-1"
+          ],
+          "requirements": [
+            "12"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "sid": "US-08",
+      "summary": "Integration wiring & deployment",
+      "description": "As a system operator, I want the DocuSign construct wired into the stack, the SendEnvelope task appended to the render state machine with its own catch, and the webhook route connected, so that the whole pipeline deploys and runs end to end.\n\nCovers parent requirements: 1, 6, 11\nTraceability: s2s-contract-note-docusign-integration-US-08",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-docusign-integration-US-08",
+      "labels": [
+        "s2s-contract-note-docusign-integration",
+        "s2s-contract-note-docusign-integration-US-08",
+        "infra",
+        "integration"
+      ],
+      "covers_requirements": [
+        "1",
+        "6",
+        "11"
+      ],
+      "estimate_days": 1.5,
+      "subtasks": [
+        {
+          "tid": "US-08-1",
+          "summary": "Wire DocuSignPipeline into ContractNoteStack; append the SendEnvelope LambdaInvoke task after WriteOutput with its OWN DocuSign-specific catch (not render handleFailure) and its own retry/timeout; connect the API Gateway webhook route to the Webhook Lambda; set env vars (table, buckets, webhook URL, secret ARNs); finalise least-privilege IAM",
+          "identity_label": "s2s-contract-note-docusign-integration-US-08-1",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-08-1"
+          ],
+          "requirements": [
+            "1",
+            "6",
+            "11"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-08-2",
+          "summary": "Integration tests for the full pipeline flow (SendEnvelope -> DynamoDB record; valid webhook -> signed PDF in S3; invalid HMAC -> 401; declined -> notification in error bucket)",
+          "identity_label": "s2s-contract-note-docusign-integration-US-08-2",
+          "labels": [
+            "s2s-contract-note-docusign-integration",
+            "s2s-contract-note-docusign-integration-US-08-2",
+            "optional"
+          ],
+          "requirements": [
+            "1",
+            "6",
+            "7",
+            "9"
+          ],
+          "optional": true
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-02",
+      "via": [
+        "shared-lib:docusign-types",
+        "shared-lib:retry"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-03",
+      "via": [
+        "shared-lib:docusign-types",
+        "shared-lib:retry"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-04",
+      "via": [
+        "data-table:DocuSignEnvelopes",
+        "gsi:SalesforceRefIndex",
+        "shared-lib:docusign-types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-05",
+      "via": [
+        "shared-lib:docusign-types",
+        "shared-lib:error-writer"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-02",
+      "inward": "US-05",
+      "via": [
+        "service:salesforce-client"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-03",
+      "inward": "US-05",
+      "via": [
+        "service:docusign-client"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-04",
+      "inward": "US-05",
+      "via": [
+        "service:metadata-service"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-06",
+      "via": [
+        "cdk-construct:DocuSignPipeline",
+        "s3-bucket:signed-contract-notes",
+        "shared-lib:error-writer"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-02",
+      "inward": "US-06",
+      "via": [
+        "service:salesforce-client"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-03",
+      "inward": "US-06",
+      "via": [
+        "service:docusign-client"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-04",
+      "inward": "US-06",
+      "via": [
+        "service:metadata-service"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-05",
+      "inward": "US-08",
+      "via": [
+        "lambda:send-envelope"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-06",
+      "inward": "US-08",
+      "via": [
+        "api-endpoint:POST /docusign-webhook",
+        "lambda:webhook"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-07",
+      "inward": "US-08",
+      "via": [
+        "state-machine:render-metadata-passthrough"
+      ]
+    }
+  ],
+  "waves": [
+    [
+      "US-01",
+      "US-07"
+    ],
+    [
+      "US-02",
+      "US-03",
+      "US-04"
+    ],
+    [
+      "US-05",
+      "US-06"
+    ],
+    [
+      "US-08"
+    ]
+  ]
+}

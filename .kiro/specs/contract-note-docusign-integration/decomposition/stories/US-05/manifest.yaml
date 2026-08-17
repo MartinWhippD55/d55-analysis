@@ -1,0 +1,55 @@
+id: US-05
+title: Send Envelope Lambda
+userStory: As a system operator, I want a Lambda that, on the SendEnvelope task, reads
+  the contract metadata, looks up the customer, and creates a DocuSign envelope idempotently,
+  so that signing starts automatically without duplicates.
+coversRequirements:
+- '1'
+- '2'
+- '3'
+- '4'
+- '5'
+- '10'
+exports:
+- lambda:send-envelope
+dependsOn:
+- service:salesforce-client
+- service:docusign-client
+- service:metadata-service
+- shared-lib:docusign-types
+- shared-lib:error-writer
+subtasks:
+- id: US-05-1
+  title: SendEnvelope task handler + contract-metadata extraction from the state payload;
+    validate required fields (halt if missing); idempotency check by contract note
+    S3 key
+  requirements:
+  - '1'
+  optional: false
+- id: US-05-2
+  title: 'Send-envelope orchestration: Salesforce lookup -> DocuSign auth -> create
+    envelope -> store metadata; on failure write error record + structured CloudWatch
+    log'
+  requirements:
+  - '1'
+  - '2'
+  - '3'
+  - '4'
+  - '5'
+  - '10'
+  optional: false
+- id: US-05-3
+  title: 'Property tests for the send flow (Property 1: trigger-to-envelope correlation
+    / idempotency)'
+  requirements:
+  - '1'
+  - '4'
+  - '5'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-docusign-integration
+  labels:
+  - backend
+  - lambda
+  estimateDays: 1.5

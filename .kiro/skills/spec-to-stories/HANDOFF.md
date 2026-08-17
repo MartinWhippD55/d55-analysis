@@ -368,3 +368,25 @@ sub-task descriptions** (see step 5 "Still to do"). Pick up by either:
 - **Starting step 3** (`share-mcp-config`) — independent of the above.
 - If the MCP is disconnected, ensure `.kiro/settings/atlassian.env` still holds a valid
   token and reconnect the `atlassian` server from the Kiro MCP panel.
+
+---
+
+## Estimate 2 (DocuSign) decomposition — ready for jira-push (2026-08-17)
+
+The **`contract-note-docusign-integration`** spec (Estimate 2) has been run through the
+full local pipeline and is **ready for the live Jira push**:
+
+- **spec-to-stories** → 8 stories (US-01..US-08), 4 waves, `ok: true`, all 12 parent
+  requirements covered; 24 mini-spec files pass `getDiagnostics` clean.
+- **decomposition-to-jira** → `jira-plan.json`: 1 epic, 8 stories, 25 sub-tasks, 14
+  blocks-links.
+- **jira-tree** → enriched + validated mirror at
+  `.kiro/specs/contract-note-docusign-integration/decomposition/jira-tree/`
+  (`validate_tree` → `[]`, `find_placeholders` → `0`).
+
+**Next step = jira-push, gated on user go-ahead, `TEST` sandbox first.** A dedicated,
+self-contained handoff for a fresh session lives at
+`.kiro/specs/contract-note-docusign-integration/decomposition/PUSH-HANDOFF.md` — start
+there. Set label `s2s-contract-note-docusign-integration` (distinct from Estimate 1's
+`s2s-contract-note-template-management`, so no collision). The whole `decomposition/`
+folder is currently **untracked on `main`** — not yet committed.

@@ -1,0 +1,27 @@
+id: US-07
+title: Estimate 1 metadata surfacing (Requirement 12)
+userStory: As a developer, I want the Estimate 1 render pipeline to surface the customer
+  reference and related metadata alongside the produced PDF, so that the DocuSign
+  pipeline knows who to send each contract note to.
+coversRequirements:
+- '12'
+exports:
+- state-machine:render-metadata-passthrough
+dependsOn: []
+subtasks:
+- id: US-07-1
+  title: Extend render/parse-input.ts buildContractSummary to extract customersalesforceref,
+    offerReference and customerName; thread Contract_Metadata through the state payload
+    from parseInput to write-output and on to the SendEnvelope task. Coordinate with
+    Estimate 1 owner (Jabez)
+  requirements:
+  - '12'
+  optional: false
+jira:
+  issueType: Story
+  epic: contract-note-docusign-integration
+  labels:
+  - backend
+  - estimate-1
+  - cross-team
+  estimateDays: 1.0

@@ -1,0 +1,46 @@
+id: US-08
+title: Integration wiring & deployment
+userStory: As a system operator, I want the DocuSign construct wired into the stack,
+  the SendEnvelope task appended to the render state machine with its own catch, and
+  the webhook route connected, so that the whole pipeline deploys and runs end to
+  end.
+coversRequirements:
+- '1'
+- '6'
+- '11'
+exports:
+- cdk-instance:deployment
+dependsOn:
+- lambda:send-envelope
+- lambda:webhook
+- api-endpoint:POST /docusign-webhook
+- state-machine:render-metadata-passthrough
+subtasks:
+- id: US-08-1
+  title: Wire DocuSignPipeline into ContractNoteStack; append the SendEnvelope LambdaInvoke
+    task after WriteOutput with its OWN DocuSign-specific catch (not render handleFailure)
+    and its own retry/timeout; connect the API Gateway webhook route to the Webhook
+    Lambda; set env vars (table, buckets, webhook URL, secret ARNs); finalise least-privilege
+    IAM
+  requirements:
+  - '1'
+  - '6'
+  - '11'
+  optional: false
+- id: US-08-2
+  title: Integration tests for the full pipeline flow (SendEnvelope -> DynamoDB record;
+    valid webhook -> signed PDF in S3; invalid HMAC -> 401; declined -> notification
+    in error bucket)
+  requirements:
+  - '1'
+  - '6'
+  - '7'
+  - '9'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-docusign-integration
+  labels:
+  - infra
+  - integration
+  estimateDays: 1.5

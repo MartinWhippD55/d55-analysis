@@ -1,0 +1,110 @@
+parentSpec: contract-note-docusign-integration
+stories:
+- US-01
+- US-02
+- US-03
+- US-04
+- US-05
+- US-06
+- US-07
+- US-08
+components:
+  api-endpoint:POST /docusign-webhook: US-06
+  cdk-construct:DocuSignPipeline: US-01
+  cdk-instance:deployment: US-08
+  data-table:DocuSignEnvelopes: US-01
+  gsi:SalesforceRefIndex: US-01
+  lambda:send-envelope: US-05
+  lambda:webhook: US-06
+  s3-bucket:signed-contract-notes: US-01
+  service:docusign-client: US-03
+  service:metadata-service: US-04
+  service:salesforce-client: US-02
+  shared-lib:docusign-types: US-01
+  shared-lib:error-writer: US-01
+  shared-lib:retry: US-01
+  state-machine:render-metadata-passthrough: US-07
+edges:
+- from: US-02
+  to: US-01
+  via:
+  - shared-lib:docusign-types
+  - shared-lib:retry
+- from: US-03
+  to: US-01
+  via:
+  - shared-lib:docusign-types
+  - shared-lib:retry
+- from: US-04
+  to: US-01
+  via:
+  - data-table:DocuSignEnvelopes
+  - gsi:SalesforceRefIndex
+  - shared-lib:docusign-types
+- from: US-05
+  to: US-01
+  via:
+  - shared-lib:docusign-types
+  - shared-lib:error-writer
+- from: US-05
+  to: US-02
+  via:
+  - service:salesforce-client
+- from: US-05
+  to: US-03
+  via:
+  - service:docusign-client
+- from: US-05
+  to: US-04
+  via:
+  - service:metadata-service
+- from: US-06
+  to: US-01
+  via:
+  - cdk-construct:DocuSignPipeline
+  - s3-bucket:signed-contract-notes
+  - shared-lib:error-writer
+- from: US-06
+  to: US-02
+  via:
+  - service:salesforce-client
+- from: US-06
+  to: US-03
+  via:
+  - service:docusign-client
+- from: US-06
+  to: US-04
+  via:
+  - service:metadata-service
+- from: US-08
+  to: US-05
+  via:
+  - lambda:send-envelope
+- from: US-08
+  to: US-06
+  via:
+  - api-endpoint:POST /docusign-webhook
+  - lambda:webhook
+- from: US-08
+  to: US-07
+  via:
+  - state-machine:render-metadata-passthrough
+waves:
+- wave: 1
+  stories:
+  - US-01
+  - US-07
+- wave: 2
+  stories:
+  - US-02
+  - US-03
+  - US-04
+- wave: 3
+  stories:
+  - US-05
+  - US-06
+- wave: 4
+  stories:
+  - US-08
+issues: []
+ok: true

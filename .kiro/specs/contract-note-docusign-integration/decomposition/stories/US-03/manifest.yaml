@@ -1,0 +1,53 @@
+id: US-03
+title: DocuSign integration client
+userStory: As a system operator, I want a DocuSign client that authenticates via JWT,
+  creates/sends envelopes, downloads signed documents, and validates webhook signatures,
+  so that the pipeline can drive e-signature end to end.
+coversRequirements:
+- '3'
+- '4'
+- '6'
+- '7'
+exports:
+- service:docusign-client
+dependsOn:
+- shared-lib:docusign-types
+- shared-lib:retry
+subtasks:
+- id: US-03-1
+  title: 'DocuSign JWT authentication: build assertion (integration key, impersonated
+    user, scope), exchange for access token, cache + refresh before expiry'
+  requirements:
+  - '3'
+  optional: false
+- id: US-03-2
+  title: 'Envelope creation: document (base64 PDF), signer recipient, signing tab,
+    per-envelope Connect webhook, status ''sent''; return envelope ID'
+  requirements:
+  - '4'
+  optional: false
+- id: US-03-3
+  title: Signed document download (combined) by envelope ID, using the retry utility
+  requirements:
+  - '7'
+  optional: false
+- id: US-03-4
+  title: HMAC webhook signature validation (X-DocuSign-Signature-1, HMAC-SHA256)
+  requirements:
+  - '6'
+  optional: false
+- id: US-03-5
+  title: 'Property tests for the DocuSign client (Property 4: token management; Property
+    5: envelope contents; Property 6: HMAC validation)'
+  requirements:
+  - '3'
+  - '4'
+  - '6'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-docusign-integration
+  labels:
+  - backend
+  - docusign
+  estimateDays: 2.5

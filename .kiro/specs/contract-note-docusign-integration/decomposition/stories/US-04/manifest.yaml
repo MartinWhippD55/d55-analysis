@@ -1,0 +1,32 @@
+id: US-04
+title: Envelope metadata service
+userStory: As a developer, I want envelope metadata persisted and queryable, so that
+  the webhook can find records by envelope ID and I can debug by Salesforce reference.
+coversRequirements:
+- '5'
+exports:
+- service:metadata-service
+dependsOn:
+- shared-lib:docusign-types
+- data-table:DocuSignEnvelopes
+- gsi:SalesforceRefIndex
+subtasks:
+- id: US-04-1
+  title: 'DynamoDB metadata operations: create record on send, get by envelope ID,
+    update status on webhook events, query by Salesforce_Ref via GSI'
+  requirements:
+  - '5'
+  optional: false
+- id: US-04-2
+  title: 'Property tests for the metadata service (Property 8: record reflects current
+    status)'
+  requirements:
+  - '5'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-docusign-integration
+  labels:
+  - backend
+  - data
+  estimateDays: 1.0

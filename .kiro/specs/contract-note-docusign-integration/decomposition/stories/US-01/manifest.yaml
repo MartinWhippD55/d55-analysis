@@ -1,0 +1,59 @@
+id: US-01
+title: 'Foundation: DocuSign pipeline infra, shared types & utilities'
+userStory: As a developer, I want the DocuSign pipeline's base infrastructure (envelope
+  table, signed-docs bucket, credential secrets, webhook API surface), the shared
+  TypeScript types, and the retry + error-writer utilities, so that every other story
+  has a stable foundation to build on.
+coversRequirements:
+- '5'
+- '6'
+- '7'
+- '8'
+- '10'
+- '11'
+exports:
+- shared-lib:docusign-types
+- shared-lib:retry
+- shared-lib:error-writer
+- cdk-construct:DocuSignPipeline
+- data-table:DocuSignEnvelopes
+- gsi:SalesforceRefIndex
+- s3-bucket:signed-contract-notes
+dependsOn: []
+subtasks:
+- id: US-01-1
+  title: 'DocuSignPipeline CDK construct: envelopes table + SalesforceRefIndex GSI,
+    signed-contract-notes bucket, DocuSign/Salesforce secret placeholders, webhook
+    API route surface, least-privilege IAM scaffolding, CfnOutputs; reuse Estimate
+    1''s error bucket (docusign/ prefix)'
+  requirements:
+  - '6'
+  - '11'
+  optional: false
+- id: US-01-2
+  title: Shared TypeScript interfaces and types (EnvelopeRecord, EnvelopeStatus, ContractMetadata,
+    SalesforceContact, CreateEnvelopeRequest, DocuSignWebhookEvent, error-record type)
+    in shared-lib/src
+  requirements:
+  - '5'
+  - '6'
+  optional: false
+- id: US-01-3
+  title: Retry utility with exponential backoff (1s/2s/4s + jitter), configurable
+    per-call
+  requirements:
+  - '7'
+  - '8'
+  optional: false
+- id: US-01-4
+  title: Error record writer utility (JSON records to the reused error bucket)
+  requirements:
+  - '10'
+  optional: false
+jira:
+  issueType: Story
+  epic: contract-note-docusign-integration
+  labels:
+  - infra
+  - backend
+  estimateDays: 2.5

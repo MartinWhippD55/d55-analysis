@@ -1,0 +1,58 @@
+id: US-06
+title: Webhook Lambda (completion + declined/expired)
+userStory: As a system operator, I want a webhook Lambda that validates DocuSign callbacks
+  and, on completion, stores the signed PDF in S3 and Salesforce (or notifies on declined/expired),
+  so that post-signing actions happen automatically.
+coversRequirements:
+- '6'
+- '7'
+- '8'
+- '9'
+- '10'
+exports:
+- lambda:webhook
+- api-endpoint:POST /docusign-webhook
+dependsOn:
+- service:salesforce-client
+- service:docusign-client
+- service:metadata-service
+- s3-bucket:signed-contract-notes
+- shared-lib:error-writer
+- cdk-construct:DocuSignPipeline
+subtasks:
+- id: US-06-1
+  title: 'Webhook request handler: HMAC validation (401 if invalid), parse event,
+    route by status, return 200 to acknowledge'
+  requirements:
+  - '6'
+  optional: false
+- id: US-06-2
+  title: 'Completion flow: download signed PDF (retries) -> store in S3 -> upload
+    to Salesforce (retries) -> update metadata; on final failure write to error bucket'
+  requirements:
+  - '7'
+  - '8'
+  optional: false
+- id: US-06-3
+  title: 'Declined/expired flow: update metadata with status + reason, write notification
+    record to the error bucket'
+  requirements:
+  - '9'
+  optional: false
+- id: US-06-4
+  title: 'Property tests for the webhook handler (Property 7: completed -> S3 + Salesforce;
+    Property 9: declined/expired notification; Property 10: no partial state)'
+  requirements:
+  - '7'
+  - '8'
+  - '9'
+  - '10'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-docusign-integration
+  labels:
+  - backend
+  - lambda
+  - api
+  estimateDays: 2.0
