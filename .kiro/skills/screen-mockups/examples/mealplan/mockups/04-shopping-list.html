@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping List - Wireframe</title>
+    <link rel="stylesheet" href="wireframe.css">
+    <style>
+        .subhead { padding: 10px 24px; border-bottom: 1.5px dashed #aaa; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #888; }
+        .store-select { border: 1.5px solid #555; border-radius: 3px; padding: 5px 10px; font-family: inherit; font-size: 13px; }
+        .check { width: 18px; height: 18px; border: 1.5px solid #555; border-radius: 3px; display: inline-block; }
+        .check.done { background: #333; }
+        .done-row td { color: #aaa; text-decoration: line-through; }
+        .oos { color: #333; font-size: 11px; border: 1px solid #333; border-radius: 3px; padding: 1px 6px; }
+        .instock { color: #888; font-size: 11px; }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="container">
+        <div class="header">
+            <h1>Shopping List</h1>
+            <button class="btn">Order via Tesco</button>
+        </div>
+        <div class="subhead">
+            <span>Aggregated from 4 recipes &middot; week of 3 Aug</span>
+            <span>Supermarket: <select class="store-select"><option>Tesco</option><option>Sainsbury's</option><option>ASDA</option></select></span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:40px;"></th>
+                    <th>Ingredient</th>
+                    <th style="width:90px;">Qty</th>
+                    <th>Matched product</th>
+                    <th style="width:80px;">Price</th>
+                    <th style="width:110px;">Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="check"></span></td>
+                    <td>Chicken thighs</td>
+                    <td>8 pieces</td>
+                    <td>Tesco Chicken Thigh Fillets 1kg</td>
+                    <td>&pound;4.50</td>
+                    <td><span class="instock">In stock</span></td>
+                </tr>
+                <tr>
+                    <td><span class="check"></span></td>
+                    <td>Baby potatoes</td>
+                    <td>600 g</td>
+                    <td>Tesco Baby Potatoes 1kg</td>
+                    <td>&pound;1.20</td>
+                    <td><span class="instock">In stock</span></td>
+                </tr>
+                <tr class="done-row">
+                    <td><span class="check done"></span></td>
+                    <td>Olive oil</td>
+                    <td>3 tbsp</td>
+                    <td>Tesco Olive Oil 500ml <span class="badge">in trolley</span></td>
+                    <td>&pound;3.00</td>
+                    <td><span class="instock">In stock</span></td>
+                </tr>
+                <tr>
+                    <td><span class="check"></span></td>
+                    <td>Green beans</td>
+                    <td>200 g</td>
+                    <td>Tesco Fine Green Beans 220g</td>
+                    <td>&pound;0.95</td>
+                    <td><span class="oos">Out of stock</span></td>
+                </tr>
+                <tr>
+                    <td><span class="check"></span></td>
+                    <td>Chickpeas</td>
+                    <td>2 tins</td>
+                    <td>Tesco Chickpeas In Water 400g</td>
+                    <td>&pound;0.90</td>
+                    <td><span class="instock">In stock</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="note">Prices and stock pulled live from the connected supermarket. Out-of-stock items suggest a swap. Estimated total: &pound;10.55</div>
+    </div>
+</body>
+</html>

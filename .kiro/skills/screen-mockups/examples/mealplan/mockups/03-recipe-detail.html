@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Detail - Wireframe</title>
+    <link rel="stylesheet" href="wireframe.css">
+    <style>
+        .modal-body { padding: 0; }
+        .ingredients { flex: 1; padding: 20px 24px; border-right: 1.5px dashed #aaa; }
+        .ingredients ul { list-style: none; }
+        .ingredients li { padding: 8px 0; border-bottom: 1px dashed #ccc; font-size: 14px; display: flex; justify-content: space-between; }
+        .ingredients li .qty { color: #888; }
+        .side { width: 260px; padding: 20px 24px; }
+        .meta-row { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 1px dashed #ccc; }
+        .meta-row label { color: #888; }
+        .servings-ctl { display: flex; align-items: center; gap: 8px; margin: 14px 0; }
+        .stepper { border: 1.5px solid #555; border-radius: 3px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+    </style>
+</head>
+<body class="modal-mode">
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="modal">
+        <div class="modal-header">
+            <h2>One-Pan Lemon Chicken <span class="badge">Mob</span></h2>
+            <button class="btn-sm">Close</button>
+        </div>
+        <div class="modal-body">
+            <div class="ingredients">
+                <div class="panel-heading">Ingredients</div>
+                <ul>
+                    <li><span>Chicken thighs</span><span class="qty">8 pieces</span></li>
+                    <li><span>Baby potatoes</span><span class="qty">600 g</span></li>
+                    <li><span>Lemon</span><span class="qty">2</span></li>
+                    <li><span>Garlic</span><span class="qty">4 cloves</span></li>
+                    <li><span>Green beans</span><span class="qty">200 g</span></li>
+                    <li><span>Olive oil</span><span class="qty">3 tbsp</span></li>
+                </ul>
+            </div>
+            <div class="side">
+                <div class="servings-ctl">
+                    <span class="stepper">&minus;</span>
+                    <span>4 servings</span>
+                    <span class="stepper">+</span>
+                </div>
+                <div class="meta-row"><label>Total time</label><span>25 min</span></div>
+                <div class="meta-row"><label>Calories</label><span>540 / serving</span></div>
+                <div class="meta-row"><label>Provider</label><span>Mob</span></div>
+                <div class="meta-row"><label>Source</label><span>View original &#x2197;</span></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-sm">Cancel</button>
+            <button class="btn">+ Add to Meal Plan</button>
+        </div>
+    </div>
+</body>
+</html>

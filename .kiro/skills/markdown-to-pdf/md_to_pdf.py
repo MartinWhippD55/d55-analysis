@@ -43,6 +43,10 @@ CLIENT_LOGOS = {
     "sample": ASSETS / "sample-client-logo.png",
 }
 
+# Directory that relative image paths in the Markdown are resolved against.
+# Set to the source file's folder in main(); falls back to the CWD.
+SOURCE_DIR = Path(".")
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -51,6 +55,21 @@ CLIENT_LOGOS = {
 def b64_uri(path: Path) -> str:
     mime = mimetypes.guess_type(str(path))[0] or "image/png"
     return f"data:{mime};base64," + base64.b64encode(path.read_bytes()).decode()
+
+
+def resolve_image_src(src: str) -> str:
+    """Return an embeddable src for an image reference.
+
+    Local paths (relative to the Markdown file, then the CWD) are base64-embedded
+    so the output stays self-contained. Remote (http/https/data) URIs pass through.
+    """
+    if re.match(r"^(https?:|data:)", src):
+        return src
+    candidates = [SOURCE_DIR / src, Path(src)]
+    for cand in candidates:
+        if cand.exists():
+            return b64_uri(cand)
+    return src  # leave as-is; browser will simply show a broken image
 
 
 def esc(text: str) -> str:
@@ -98,6 +117,19 @@ def inline(text: str) -> str:
 
     text = re.sub(r"`([^`]+)`", _stash, text)
     text = esc(text)
+    # pill badges  {{color:label}}  e.g. {{green:Checked OK}}
+    # (colon separator, not pipe, so pills work inside GFM table cells)
+    text = re.sub(
+        r"\{\{(green|red|amber|blue|grey|gray):([^}]+)\}\}",
+        lambda m: f'<span class="pill pill-{"grey" if m.group(1) == "gray" else m.group(1)}">{m.group(2).strip()}</span>',
+        text,
+    )
+    # images ![alt](src)  (before links, which share bracket syntax)
+    text = re.sub(
+        r"!\[([^\]]*)\]\(([^)\s]+)\)",
+        lambda m: f'<img src="{resolve_image_src(m.group(2))}" alt="{m.group(1)}">',
+        text,
+    )
     # links [text](url)
     text = re.sub(
         r"\[([^\]]+)\]\(([^)\s]+)\)",
@@ -144,7 +176,17 @@ def render_table(header, rows):
 
 
 def render_callout(lines):
-    """Blockquote -> callout. A leading **bold** line becomes the heading."""
+    """Blockquote -> callout. A leading **bold** line becomes the heading.
+
+    A leading ``{{check}}`` marker flags the callout as verified, adding a green
+    check badge in the top-right corner.
+    """
+    checked = False
+    if lines and lines[0].lstrip().startswith("{{check}}"):
+        checked = True
+        lines = list(lines)
+        lines[0] = lines[0].lstrip()[len("{{check}}"):].lstrip()
+
     inner = ""
     if lines and re.match(r"^\*\*.+\*\*", lines[0]):
         m = re.match(r"^\*\*(.+?)\*\*[:：]?\s*(.*)$", lines[0])
@@ -156,7 +198,9 @@ def render_callout(lines):
     para = " ".join(remaining).strip()
     if para:
         inner += f"<p>{inline(para)}</p>"
-    return f'<section class="callout">{inner}</section>'
+    cls = "callout callout-check" if checked else "callout"
+    badge = '<span class="callout-check-mark">&#10003;</span>' if checked else ""
+    return f'<section class="{cls}">{badge}{inner}</section>'
 
 
 def markdown_to_html(md: str) -> str:
@@ -197,6 +241,18 @@ def markdown_to_html(md: str) -> str:
         if h:
             level = len(h.group(1))
             out.append(f"<h{level}>{inline(h.group(2).strip())}</h{level}>")
+            i += 1
+            continue
+
+        # standalone image -> figure (optional alt becomes a caption)
+        img = re.match(r"^!\[([^\]]*)\]\(([^)\s]+)\)\s*$", stripped)
+        if img:
+            alt, src = img.group(1), img.group(2)
+            cap = f"<figcaption>{inline(alt)}</figcaption>" if alt.strip() else ""
+            out.append(
+                f'<figure class="figure">'
+                f'<img src="{resolve_image_src(src)}" alt="{esc(alt)}">{cap}</figure>'
+            )
             i += 1
             continue
 
@@ -307,8 +363,10 @@ table.data-table th {{ background: #1a0a3e; color: #d7ecfa; text-align: left; pa
 table.data-table td {{ padding: 6px 10px; border-bottom: 1px solid #e6e6f0; vertical-align: top; }}
 table.data-table tr:nth-child(even) td {{ background: #f6f6fb; }}
 
-.callout {{ background: #f0f6fc; border-left: 4px solid #5dade2; padding: 13px 17px; border-radius: 0 4px 4px 0; margin: 10px 0 14px; }}
+.callout {{ position: relative; background: #f0f6fc; border-left: 4px solid #5dade2; padding: 13px 17px; border-radius: 0 4px 4px 0; margin: 10px 0 14px; }}
 .callout h3 {{ color: #0a4a8c; margin-bottom: 6px; }}
+.callout-check {{ padding-right: 46px; }}
+.callout-check-mark {{ position: absolute; top: 12px; right: 14px; width: 22px; height: 22px; border-radius: 50%; background: #2e9e6b; color: #fff; font-size: 12pt; font-weight: 700; line-height: 22px; text-align: center; }}
 
 pre.code {{ background: #1a0a3e; color: #e7edf5; padding: 12px 14px; border-radius: 5px; font-size: 8.5pt; overflow-x: auto; margin: 8px 0 12px; }}
 pre.code code {{ font-family: 'Consolas','Monaco',monospace; }}
@@ -316,6 +374,18 @@ code {{ font-family: 'Consolas','Monaco',monospace; background: #eef0f6; color: 
 pre.code code {{ background: none; color: inherit; padding: 0; }}
 a {{ color: #0a4a8c; text-decoration: none; }}
 hr.divider {{ border: none; border-top: 1px solid #e2e2ee; margin: 16px 0; }}
+
+.pill {{ display: inline-block; margin: 2px 3px 2px 0; padding: 2px 9px; border-radius: 999px; font-size: 8pt; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap; }}
+.pill-green {{ background: #e4f6ec; color: #1f7a52; border: 1px solid #b7e0cc; }}
+.pill-red {{ background: #fdece8; color: #b23c25; border: 1px solid #f2c3b8; }}
+.pill-amber {{ background: #fdf6e3; color: #8a6a13; border: 1px solid #ecdca0; }}
+.pill-blue {{ background: #e7f1fb; color: #0a4a8c; border: 1px solid #bcd8f2; }}
+.pill-grey {{ background: #eef0f4; color: #4a4f63; border: 1px solid #d5d9e2; }}
+
+figure.figure {{ margin: 12px 0 16px; text-align: center; break-inside: avoid; page-break-inside: avoid; }}
+figure.figure img {{ max-width: 100%; height: auto; border: 1px solid #e2e2ee; border-radius: 6px; }}
+figure.figure figcaption {{ font-size: 8.5pt; color: #6b7185; margin-top: 6px; font-style: italic; }}
+p img {{ max-width: 100%; height: auto; }}
 
 /* Page-break control */
 h1,h2,h3,h4 {{ break-after: avoid; page-break-after: avoid; }}
@@ -407,6 +477,9 @@ def main():
     src = Path(args.source)
     if not src.exists():
         raise SystemExit(f"Markdown file not found: {src}")
+
+    global SOURCE_DIR
+    SOURCE_DIR = src.resolve().parent
 
     meta, body = split_front_matter(src.read_text(encoding="utf-8"))
 

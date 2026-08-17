@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Meal Plan - Wireframe</title>
+    <link rel="stylesheet" href="wireframe.css">
+    <style>
+        .subhead { padding: 10px 24px; border-bottom: 1.5px dashed #aaa; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #888; }
+        .week { display: flex; gap: 0; }
+        .day { flex: 1; border-right: 1.5px dashed #aaa; min-height: 320px; }
+        .day:last-child { border-right: none; }
+        .day-name { text-align: center; font-size: 13px; padding: 8px; border-bottom: 1.5px dashed #aaa; background: #f9f9f9; }
+        .slot { padding: 8px; border-bottom: 1px dashed #ccc; font-size: 12px; }
+        .slot .meal-type { color: #aaa; font-size: 10px; text-transform: uppercase; }
+        .meal { border: 1.5px solid #555; border-radius: 3px; padding: 6px; margin-top: 4px; }
+        .meal .servings { color: #888; font-size: 10px; }
+        .add-slot { color: #aaa; border: 1.5px dashed #ccc; border-radius: 3px; padding: 6px; margin-top: 4px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="container">
+        <div class="header">
+            <h1>Meal Plan</h1>
+            <button class="btn">+ Add Meal</button>
+        </div>
+        <div class="subhead">
+            <span>&#x2039; Week of 3 Aug 2026 &#x203A;</span>
+            <span>4 recipes planned &middot; 1 slot to fill</span>
+        </div>
+        <div class="week">
+            <div class="day">
+                <div class="day-name">Mon</div>
+                <div class="slot"><span class="meal-type">Dinner</span>
+                    <div class="meal">Miso Salmon Bowl<div class="servings">2 servings &middot; BBC Good Food</div></div>
+                </div>
+            </div>
+            <div class="day">
+                <div class="day-name">Tue</div>
+                <div class="slot"><span class="meal-type">Dinner</span>
+                    <div class="meal">Chickpea Curry<div class="servings">4 servings &middot; Mob</div></div>
+                </div>
+            </div>
+            <div class="day">
+                <div class="day-name">Wed</div>
+                <div class="slot"><span class="meal-type">Dinner</span>
+                    <div class="add-slot">+ add recipe</div>
+                </div>
+            </div>
+            <div class="day">
+                <div class="day-name">Thu</div>
+                <div class="slot"><span class="meal-type">Dinner</span>
+                    <div class="meal">Sheet-Pan Chicken<div class="servings">3 servings &middot; NYT Cooking</div></div>
+                </div>
+            </div>
+            <div class="day">
+                <div class="day-name">Fri</div>
+                <div class="slot"><span class="meal-type">Dinner</span>
+                    <div class="meal">Margherita Pizza<div class="servings">2 servings &middot; Mob</div></div>
+                </div>
+            </div>
+            <div class="day">
+                <div class="day-name">Sat</div>
+                <div class="slot"><span class="meal-type">Dinner</span>
+                    <div class="add-slot">+ add recipe</div>
+                </div>
+            </div>
+            <div class="day">
+                <div class="day-name">Sun</div>
+                <div class="slot"><span class="meal-type">Dinner</span>
+                    <div class="add-slot">+ add recipe</div>
+                </div>
+            </div>
+        </div>
+        <div class="note">Drag a recipe between days to reschedule. "Build Shopping List" aggregates ingredients across the week.</div>
+        <div class="footer">
+            <button class="btn-sm">Discover Recipes</button>
+            <button class="btn">Build Shopping List</button>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+# scratch output from test runs of this skill
+_scratch/

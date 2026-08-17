@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Service Interaction Diagram</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #eef1f6; font-family: 'Inter','Segoe UI',sans-serif; }
+
+    #diagram {
+        width: 1400px;
+        padding: 40px;
+        background: #eef1f6;
+    }
+
+    /* Region boundary: the hero of the data-sovereignty story */
+    .region {
+        position: relative;
+        background: #ffffff;
+        border: 1.5px solid #d7dce6;
+        border-top: 5px solid #2e9e6b;
+        border-radius: 14px;
+        padding: 26px 28px 30px;
+        box-shadow: 0 10px 30px rgba(26,10,62,0.10);
+    }
+    .region-head { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+    .region-badge {
+        display: inline-flex; align-items: center; gap: 9px;
+        background: #eaf7f0; color: #1f7a52;
+        border: 1px solid #b7e0cc;
+        font-weight: 700; font-size: 15px;
+        padding: 8px 15px; border-radius: 999px;
+    }
+    .region-badge .pin { width: 10px; height: 10px; border-radius: 50%; background: #2e9e6b; }
+    .region-note { font-size: 13px; color: #6b7185; }
+
+    /* Lanes */
+    .lane { padding: 16px 0; }
+    .lane + .lane { border-top: 1px dashed #dfe3ec; margin-top: 6px; }
+    .lane-head {
+        display: flex; align-items: center; gap: 9px;
+        font-size: 12px; font-weight: 700; letter-spacing: 0.4px;
+        text-transform: uppercase; color: #4a4f63; margin-bottom: 16px;
+    }
+    .lane-head .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot.clean { background: #5dade2; }
+    .dot.pii { background: #e2725d; }
+
+    .row { display: flex; align-items: stretch; gap: 4px; flex-wrap: nowrap; }
+    .row.sub { margin-top: 14px; gap: 14px; align-items: center; }
+    .stack { display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+
+    /* Nodes */
+    .node {
+        flex: 1 1 0;
+        min-width: 120px;
+        background: #f7f9fc;
+        border: 1px solid #e2e6ef;
+        border-left: 4px solid #b9c2d4;
+        border-radius: 9px;
+        padding: 12px 14px;
+        display: flex; flex-direction: column; justify-content: center;
+    }
+    .node .nm { font-size: 14px; font-weight: 700; color: #1a0a3e; line-height: 1.2; }
+    .node span { display: block; font-size: 11.5px; color: #6b7185; margin-top: 4px; line-height: 1.35; }
+    .node.sm { flex: 0 1 auto; }
+
+    .node.clean { border-left-color: #5dade2; }
+    .node.pii   { border-left-color: #e2725d; background: #fdf3f0; }
+    .node.warn  { border-left-color: #e2a83d; background: #fdf8ee; }
+    .node.edge  { border-left-color: #8a7bb8; }
+    .node.cog   { border-left-color: #5dade2; background: #fff; }
+    .node.ext {
+        border: 1.5px dashed #b3b8c9;
+        border-left: 4px dashed #9aa0b4;
+        background: #f2f3f7;
+    }
+    .node.ext .nm { color: #3f4256; }
+
+    /* PII chip */
+    .node.pii .nm::after {
+        content: 'PII';
+        font-size: 9px; font-weight: 800; letter-spacing: 0.5px;
+        color: #fff; background: #e2725d;
+        padding: 1px 6px; border-radius: 8px; margin-left: 8px; vertical-align: middle;
+    }
+
+    /* Connectors */
+    .conn {
+        flex: 0 0 26px;
+        display: flex; align-items: center; justify-content: center;
+        color: #9aa0b4; font-size: 20px; font-weight: 700;
+    }
+
+    .aux { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding-left: 2px; }
+    .aux .node { flex: 0 0 auto; }
+    .auxnote { font-size: 12px; color: #8a8fa0; font-style: italic; }
+
+    .annot {
+        flex: 1 1 auto;
+        font-size: 11.5px; color: #7a8096; font-style: italic;
+        border-left: 2px solid #e2e6ef; padding-left: 12px; line-height: 1.45;
+    }
+
+    /* Legend */
+    .legend { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 20px; padding-left: 4px; }
+    .legend .item { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: #4a4f63; }
+    .legend .sw { width: 15px; height: 15px; border-radius: 4px; border: 1px solid; }
+    .sw.clean { background: #f7f9fc; border-color: #5dade2; border-left: 4px solid #5dade2; }
+    .sw.pii   { background: #fdf3f0; border-color: #e2725d; border-left: 4px solid #e2725d; }
+    .sw.ext   { background: #f2f3f7; border: 1.5px dashed #9aa0b4; }
+    .sw.region{ background: #eaf7f0; border-color: #2e9e6b; }
+</style>
+</head>
+<body>
+<div id="diagram">
+    <div class="region">
+        <div class="region-head">
+            <span class="region-badge"><span class="pin"></span>Bryt AWS estate &middot; eu-west-2 (London)</span>
+            <span class="region-note">Everything inside this boundary is self-hosted in Bryt&rsquo;s own AWS account. pdf-me runs in-process; no third-party service.</span>
+        </div>
+
+        <div class="lane">
+            <div class="lane-head"><span class="dot clean"></span>Management plane &middot; templates &amp; metadata (no customer PII)</div>
+            <div class="row">
+                <div class="node ext"><div class="nm">Admin</div><span>business user (browser)</span></div>
+                <div class="conn">&rarr;</div>
+                <div class="node edge"><div class="nm">CloudFront</div><span>static assets &middot; global edge</span></div>
+                <div class="conn">&rarr;</div>
+                <div class="node clean"><div class="nm">Admin Portal</div><span>Angular + pdf-me Designer (client-side, MIT)</span></div>
+                <div class="conn">&rarr;</div>
+                <div class="node clean"><div class="nm">API Gateway + Lambdas</div><span>Template / Section / Rules</span></div>
+                <div class="conn">&rarr;</div>
+                <div class="stack">
+                    <div class="node clean sm"><div class="nm">DynamoDB</div><span>template metadata + staff usernames</span></div>
+                    <div class="node clean sm"><div class="nm">S3 schema JSON</div><span>templates, no customer PII</span></div>
+                </div>
+            </div>
+            <div class="aux">
+                <span class="node cog sm"><div class="nm">Cognito</div><span>staff identities</span></span>
+                <span class="auxnote">&larr; authenticates Admin Portal users</span>
+            </div>
+        </div>
+
+        <div class="lane">
+            <div class="lane-head"><span class="dot pii"></span>Render pipeline &middot; Step Functions (carries customer PII)</div>
+            <div class="row">
+                <div class="node ext"><div class="nm">Upstream</div><span>Phidex / Salesforce (contract XML)</span></div>
+                <div class="conn">&rarr;</div>
+                <div class="node pii"><div class="nm">S3 Input</div><span>XML drop &middot; S3 event trigger</span></div>
+                <div class="conn">&rarr;</div>
+                <div class="node clean"><div class="nm">Step Functions</div><span>render state machine</span></div>
+                <div class="conn">&rarr;</div>
+                <div class="node clean"><div class="nm">pdf-me generator + pdf-lib</div><span>in Lambda, MIT</span></div>
+                <div class="conn">&rarr;</div>
+                <div class="node pii"><div class="nm">S3 Output</div><span>final PDF</span></div>
+            </div>
+            <div class="row sub">
+                <div class="node pii sm"><div class="nm">S3 Error</div><span>context may hold PII</span></div>
+                <div class="node warn sm"><div class="nm">CloudWatch Logs</div><span>PII-leakage risk</span></div>
+                <div class="annot">The generator reads the pinned schema JSON from the management-plane S3 bucket. API Gateway and Step Functions emit logs to CloudWatch; on failure the state machine writes an error record instead of a PDF.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <span class="item"><span class="sw region"></span>Self-hosted in eu-west-2</span>
+        <span class="item"><span class="sw clean"></span>Templates / metadata (no customer PII)</span>
+        <span class="item"><span class="sw pii"></span>Carries customer PII</span>
+        <span class="item"><span class="sw ext"></span>External to the estate</span>
+    </div>
+</div>
+</body>
+</html>

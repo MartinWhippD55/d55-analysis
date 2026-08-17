@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Recipes - Wireframe</title>
+    <link rel="stylesheet" href="wireframe.css">
+    <style>
+        .searchbar { padding: 14px 24px; border-bottom: 1.5px dashed #aaa; display: flex; gap: 10px; }
+        .searchbar input { flex: 1; border: 1.5px solid #555; padding: 8px 12px; font-family: inherit; font-size: 14px; border-radius: 3px; }
+        .filter-row { margin-bottom: 14px; }
+        .filter-row label { display: block; font-size: 12px; color: #888; margin-bottom: 4px; }
+        .pill { display: inline-block; border: 1.5px solid #555; border-radius: 14px; padding: 3px 10px; font-size: 12px; margin: 0 4px 4px 0; }
+        .recipe-card { display: flex; align-items: center; gap: 14px; border: 1.5px solid #aaa; border-radius: 4px; padding: 12px 14px; margin-bottom: 10px; }
+        .thumb { width: 60px; height: 60px; border: 1.5px dashed #aaa; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 11px; }
+        .recipe-meta { flex: 1; }
+        .recipe-meta .title { font-size: 15px; }
+        .recipe-meta .sub { font-size: 12px; color: #888; margin-top: 2px; }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+    <div class="container">
+        <div class="header">
+            <h1>Discover Recipes</h1>
+            <button class="btn-sm">&#x2190; Back to Plan</button>
+        </div>
+        <div class="searchbar">
+            <input type="text" value="quick weeknight dinners">
+            <button class="btn">Search</button>
+        </div>
+        <div class="content">
+            <div class="left-panel">
+                <div class="filter-row">
+                    <label>Recipe provider</label>
+                    <span class="pill">BBC Good Food</span>
+                    <span class="pill">Mob</span>
+                    <span class="pill">NYT Cooking</span>
+                </div>
+                <div class="filter-row">
+                    <label>Diet</label>
+                    <span class="pill">Vegetarian</span>
+                    <span class="pill">High protein</span>
+                </div>
+                <div class="filter-row">
+                    <label>Max time</label>
+                    <input type="text" value="30 min" style="width:100%; border:1.5px solid #555; padding:6px 10px; font-family:inherit; border-radius:3px;">
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="panel-heading">18 results across 3 providers</div>
+                <div class="recipe-card">
+                    <div class="thumb">img</div>
+                    <div class="recipe-meta">
+                        <div class="title">One-Pan Lemon Chicken</div>
+                        <div class="sub">25 min &middot; serves 4 &middot; <span class="badge">Mob</span></div>
+                    </div>
+                    <button class="btn-sm">View</button>
+                    <button class="btn-sm">+ Add to plan</button>
+                </div>
+                <div class="recipe-card">
+                    <div class="thumb">img</div>
+                    <div class="recipe-meta">
+                        <div class="title">Roasted Veg Orzo</div>
+                        <div class="sub">30 min &middot; serves 3 &middot; <span class="badge">BBC Good Food</span></div>
+                    </div>
+                    <button class="btn-sm">View</button>
+                    <button class="btn-sm">+ Add to plan</button>
+                </div>
+                <div class="recipe-card">
+                    <div class="thumb">img</div>
+                    <div class="recipe-meta">
+                        <div class="title">Black Bean Tacos</div>
+                        <div class="sub">20 min &middot; serves 2 &middot; <span class="badge">NYT Cooking</span></div>
+                    </div>
+                    <button class="btn-sm">View</button>
+                    <button class="btn-sm">+ Add to plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

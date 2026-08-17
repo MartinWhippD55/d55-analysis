@@ -57,8 +57,13 @@ Title precedence: `--title` > front matter `title` > first `# H1` in the body
 
 Headings (`#`..`######`), paragraphs, unordered and ordered lists (single
 level), GFM pipe tables, blockquotes (`>` → branded callout; a `**bold**`
-lead-in becomes the callout heading), horizontal rules (`---`), fenced code
-blocks, and inline `**bold**`, `*italic*`, `` `code` ``, `[links](url)`.
+lead-in becomes the callout heading; a leading `{{check}}` marker adds a green
+check badge in the top-right corner), horizontal rules (`---`), fenced code
+blocks, images (`![alt](src)` — a standalone image becomes a figure with the
+alt as caption; local paths are base64-embedded, relative to the Markdown
+file), pill badges (`{{green|Checked OK}}` — colours: green, red, amber, blue,
+grey; colon-separated so it is safe inside table cells), and inline `**bold**`,
+`*italic*`, `` `code` ``, `[links](url)`.
 
 ## Branding
 
