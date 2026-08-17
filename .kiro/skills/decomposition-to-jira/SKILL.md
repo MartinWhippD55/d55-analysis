@@ -1,4 +1,6 @@
 ---
+name: decomposition-to-jira
+description: Build an ordered, idempotent jira-plan.json (epic, stories, sub-tasks, blocks-links) from a spec-to-stories decomposition. Stage 2 of the spec-to-Jira pipeline.
 inclusion: manual
 ---
 

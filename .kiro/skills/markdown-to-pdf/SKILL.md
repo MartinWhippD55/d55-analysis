@@ -1,4 +1,6 @@
 ---
+name: markdown-to-pdf
+description: Turn any Markdown file into a branded, standalone A4 PDF (D55 cover, logos, typography, tables, callouts) with a single command.
 inclusion: manual
 ---
 

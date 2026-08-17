@@ -1,4 +1,6 @@
 ---
+name: deliverables-toolkit
+description: Shared foundation for the spec-to-deliverables suite — the reusable data-driven document-generator pattern, branding, verification method, and gotchas. Read this first.
 inclusion: manual
 ---
 

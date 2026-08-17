@@ -1,4 +1,6 @@
 ---
+name: data-model-pdf
+description: Produce a branded data-model PDF from a spec's data entities — each record with its key pattern (e.g. DynamoDB PK/SK), attribute table, and indexes. Part of the spec-to-deliverables suite.
 inclusion: manual
 ---
 

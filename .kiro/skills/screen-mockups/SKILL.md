@@ -1,4 +1,6 @@
 ---
+name: screen-mockups
+description: Turn a prompt, design doc, or spec into a set of hand-drawn-style UI wireframes, one per screen.
 inclusion: manual
 ---
 

@@ -1,4 +1,6 @@
 ---
+name: jira-push
+description: Push a reviewed jira-tree mirror to live Jira — epic, stories, sub-tasks, and blocks-links — idempotently via the Atlassian MCP. Stage 4 of the spec-to-Jira pipeline.
 inclusion: manual
 ---
 

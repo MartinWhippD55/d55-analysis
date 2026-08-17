@@ -1,4 +1,6 @@
 ---
+name: spec-to-deliverables
+description: Orchestrator that turns specs into a suite of client-facing deliverables (estimate spreadsheet, summary deck, walkthrough PDFs, OpenAPI reference, data-model doc), delegating to child skills.
 inclusion: manual
 ---
 

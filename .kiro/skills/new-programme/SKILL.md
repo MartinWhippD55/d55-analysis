@@ -1,4 +1,6 @@
 ---
+name: new-programme
+description: Author a complete, repeatable D55 service programme for the Service Catalog from a programme idea and optional client assessment scores.
 inclusion: manual
 ---
 

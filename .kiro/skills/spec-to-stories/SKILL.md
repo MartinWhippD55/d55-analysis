@@ -1,4 +1,6 @@
 ---
+name: spec-to-stories
+description: Decompose a spec (requirements/design/tasks) into mini-specs — one per user story — plus a graph.yaml of components and dependencies. Stage 1 of the spec-to-Jira pipeline.
 inclusion: manual
 ---
 

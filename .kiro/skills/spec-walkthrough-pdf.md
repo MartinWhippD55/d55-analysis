@@ -1,4 +1,6 @@
 ---
+name: spec-walkthrough-pdf
+description: Produce a branded per-spec technical walkthrough as standalone HTML + A4 PDF (context, architecture, screen tour, key decisions, data model, delivery breakdown).
 inclusion: manual
 ---
 

@@ -1,4 +1,6 @@
 ---
+name: estimate-spreadsheet
+description: Build an estimates spreadsheet from spec task files and expose the figures via a shared module so every generated document reads from one source of truth.
 inclusion: manual
 ---
 

@@ -1,4 +1,6 @@
 ---
+name: fetch-pr-for-review
+description: Fetch a GitHub Pull Request, perform an iterative code review, and produce a findings summary.
 inclusion: manual
 ---
 

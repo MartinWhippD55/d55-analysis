@@ -1,4 +1,6 @@
 ---
+name: jira-image-embed
+description: Embed images inline in a Jira Cloud issue description via raw ADF (the markdown path renders broken placeholders). Idempotent attach, embed, and verify.
 inclusion: manual
 ---
 

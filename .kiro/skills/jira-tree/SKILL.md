@@ -1,4 +1,6 @@
 ---
+name: jira-tree
+description: Render a spec-to-stories decomposition into an editable filesystem mirror of the Jira issue hierarchy and enrich the descriptions. Stage 3 of the spec-to-Jira pipeline.
 inclusion: manual
 ---
 

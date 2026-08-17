@@ -1,4 +1,6 @@
 ---
+name: openapi-html
+description: From a spec's API surface, produce an OpenAPI 3.1 YAML plus a fully self-contained, offline HTML reference. Part of the spec-to-deliverables suite.
 inclusion: manual
 ---
 

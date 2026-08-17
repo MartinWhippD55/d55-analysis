@@ -1,4 +1,6 @@
 ---
+name: decomposition-diagrams
+description: Generate per-story and epic architecture diagrams from a decomposition's graph.yaml and embed them inline on the pushed Jira issues. Optional final step of the spec-to-Jira pipeline.
 inclusion: manual
 ---
 

@@ -1,4 +1,6 @@
 ---
+name: summary-presentation
+description: Produce a branded exec-level HTML slide deck summarising a set of specs (title, estimate summary, per-spec slides, next steps). Standalone and auto-scaling.
 inclusion: manual
 ---
 
