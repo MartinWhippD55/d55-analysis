@@ -72,6 +72,7 @@ Available at `reference-repos/` (gitignored, local only):
 - `BrytAdminPortal/` — Angular portal + Lambda APIs + CDK
 - `BrytContractNote/` — current pipeline (contract-note-v2)
 - `PDF-PoC/` — pdf-me proof of concept
+- `BrytBusinessServices/` — business services API + CDK + shared lib (TypeScript monorepo)
 
 ## Working Style
 

@@ -6,9 +6,21 @@ This document specifies the requirements for Estimate 2 of the Bryt Energy Contr
 
 The solution is a fully automated, headless pipeline with no Admin Portal UI. It triggers when a contract note PDF is produced, looks up customer contact details in Salesforce, creates a DocuSign envelope, and handles the completion webhook to retrieve and store the signed document.
 
+### Anchoring to landed code (Estimate 1)
+
+Estimate 1's backend has landed in a new repository, **`BrytBusinessServices`** — an npm-workspaces TypeScript monorepo (`api` / `cdk` / `shared-lib`) deployed via a CDK pipeline with resource prefixes `dev-ci-bbs-`, `rel-uat-bbs-`, and `rel-prod-bbs-`. Estimate 2 is delivered **inside this repo**, following its conventions (Lambda handlers as `NodejsFunction` bundled from `api/src/<domain>/*.ts`; infrastructure as constructs under `cdk/lib/contract-notes/` wired into `ContractNoteStack`).
+
+Two consequences of the landed code shape this specification:
+
+- The render pipeline is a **Step Functions state machine** (`parseInput → selectTemplate → renderSections → stitch → writeOutput`), not a single Lambda. Its `writeOutput` handler writes the PDF to the output bucket with only `{ templateId, pageCount }` S3 object metadata. This estimate hooks in by **appending a `SendEnvelope` task to that state machine** after `writeOutput`, and by threading the customer-reference metadata through the state payload — both additive changes to Estimate 1 (see Requirements 1 and 12).
+- There is **no existing Salesforce REST/OAuth integration** in `BrytBusinessServices` (nor a reusable `salesforceOauthKey`/`salesforceOauthSecret` OAuth client in `BrytAdminPortal` — the portal only carries contact-management identifiers and event-bus publishing). The Salesforce client in this estimate is therefore built from scratch (see Requirements 2 and 11).
+
 ## Glossary
 
-- **Render_Pipeline**: The automated process from Estimate 1 that generates contract note PDFs and writes them to the S3 output bucket
+- **Render_Pipeline**: The Estimate 1 Step Functions state machine in `BrytBusinessServices` (`parseInput → selectTemplate → renderSections → stitch → writeOutput`) that generates contract note PDFs and writes them to the output PDF bucket (`{resourcePrefix}contract-note-output-pdf`)
+- **Output_Bucket**: The render pipeline's output bucket (`{resourcePrefix}contract-note-output-pdf`) where finished PDFs land
+- **Contract_Metadata**: The customer-identifying data (Salesforce_Ref, offer reference, customer name, contract note S3 key) that Estimate 1 must surface alongside the PDF for this pipeline to consume; see Requirement 12
+- **Resource_Prefix**: The environment-specific CDK naming prefix (`dev-ci-bbs-`, `rel-uat-bbs-`, `rel-prod-bbs-`) applied to all resources in `BrytBusinessServices`
 - **Envelope**: A DocuSign container that holds the document(s) to be signed, recipient information, and signing workflow configuration
 - **Envelope_ID**: The unique identifier returned by DocuSign when an envelope is created
 - **Signing_Tab**: A DocuSign signature field placed on the document that the recipient must sign
@@ -27,11 +39,17 @@ The solution is a fully automated, headless pipeline with no Admin Portal UI. It
 
 **User Story:** As a system operator, I want the signing process to begin automatically when a contract note PDF is generated, so that no manual intervention is required to initiate e-signatures.
 
+The render pipeline's output bucket does not currently emit events. The trigger is therefore implemented as a **`SendEnvelope` task appended to the Estimate 1 render state machine** after the `writeOutput` step. The task invokes the Send_Envelope_Lambda with the render output and Contract_Metadata carried in the state payload, so no sidecar file or S3 re-read is required.
+
+To keep e-signature failures from masquerading as render failures, the `SendEnvelope` task SHALL have its own error handling separate from the render pipeline's `handleFailure` path (the PDF is already durably written by the time this task runs).
+
 #### Acceptance Criteria
 
-1. WHEN the Render_Pipeline writes a contract note PDF to the S3 output bucket, THE Send_Envelope_Lambda SHALL be triggered automatically via an S3 event notification
-2. THE Send_Envelope_Lambda SHALL extract the contract data metadata (including Salesforce_Ref) from the S3 object metadata or an accompanying JSON sidecar file
-3. IF the trigger event does not contain valid contract data metadata, THEN THE Send_Envelope_Lambda SHALL log an error and halt processing without creating an envelope
+1. WHEN the Render_Pipeline completes the `writeOutput` step, THE state machine SHALL invoke the Send_Envelope_Lambda via the `SendEnvelope` task, passing the render output location and Contract_Metadata in the state payload
+2. THE Send_Envelope_Lambda SHALL obtain the Contract_Metadata (including Salesforce_Ref) directly from the state payload, as produced by Requirement 12
+3. IF the state payload does not carry valid Contract_Metadata (including a usable Salesforce_Ref), THEN THE Send_Envelope_Lambda SHALL log an error and halt processing without creating an envelope
+4. IF the `SendEnvelope` task fails, THEN the failure SHALL be routed to a DocuSign-specific catch (not the render `handleFailure`) so that the render execution is not marked failed and the produced PDF is retained
+5. THE Send_Envelope_Lambda SHALL be idempotent: before creating an envelope it SHALL check for an existing envelope record for the same contract note (keyed on the contract note S3 key) and SHALL NOT create a duplicate envelope if one already exists
 
 ### Requirement 2: Salesforce Customer Lookup
 
@@ -133,12 +151,27 @@ The solution is a fully automated, headless pipeline with no Admin Portal UI. It
 
 ### Requirement 11: Infrastructure and Security
 
-**User Story:** As a system operator, I want credentials to be securely managed and infrastructure to be deployed via CDK, so that the system follows existing BRYT patterns.
+**User Story:** As a system operator, I want credentials to be securely managed and infrastructure to be deployed via CDK, so that the system follows the conventions of the `BrytBusinessServices` repo.
 
 #### Acceptance Criteria
 
-1. THE system SHALL store DocuSign credentials (Integration_Key, RSA private key, impersonating user ID, account ID) in AWS Secrets Manager
-2. THE system SHALL store Salesforce OAuth credentials in AWS Secrets Manager (following the existing pattern of `salesforceOauthKey` + `salesforceOauthSecret`)
-3. THE system SHALL be deployed via CDK, following the existing BrytAdminPortal infrastructure patterns
-4. THE Webhook_Lambda endpoint SHALL be publicly accessible (required for DocuSign_Connect) but SHALL validate all requests via HMAC verification
-5. Lambda functions SHALL have least-privilege IAM permissions: only access to the specific DynamoDB table, S3 buckets, and Secrets Manager secrets they require
+1. THE system SHALL store DocuSign credentials (Integration_Key, RSA private key, impersonating user ID, account ID, HMAC secret) in AWS Secrets Manager under a Resource_Prefix-scoped secret name
+2. THE system SHALL store Salesforce OAuth credentials in AWS Secrets Manager under a Resource_Prefix-scoped secret name. NOTE: no Salesforce REST/OAuth credential or client currently exists in `BrytBusinessServices` or `BrytAdminPortal`, so this secret and its client are created fresh by this estimate (not a reuse of an existing pattern)
+3. THE system SHALL be deployed via CDK as a construct under `cdk/lib/contract-notes/` wired into `ContractNoteStack`, following the existing `BrytBusinessServices` patterns (`NodejsFunction` handlers from `api/src/`, Resource_Prefix naming, `CfnOutput` exposure)
+4. ALL Estimate 2 resources (DynamoDB table, S3 bucket, Lambdas, API Gateway route, secrets) SHALL be named using the Resource_Prefix convention rather than hard-coded names
+5. THE Webhook_Lambda endpoint SHALL be publicly accessible (required for DocuSign_Connect) but SHALL validate all requests via HMAC verification
+6. Lambda functions SHALL have least-privilege IAM permissions: only access to the specific DynamoDB table, S3 buckets, and Secrets Manager secrets they require
+7. THE system SHALL reuse Estimate 1's error output bucket (`{resourcePrefix}contract-note-error-output`) for error and notification records, under a `docusign/` key prefix, rather than provisioning a new error bucket
+
+### Requirement 12: Estimate 1 Contract Metadata Dependency
+
+**User Story:** As a developer, I want the render pipeline to surface the customer reference alongside the produced PDF, so that this pipeline knows who to send each contract note to.
+
+This is a change to Estimate 1's code. Today, `parse-input.ts` extracts only `contractId` into its contract summary, and `write-output.ts` writes the PDF with only `{ templateId, pageCount }` object metadata. The Salesforce_Ref (`customersalesforceref`) present in the source contract data is not currently carried through to the output.
+
+#### Acceptance Criteria
+
+1. THE Render_Pipeline SHALL extract `customersalesforceref`, offer reference, and customer name from the parsed contract data and carry them through the state machine payload from `parseInput` to the `writeOutput` and `SendEnvelope` stages
+2. THE Render_Pipeline SHALL make the Contract_Metadata available to the Send_Envelope_Lambda in the state payload passed to the `SendEnvelope` task
+3. THE Contract_Metadata SHALL include: Salesforce_Ref, offer reference, customer name, and the contract note S3 key
+4. IF the source contract data does not contain a `customersalesforceref`, THEN the Render_Pipeline SHALL still produce the PDF but the Contract_Metadata SHALL indicate the reference is absent, and the Send_Envelope_Lambda SHALL halt per Requirement 1.3

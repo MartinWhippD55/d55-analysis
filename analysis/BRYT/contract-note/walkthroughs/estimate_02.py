@@ -43,10 +43,16 @@ DOC = {
             "type": "callout",
             "heading": "Builds directly on Estimate 1",
             "body": [
-                "This estimate consumes the output of Estimate 1. The trigger is a contract note PDF landing "
-                "in the S3 output bucket. Estimate 1 is extended slightly to write a small metadata sidecar "
-                "alongside each PDF (customer reference, offer reference, name) so this pipeline knows who to "
-                "send it to.",
+                "This estimate is delivered inside BrytBusinessServices, the repository where Estimate 1's "
+                "backend landed, and consumes the output of Estimate 1's render pipeline. That pipeline is a "
+                "Step Functions state machine, so the trigger for this estimate is a new final step added to "
+                "that state machine, right after the PDF is written. The step invokes the send process with "
+                "the customer details already in hand, and has its own error handling so a signing hiccup "
+                "never marks the render itself as failed or throws away the finished PDF.",
+                "Estimate 1 also needs a small, real change: today it produces the PDF but does not carry the "
+                "customer's Salesforce reference through to the output. That reference has to be surfaced "
+                "(alongside the offer reference and customer name) so this pipeline knows who to send each "
+                "contract note to. That work is coordinated with the Estimate 1 pipeline owner.",
             ],
         },
         # ---------------------------------------------------------------
@@ -69,8 +75,8 @@ DOC = {
             "type": "pipeline",
             "heading": "Send phase (automatic, on PDF creation)",
             "steps": [
-                "PDF lands in S3",
-                "Read metadata sidecar",
+                "PDF written by render pipeline",
+                "SendEnvelope step fires",
                 "Look up customer in Salesforce",
                 "Authenticate to DocuSign",
                 "Create + send envelope",
@@ -122,14 +128,14 @@ DOC = {
             "rows": [
                 ["DocuSign authentication", "JWT Grant (server-to-server)",
                  "No human login needed; the token can be cached and refreshed for a fully automated pipeline"],
-                ["Trigger", "S3 event on Estimate 1's output bucket",
-                 "Direct hook into the existing render pipeline; no intermediate queue required"],
+                ["Trigger", "New final step on the render state machine",
+                 "Runs right after the PDF is written, with the customer details already in the payload; its own error handling keeps signing failures from failing the render"],
                 ["Status notifications", "DocuSign Connect webhook (per-envelope)",
                  "Real-time updates instead of polling; per-envelope config avoids account-level admin setup"],
                 ["Signed document storage", "S3 and Salesforce",
                  "S3 as the durable system of record; Salesforce for day-to-day business access"],
-                ["Salesforce integration", "OAuth, existing credential pattern",
-                 "Reuses the established salesforceOauthKey / salesforceOauthSecret secrets already in place"],
+                ["Salesforce integration", "OAuth client, built fresh",
+                 "No Salesforce API client exists in the landed code to reuse, so this is new (not a reuse) work"],
                 ["Resilience", "Exponential backoff, 3 attempts",
                  "DocuSign and Salesforce calls can fail transiently; retries avoid losing a signed document"],
                 ["Webhook security", "HMAC signature validation",
@@ -141,11 +147,12 @@ DOC = {
             "type": "section",
             "heading": "The two Lambdas in detail",
             "body": [
-                "Send Envelope Lambda. Triggered by the S3 event, it reads the metadata sidecar to find the "
-                "customer's Salesforce reference, queries Salesforce for their name and email, authenticates to "
-                "DocuSign, then creates an envelope containing the PDF with a signature field and the customer "
-                "as the sole signer. Setting the envelope to sent makes DocuSign email the customer "
-                "immediately. It records the envelope details in DynamoDB for traceability.",
+                "Send Envelope Lambda. Invoked by the render pipeline's final step with the customer's "
+                "Salesforce reference already in the payload, it queries Salesforce for their name and email, "
+                "authenticates to DocuSign, then creates an envelope containing the PDF with a signature field "
+                "and the customer as the sole signer. Setting the envelope to sent makes DocuSign email the "
+                "customer immediately. It records the envelope details in DynamoDB for traceability, and skips "
+                "cleanly if an envelope already exists for that PDF so a retry can never double-send.",
                 "Webhook Lambda. Exposed via a public API Gateway endpoint, it receives DocuSign's callbacks. "
                 "Every request is HMAC-validated first. On a completed event it downloads the signed PDF, "
                 "stores it in S3, attaches it to the Salesforce record, and updates the status. On a declined "
@@ -211,8 +218,8 @@ DOC = {
                  "DocuSign sends the signing email directly, with BRYT branding configured in DocuSign settings."],
                 ["4", "Is an Admin Portal UI needed for envelope status tracking?",
                  "No UI this phase. Metadata is stored for debugging; the signed PDF in Salesforce is the visible outcome."],
-                ["5", "What Salesforce object does the customer reference map to?",
-                 "Resolved at implementation time; determines where the signed PDF attaches. Does not affect architecture."],
+                ["5", "What Salesforce object does the customer reference map to, and is it queryable via the REST API?",
+                 "Resolved at implementation time. Now more significant: with no existing Salesforce client, we confirm the object and that a REST/OAuth integration is available before build."],
                 ["6", "Are voided envelopes, resend, and reminders out of scope?",
                  "Out of scope. We handle completed, declined, and expired only. Retry/resend can come in a later phase."],
             ],
@@ -224,13 +231,14 @@ DOC = {
             "intro": f"Estimate 2 is ~{F.fmt(_f.required)} required days plus optional testing, ~{F.fmt(_f.total)} days in total. Work is grouped as follows.",
             "columns": ["Area", "Scope"],
             "rows": [
-                ["Infrastructure & utilities", "DynamoDB table + GSI, signed-docs S3 bucket, API Gateway webhook route, Secrets Manager, IAM, retry + error-record utilities"],
-                ["Salesforce client", "OAuth auth, customer contact lookup, signed document upload (ContentVersion + link)"],
+                ["Infrastructure & utilities", "Envelope metadata table + GSI, signed-docs S3 bucket, API Gateway webhook route, Secrets Manager, IAM, retry + error-record utilities (reusing Estimate 1's error bucket) as a CDK construct in BrytBusinessServices"],
+                ["Salesforce client (new)", "OAuth auth, customer contact lookup, signed document upload (ContentVersion + link) — built fresh, no existing client to reuse"],
                 ["DocuSign client", "JWT auth, envelope creation + send, signed document download, HMAC webhook validation"],
                 ["Metadata service", "DynamoDB create / get / update / query-by-reference for envelope records"],
-                ["Send Envelope Lambda", "S3 event handling, metadata extraction, and orchestration of the send phase"],
+                ["Send Envelope Lambda", "Trigger handling, metadata extraction, and orchestration of the send phase"],
                 ["Webhook Lambda", "HMAC validation, completion flow, declined/expired notification flow"],
-                ["Integration", "CDK wiring, S3 event trigger, metadata sidecar in the render pipeline, end-to-end validation"],
+                ["Estimate 1 change", "Surface the customer Salesforce reference through the render state machine to the PDF output, and add the trigger hook"],
+                ["Integration", "CDK wiring into the contract-note stack, trigger wiring, end-to-end validation"],
             ],
         },
         {

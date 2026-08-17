@@ -4,6 +4,19 @@
 
 This design covers Estimate 2 of the Bryt Energy Contract Note Rework: an automated e-signature pipeline that takes rendered contract note PDFs from Estimate 1, sends them to customers via DocuSign for signing, and stores the signed copies back in Salesforce.
 
+### Repository and anchoring
+
+Estimate 2 is delivered inside **`BrytBusinessServices`**, the npm-workspaces monorepo where Estimate 1's backend landed (`api` / `cdk` / `shared-lib`). It follows that repo's conventions:
+
+- Lambda handlers live under `api/src/docusign/` and are bundled as `NodejsFunction` from TypeScript source (matching `api/src/render/`).
+- Infrastructure is a new construct `cdk/lib/contract-notes/docusign-pipeline.ts`, wired into `ContractNoteStack` alongside `RenderPipeline`, receiving shared resources (the DynamoDB table if reused, and the error output bucket) as props. Because the trigger is a state machine step, the construct also exposes the send-envelope Lambda so the `RenderPipeline` can invoke it as a `SendEnvelope` task.
+- All resources are named with the environment `resourcePrefix` (`dev-ci-bbs-`, `rel-uat-bbs-`, `rel-prod-bbs-`).
+
+Two facts about the landed Estimate 1 code drive this design:
+
+1. The render pipeline is a **Step Functions state machine**, and its output bucket does not currently emit events. **The chosen trigger is a `SendEnvelope` task appended to that state machine** after `writeOutput`, with the customer-reference metadata threaded through the state payload (see "Trigger mechanism" and "Estimate 1 changes" below).
+2. There is **no existing Salesforce OAuth/REST client** to reuse in either repo; the Salesforce client here is greenfield.
+
 The system is a headless, event-driven pipeline with no Admin Portal UI. It introduces:
 1. A Send Envelope Lambda triggered by S3 events when contract note PDFs are produced
 2. A Webhook Lambda receiving DocuSign Connect callbacks for envelope status changes
@@ -17,7 +30,7 @@ The system is a headless, event-driven pipeline with no Admin Portal UI. It intr
 
 ```mermaid
 sequenceDiagram
-    participant S3Out as S3 Output Bucket
+    participant Render as Render State Machine
     participant SendLambda as Send Envelope Lambda
     participant SF as Salesforce API
     participant DS as DocuSign API
@@ -25,7 +38,7 @@ sequenceDiagram
     participant Webhook as Webhook Lambda
     participant S3Signed as S3 Signed Docs
 
-    S3Out->>SendLambda: S3 Event (PDF created)
+    Render->>SendLambda: SendEnvelope task (after writeOutput) + Contract_Metadata in payload
     SendLambda->>SF: GET contact details (customersalesforceref)
     SF-->>SendLambda: name, email
     SendLambda->>DS: Create Envelope (PDF + recipient + tabs)
@@ -46,35 +59,37 @@ sequenceDiagram
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
 | DocuSign auth flow | JWT Grant (server-to-server) | No user interaction needed; automated pipeline; token can be cached and refreshed |
-| Trigger mechanism | S3 event on output bucket from Estimate 1 | Direct integration with existing render pipeline; no intermediate queue needed |
+| Trigger mechanism | `SendEnvelope` task appended to the render state machine after `writeOutput` | Chosen so the metadata rides the state payload (no sidecar / S3 re-read) and the send is visible in the render execution trace. The task has its own DocuSign-specific catch so a send failure does not fail the render or lose the PDF |
 | Status notification | DocuSign Connect (per-envelope webhook) | Real-time notification vs polling (which DocuSign limits to every 15 mins); per-envelope avoids global config |
-| Envelope metadata | DynamoDB | Fast lookups by Envelope_ID and Salesforce_Ref; matches existing project patterns |
+| Envelope metadata | Dedicated `{resourcePrefix}docusign-envelopes` table | Signing envelopes are a separate bounded context from templates — no shared queries or transactions, so co-locating in Estimate 1's single table buys nothing. A dedicated table keeps the Salesforce-ref GSI, retention/TTL, IAM, and failure blast radius isolated, at the same on-demand cost. Follows the repo's `PK`/`SK`/`GSI_PK` key naming |
 | Signed doc storage | S3 + Salesforce | S3 as durable store; Salesforce for business user access |
-| Salesforce integration | OAuth client credentials (existing pattern) | Follows established `salesforceOauthKey`/`salesforceOauthSecret` pattern already in Secrets Manager |
-| Error handling | Error S3 bucket + structured CloudWatch logs | Consistent with Estimate 1's error bucket pattern; CloudWatch for real-time debugging |
+| Salesforce integration | OAuth client, built fresh | No reusable Salesforce OAuth/REST client exists in `BrytBusinessServices` or `BrytAdminPortal`; this is greenfield work, not a reuse |
+| Error handling | Reuse Estimate 1's error output bucket (`docusign/` prefix) + structured CloudWatch logs | Consistent with Estimate 1; avoids a second error bucket; CloudWatch for real-time debugging |
 | Retry logic | Exponential backoff (3 attempts) for external API calls | DocuSign and Salesforce can have transient failures; avoids losing signed documents |
 
 ### Deployment Architecture
 
-The solution deploys as:
-- Two new Lambda functions (send-envelope, webhook-handler)
-- New API Gateway route for the webhook endpoint (publicly accessible)
-- New DynamoDB table for envelope metadata
-- New S3 bucket for signed documents
-- New Secrets Manager secrets for DocuSign credentials
-- S3 event notification on existing output bucket (from Estimate 1)
-- All deployed via CDK following existing patterns
+The solution deploys as a new `DocuSignPipeline` construct in `cdk/lib/contract-notes/`, wired into `ContractNoteStack`:
+- Two new Lambda functions (`api/src/docusign/send-envelope.ts`, `api/src/docusign/webhook.ts`) as `NodejsFunction`
+- New API Gateway route for the webhook endpoint (publicly accessible) — either added to the existing `ContractNoteApi` REST API or a dedicated API
+- New dedicated DynamoDB table `{resourcePrefix}docusign-envelopes` for envelope metadata
+- New S3 bucket for signed documents (`{resourcePrefix}signed-contract-notes`)
+- New Secrets Manager secrets for DocuSign and Salesforce credentials (Resource_Prefix-scoped)
+- Trigger wiring: a `SendEnvelope` task added to the render state machine (in `RenderPipeline`) invoking the send-envelope Lambda, with its own catch routing to a DocuSign failure handler
+- Reuse of Estimate 1's error output bucket under a `docusign/` prefix
+- All resources named with the environment `resourcePrefix`, exposed via `CfnOutput` as per existing stack convention
 
 ## Components and Interfaces
 
-### Send Envelope Lambda (`lambdas/docusign-send-envelope/`)
+### Send Envelope Lambda (`api/src/docusign/send-envelope.ts`)
 
-Triggered by S3 event when a contract note PDF lands in the output bucket.
+Invoked by the `SendEnvelope` state machine task after `writeOutput`, receiving the render output and Contract_Metadata in the payload.
 
 ```
-Input: S3 event (bucket, key)
+Input: state payload { output: { bucket, key }, contractMetadata: { salesforceRef, offerReference, customerName } }
 Process:
-  1. Read contract data metadata (from S3 object metadata or sidecar JSON)
+  0. Idempotency check: skip if an envelope already exists for this contract note S3 key
+  1. Read Contract_Metadata from the state payload
   2. Extract customersalesforceref
   3. Authenticate to Salesforce (OAuth, credentials from Secrets Manager)
   4. Query Salesforce for customer contact details (name, email)
@@ -84,7 +99,7 @@ Process:
 Output: Envelope created and sent; metadata stored
 ```
 
-### Webhook Lambda (`lambdas/docusign-webhook/`)
+### Webhook Lambda (`api/src/docusign/webhook.ts`)
 
 Receives DocuSign Connect callbacks via API Gateway.
 
@@ -128,7 +143,9 @@ Output: Signed PDF in S3 + Salesforce (completed) or notification (declined/expi
 
 ## Data Models
 
-### DynamoDB Table: `DocuSignEnvelopes`
+### DynamoDB Table: `{resourcePrefix}docusign-envelopes`
+
+Estimate 2 uses a dedicated table rather than Estimate 1's single table (`{resourcePrefix}contract-note-templates`). Signing envelopes share no access patterns or transactions with templates, so a separate table keeps the Salesforce-ref GSI, retention/TTL, IAM, and failure blast radius isolated at no extra on-demand cost. Key attribute naming (`PK`, `SK`, `GSI_PK`) follows the repo convention.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -149,7 +166,7 @@ Output: Signed PDF in S3 + Salesforce (completed) or notification (declined/expi
 
 | Key | Attribute |
 |-----|-----------|
-| GSI PK | `salesforceRef` |
+| GSI_PK | `salesforceRef` |
 | GSI SK | `createdAt` |
 
 Enables: Query all envelopes for a given customer (for debugging).
@@ -159,14 +176,16 @@ Enables: Query all envelopes for a given customer (for debugging).
 #### Signed Documents Bucket
 
 ```
-s3://bryt-signed-contracts/
+s3://{resourcePrefix}signed-contract-notes/
   {salesforceRef}/{envelopeId}/signed-contract-note.pdf
 ```
 
-#### Error Bucket (shared with Estimate 1)
+#### Error Bucket (reused from Estimate 1)
+
+Estimate 1 provisions `{resourcePrefix}contract-note-error-output` (written by `render/handle-failure.ts`). Estimate 2 reuses it under a `docusign/` prefix rather than creating a new bucket.
 
 ```
-s3://bryt-contract-note-errors/
+s3://{resourcePrefix}contract-note-error-output/
   docusign/{timestamp}-{envelopeId}.json
 ```
 
@@ -187,7 +206,7 @@ Error record format:
 
 #### DocuSign Credentials
 
-Secret name: `contract-note/docusign`
+Secret name: `{resourcePrefix}contract-note/docusign`
 ```json
 {
   "integrationKey": "DocuSign Integration Key (client ID)",
@@ -201,7 +220,7 @@ Secret name: `contract-note/docusign`
 
 #### Salesforce Credentials
 
-Secret name: `contract-note/salesforce`
+Secret name: `{resourcePrefix}contract-note/salesforce` (new — no existing Salesforce secret to reuse)
 ```json
 {
   "salesforceOauthKey": "Connected App client ID",
@@ -283,13 +302,25 @@ interface DocuSignWebhookEvent {
 }
 ```
 
+## Estimate 1 Changes (dependency)
+
+This estimate requires two additive changes to the landed Estimate 1 render pipeline in `BrytBusinessServices`:
+
+1. **Surface the customer reference (Requirement 12).** `api/src/render/parse-input.ts` currently derives only `contractId` in `buildContractSummary`. It must also extract `customersalesforceref`, the offer reference, and the customer name from the parsed `ContractData`, and these must be threaded through the state machine payload (`itemSelector` / result paths) to `api/src/render/write-output.ts` and on to the `SendEnvelope` task.
+
+2. **Append the `SendEnvelope` task.** In `cdk/lib/contract-notes/render-pipeline.ts`, add a `SendEnvelope` `LambdaInvoke` task after `WriteOutput`, invoking the send-envelope Lambda (exposed by the `DocuSignPipeline` construct) with the render output and Contract_Metadata in the payload. Unlike the render steps — which `addCatch(handleFailure)` — this task gets its **own catch** routing to a DocuSign-specific failure handler, so a DocuSign/Salesforce outage does not fail the render execution or discard the already-written PDF. Give the task its own retry/timeout so it does not consume the render execution's budget.
+
+Because the send now runs inside the render execution, note the interaction with the state machine's 15-minute timeout and its retries: the send-envelope Lambda must be idempotent (it checks for an existing envelope by contract note S3 key before creating one) so a `SendEnvelope` retry cannot double-send.
+
+These changes are small but real, and should be planned and reviewed with whoever owns the Estimate 1 pipeline (Jabez).
+
 ## Correctness Properties
 
 ### Property 1: Trigger-to-envelope correlation
 
-*For any* contract note PDF written to the output bucket with valid metadata, the system SHALL create exactly one DocuSign envelope and store exactly one metadata record linking the S3 key, Salesforce_Ref, and Envelope_ID.
+*For any* contract note PDF produced by the render pipeline with valid metadata, the `SendEnvelope` task SHALL cause exactly one DocuSign envelope to be created and exactly one metadata record to be stored linking the S3 key, Salesforce_Ref, and Envelope_ID — even if the task is retried (idempotency by contract note S3 key).
 
-**Validates: Requirements 1.1, 4.1, 5.1**
+**Validates: Requirements 1.1, 1.5, 4.1, 5.1**
 
 ### Property 2: Salesforce lookup correctness
 
@@ -351,13 +382,15 @@ interface DocuSignWebhookEvent {
 
 | Scenario | Handling |
 |----------|----------|
-| S3 event missing metadata | Log error to error bucket; halt |
+| State payload missing/invalid metadata | Log error to error bucket; halt (no envelope) |
+| Envelope already exists for this S3 key (idempotency) | Skip creation; log and return without error |
 | Salesforce auth failure | Log error to error bucket; halt |
 | Salesforce record not found | Log error with Salesforce_Ref to error bucket; halt |
 | Customer has no email | Log error with Salesforce_Ref to error bucket; halt |
 | DocuSign auth failure | Log error to error bucket; halt |
 | Envelope creation failure | Log error with contract note reference to error bucket; halt |
 | DynamoDB write failure | Log error; attempt retry; envelope already sent so log for manual reconciliation |
+| `SendEnvelope` task failure (any of the above) | Caught by the task's DocuSign-specific catch, not the render `handleFailure`; render execution stays successful and the PDF is retained |
 
 ### Webhook Lambda
 
@@ -409,25 +442,21 @@ Key generators:
 
 ### Test Organisation
 
-```
-lambdas/docusign-send-envelope/tests/
-  unit/
-    salesforce-client.spec.ts
-    docusign-client.spec.ts
-    metadata-service.spec.ts
-    contract-metadata-parser.spec.ts
-  property/
-    trigger-to-envelope.property.spec.ts
-    salesforce-lookup.property.spec.ts
+Tests live under `api/test/docusign/`, matching the repo's existing layout (`api/test/render/`, `shared-lib/test/`) and its `*.test.ts` / `*.property.test.ts` naming convention:
 
-lambdas/docusign-webhook/tests/
-  unit/
-    hmac-validator.spec.ts
-    webhook-handler.spec.ts
-    document-downloader.spec.ts
-    salesforce-uploader.spec.ts
-  property/
-    webhook-validation.property.spec.ts
-    completion-flow.property.spec.ts
-    failure-handling.property.spec.ts
+```
+api/test/docusign/
+  salesforce-client.test.ts
+  docusign-client.test.ts
+  metadata-service.test.ts
+  contract-metadata-parser.test.ts
+  hmac-validator.test.ts
+  webhook-handler.test.ts
+  document-downloader.test.ts
+  salesforce-uploader.test.ts
+  trigger-to-envelope.property.test.ts
+  salesforce-lookup.property.test.ts
+  webhook-validation.property.test.ts
+  completion-flow.property.test.ts
+  failure-handling.property.test.ts
 ```
