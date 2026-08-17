@@ -8,9 +8,13 @@ This deliverable covers the non-software assets needed to enable the BRYT team t
 
 Business users responsible for managing contract note templates — likely a small team (2-5 people) who will:
 - Create and modify templates for different contract types
+- Manage section variants and the rules that select between them
+- Work with draft/published states and section version history (edit, publish, revert)
 - Update Terms & Conditions when new versions are issued
 - Configure rules to match templates to contract data
 - Attach data sources for additional fields (Estimate 3b)
+
+> **Baseline note (2026-08).** These assets must reflect what Estimate 1 actually shipped (`BrytBusinessServices` `dev` / Admin Portal `sqp-4962`), which introduced three concepts beyond the original brief: **section variants** (a section can have multiple variants, each selected by its own rule), **version history with a draft→publish lifecycle** (templates and section versions are `DRAFT`/`PUBLISHED`, with publish and revert), and **shared section version publishing**. The guides, cheat sheet, and recordings below have been extended to cover them.
 
 ## Deliverables
 
@@ -37,13 +41,17 @@ Business users responsible for managing contract note templates — likely a sma
 
 | Guide | Covers |
 |-------|--------|
-| Create a new template | End-to-end: create → add sections → configure rule → test |
-| Modify an existing template | Edit metadata, add/remove/reorder sections |
-| Update Terms & Conditions | Edit a shared T&C section, understand propagation to all templates |
-| Create a shared section | When to share, how to create, how to attach to multiple templates |
-| Configure a selection rule | Building AND/OR/NOT trees, common patterns, testing |
+| Create a new template | End-to-end: create (as draft) → add sections → configure rule → test → publish |
+| Modify an existing template | Edit metadata, add/remove/reorder sections, republish |
+| Publish and unpublish a template | The draft→published lifecycle, what "published" means for rendering, unpublishing to take a template out of selection |
+| Add and manage section variants | Add a variant to a section, set the default variant, configure each variant's selection rule, reorder variants |
+| Work with section version history | View versions, publish a new version, revert to a previous version, understand pinned versions |
+| Update Terms & Conditions | Edit a shared T&C section, publish the new version, understand propagation to all templates |
+| Create a shared section | When to share, how to create, how to attach to multiple templates, publishing shared section versions |
+| Configure a template selection rule | Building AND/OR/NOT trees, common patterns, testing |
+| Configure a section variant rule | How variant rules differ from template rules, first-match-wins with a default fallback |
 | Reorder template priority | How priority affects rule evaluation, drag-to-reorder |
-| Add a data source to a template | Browse available data sources, attach to template, use fields in sections (Estimate 3b) |
+| Add a data source to a template | Browse available data sources, attach to template, use fields in section variants (Estimate 3b) |
 
 **Format:** Individual guides (1-2 pages each), written with screenshots. Internal wiki with PDF exports.
 
@@ -79,8 +87,10 @@ Business users responsible for managing contract note templates — likely a sma
   - "Multiple MPANs" → `MORE_THAN: numberofmpans > 1`
   - "North or South region" → `IN: region IN ["North", "South"]`
   - Combined: "Fixed AND HH AND > 1 MPAN" (nested tree example)
-- Priority ordering explanation (first match wins)
-- Tips: start specific (high priority), end with a catch-all
+- **Two levels of rules** (important):
+  - **Template selection rules** — choose which template renders for a contract (first match wins across templates, in priority order; only *published* templates are considered)
+  - **Section variant rules** — within a section, choose which variant renders (first match wins across a section's variants; a variant marked *default* is the fallback when nothing else matches)
+- Tips: start specific (high priority), end with a catch-all; always keep one default variant per multi-variant section so rendering never fails to match
 
 **Format:** Single-page PDF / laminated desk reference.
 
@@ -92,9 +102,12 @@ Business users responsible for managing contract note templates — likely a sma
 
 **Contents:**
 - When to use shared sections vs template-specific sections
+- When to use section variants vs separate templates (variants for small within-section differences driven by contract data; separate templates for wholesale layout differences)
+- Keeping a default variant so a section always renders
 - Section ordering: header → body → pricing → T&Cs
 - Handling dynamic-length content (tables that span pages)
 - Font and alignment consistency
+- Draft while you work, publish when ready; use version history to revert a bad change
 - Testing templates with sample data before going live
 
 **Format:** Written guide (2-3 pages). Internal wiki.
@@ -106,9 +119,13 @@ Business users responsible for managing contract note templates — likely a sma
 **Purpose:** Self-service resolution for common issues.
 
 **Contents:**
-- "My template isn't being selected" → check rule, check priority order
+- "My template isn't being selected" → check rule, check priority order, **check the template is published (drafts are never selected)**
+- "The wrong section variant is rendering" → check variant rules and order, confirm which variant is the default
+- "A section fails to render / no variant matched" → ensure the section has a default variant as a catch-all
+- "My changes aren't showing on the PDF" → confirm you published the new version (rendering uses the pinned/published version, not your draft edits)
+- "How do I undo a bad edit" → revert to a previous version from the section's version history
 - "A field shows blank on the rendered PDF" → check field name matches payload, check data source is attached
-- "T&Cs changes aren't showing" → shared section propagation, cache/timing
+- "T&Cs changes aren't showing" → shared section propagation, did you publish the new shared section version, cache/timing
 - "I can't delete a shared section" → referenced by templates, how to unlink
 - "The designer won't load" → browser compatibility, retry
 
@@ -121,10 +138,12 @@ Business users responsible for managing contract note templates — likely a sma
 **Purpose:** Visual walkthroughs for people who learn better by watching.
 
 **Suggested recordings:**
-- Creating a template end-to-end (5 min)
+- Creating a template end-to-end, draft → publish (5 min)
 - Using the pdf-me designer to position fields (3 min)
-- Building a selection rule (3 min)
-- Updating T&Cs (2 min)
+- Building a template selection rule (3 min)
+- Adding a section variant and configuring its rule (4 min)
+- Version history: publishing a new version and reverting (3 min)
+- Updating T&Cs and publishing the shared section version (2 min)
 - Adding a data source and using its fields (3 min)
 
 **Format:** MP4, hosted on internal video platform or SharePoint.
