@@ -64,3 +64,10 @@ Covers parent requirements: 6, 7, 8, 9, 10 · `s2s-contract-note-docusign-integr
 Builds `lambda:webhook` and the `POST /docusign-webhook` route (bound by US-08): HMAC gate (US-03) then routing — on `completed`, download (US-03) + store in the signed bucket (US-01) + upload to Salesforce (US-02) + update metadata (US-04); on `declined`/`expired`, update metadata and write a notification to the error bucket (US-01).
 
 See the attached `US-06.png` for what this story builds and where each piece is used.
+
+## Reference documentation
+
+This Lambda orchestrates the service clients rather than calling DocuSign or Salesforce directly, so the vendor API references live on the client stories:
+
+- DocuSign Connect HMAC validation + signed-document download — see **US-03** (Reference documentation).
+- Salesforce signed-document upload — see **US-02** (Reference documentation).

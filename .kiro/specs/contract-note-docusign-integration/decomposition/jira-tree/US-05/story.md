@@ -61,3 +61,10 @@ Covers parent requirements: 1, 2, 3, 4, 5, 10 · `s2s-contract-note-docusign-int
 Builds `lambda:send-envelope`, the orchestration invoked by the `SendEnvelope` task (wired by US-08): extract + validate metadata, idempotency check by contract note S3 key, then `lookupContact` (US-02) → auth + `createEnvelope` (US-03) → `createRecord` (US-04), using US-01 types and error-writer.
 
 See the attached `US-05.png` for what this story builds and where each piece is used.
+
+## Reference documentation
+
+This Lambda orchestrates the service clients rather than calling DocuSign or Salesforce directly, so the vendor API references live on the client stories:
+
+- DocuSign auth + envelope creation — see **US-03** (Reference documentation).
+- Salesforce contact lookup — see **US-02** (Reference documentation).

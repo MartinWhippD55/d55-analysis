@@ -66,3 +66,31 @@ the conventions Estimate 1's backend established.
 End-to-end runtime flow: the render pipeline (US-07) hands the contract PDF and `Contract_Metadata` to the Send Envelope Lambda (US-05), which looks up the contact (US-02), creates the envelope (US-03), and stores the record (US-04). DocuSign emails the customer for signature; the Connect callback hits the Webhook Lambda (US-06), which validates the HMAC, downloads the signed PDF, stores it in the signed bucket (US-01), uploads it to Salesforce, and updates status — routing declined/expired/failures to the reused error bucket (US-01). US-08 wires the `SendEnvelope` task and webhook route together.
 
 See the attached `epic-service-interaction.png`, annotated with the delivering story (US-xx / SQP key) for each participant.
+
+## What to ask Bryt for
+
+External access and credentials this epic depends on Bryt (the client) to provide. None of it blocks initial development — the team can build against D55's own DocuSign developer (demo) account and a Salesforce dev org — but the client-provided sandboxes are needed for UAT, and a few items (JWT consent, DocuSign go-live) have lead time, so raise them early.
+
+**Simon Farrimond or Stephen Perrins** are the people to check with internally about the Salesforce environment — they should know whether Bryt already has a sandbox and how to arrange access.
+
+### DocuSign (US-03)
+
+- Access to Bryt's DocuSign **sandbox/demo account** — either admin access so we create the app and keys, or the credential bundle created for us.
+- A dedicated **system/service user** for the integration to impersonate (not a named person).
+- The JWT credential bundle → Secrets Manager `{resourcePrefix}contract-note/docusign`: Integration Key, RSA private key, impersonated user GUID, account ID, auth server.
+- **JWT admin consent** for the signature-impersonation scope (one-time, org-wide or per-user) — the most common first-call blocker.
+- A **Connect HMAC key** created in their account, secret shared to us for webhook validation (US-06).
+- **Production go-live** sponsorship — DocuSign requires ~20 successful demo API calls plus a review to promote the integration key to production.
+- Confirm the eSignature plan has **API access** enabled.
+
+### Salesforce (US-02)
+
+- Access to Bryt's **Salesforce sandbox** — check internally with Simon Farrimond / Stephen Perrins whether one already exists, then arrange access.
+- A **Connected App** for the OAuth client-credentials flow (consumer key + secret) → Secrets Manager `{resourcePrefix}contract-note/salesforce`, plus the instance URL and token URL.
+- A dedicated **integration user** the Connected App runs as, with permission to query the customer record and create Files (ContentVersion / ContentDocumentLink).
+- The **object/field mapping**: which object `customersalesforceref` resolves to, and where the signed PDF should be attached.
+
+### Lead-time items to raise now
+
+- DocuSign JWT consent grant and production go-live review (both gated, not instant).
+- Whether the Salesforce sandbox is a full/partial-copy sandbox with representative contact data for UAT.

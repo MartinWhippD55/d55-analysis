@@ -102,9 +102,11 @@ def render_diagram(block):
     body = _para_list(block.get("body"))
     uri = _b64_uri(_resolve(block["image"]))
     caption = f'<figcaption>{esc(block["caption"])}</figcaption>' if block.get("caption") else ""
+    # Optional per-diagram cap (mm) to control pagination; overrides the CSS default.
+    style = f' style="max-height:{block["maxHeight"]}mm"' if block.get("maxHeight") else ""
     return (
         f'<section class="block block-diagram">{heading}{body}'
-        f'<figure class="diagram"><img src="{uri}" alt="diagram">{caption}</figure></section>'
+        f'<figure class="diagram"><img src="{uri}" alt="diagram"{style}>{caption}</figure></section>'
     )
 
 

@@ -53,3 +53,13 @@ Covers parent requirements: 3, 4, 6, 7 · `s2s-contract-note-docusign-integratio
 Builds `service:docusign-client` (JWT auth → `createEnvelope`, `downloadSigned`, `validateHmac`) on the US-01 shared types and retry utility. Auth + envelope creation feed the Send Envelope Lambda (US-05); HMAC validation + signed-document download feed the Webhook Lambda (US-06).
 
 See the attached `US-03.png` for what this story builds and where each piece is used.
+
+## Reference documentation
+
+External vendor docs for building the DocuSign client. This story is the canonical home for DocuSign API references (US-05 and US-06 consume this client rather than calling DocuSign directly).
+
+- [DocuSign JWT Grant authentication](https://developers.docusign.com/platform/auth/jwt/) — server-to-server OAuth flow (integration key, RSA key, impersonated user), used for the cached access token.
+- [eSignature REST API — Envelopes: create](https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/create/) — `EnvelopeDefinition` (document, recipient, tabs, `eventNotification`, status `sent`).
+- [eSignature REST API — EnvelopeDocuments: get](https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopedocuments/get/) — download the signed PDF using the `combined` document keyword.
+- [DocuSign Connect — validate HMAC signatures](https://developers.docusign.com/platform/webhooks/connect/validate/) — verifying the `X-DocuSign-Signature-1` header on inbound Connect callbacks.
+- [`docusign-esign` Node SDK (npm)](https://www.npmjs.com/package/docusign-esign) — the SDK that handles JWT token exchange and envelope calls.

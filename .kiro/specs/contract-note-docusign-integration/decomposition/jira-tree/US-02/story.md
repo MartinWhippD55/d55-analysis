@@ -52,3 +52,12 @@ Covers parent requirements: 2, 8 · `s2s-contract-note-docusign-integration-US-0
 Builds `service:salesforce-client` (OAuth authenticate → `lookupContact` → `uploadDocument`) on the US-01 shared types and retry utility. Its lookup feeds the Send Envelope Lambda (US-05) and its signed-document upload feeds the Webhook Lambda (US-06).
 
 See the attached `US-02.png` for what this story builds and where each piece is used.
+
+## Reference documentation
+
+External vendor docs for building the (greenfield) Salesforce client. This story is the canonical home for Salesforce API references (US-05 and US-06 consume this client rather than calling Salesforce directly).
+
+- [OAuth 2.0 Client Credentials Flow](https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_client_credentials_flow.htm&type=5) — server-to-server auth against the token endpoint used by the client.
+- [REST API — Execute a SOQL Query](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_query.htm) — the `/query` resource used to look up the contact by `customersalesforceref`.
+- [Object Reference — ContentVersion](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_contentversion.htm) — uploading the signed PDF as a Salesforce File.
+- [Object Reference — ContentDocumentLink](https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_contentdocumentlink.htm) — linking the uploaded file to the customer record.
