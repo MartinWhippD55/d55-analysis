@@ -1,0 +1,126 @@
+parentSpec: contract-note-data-source-extensibility
+stories:
+- US-01
+- US-02
+- US-04
+- US-03
+- US-05
+- US-06
+- US-07
+- US-08
+components:
+  api-endpoint:DELETE /contract-note-templates/{templateId}/data-sources/{database}/{table}: US-03
+  api-endpoint:GET /contract-note-data-sources: US-03
+  api-endpoint:GET /contract-note-data-sources/{database}/{table}/columns: US-03
+  api-endpoint:GET /contract-note-shared-sections/{sharedSectionId}/data-source-dependencies: US-03
+  api-endpoint:GET /contract-note-templates/{templateId}/data-sources: US-03
+  api-endpoint:POST /contract-note-templates/{templateId}/data-sources: US-03
+  cdk-construct:DataSourceApi: US-03
+  cdk-construct:athena-workgroup: US-01
+  cdk-construct:project-role-trust-policy: US-01
+  cdk-instance:deployment: US-08
+  frontend-component:data-source-picker-dialog: US-06
+  frontend-component:section-variant-field-browser: US-07
+  frontend-component:shared-section-dependency-check: US-07
+  frontend-component:shared-section-deps-display: US-07
+  frontend-component:template-edit-data-sources-panel: US-06
+  lambda:enrich-data-sources: US-05
+  service:DataSourceService: US-06
+  shared-lib:athena-client: US-05
+  shared-lib:data-source-types: US-01
+  shared-lib:dependency-scanner: US-04
+  shared-lib:glue-catalog-client: US-02
+  state-machine:render-pipeline-enrichment: US-05
+edges:
+- from: US-02
+  to: US-01
+  via:
+  - cdk-construct:project-role-trust-policy
+  - shared-lib:data-source-types
+- from: US-03
+  to: US-01
+  via:
+  - cdk-construct:project-role-trust-policy
+  - shared-lib:data-source-types
+- from: US-03
+  to: US-02
+  via:
+  - shared-lib:glue-catalog-client
+- from: US-04
+  to: US-01
+  via:
+  - shared-lib:data-source-types
+- from: US-05
+  to: US-01
+  via:
+  - cdk-construct:athena-workgroup
+  - cdk-construct:project-role-trust-policy
+  - shared-lib:data-source-types
+- from: US-05
+  to: US-02
+  via:
+  - shared-lib:glue-catalog-client
+- from: US-06
+  to: US-01
+  via:
+  - shared-lib:data-source-types
+- from: US-06
+  to: US-03
+  via:
+  - api-endpoint:DELETE /contract-note-templates/{templateId}/data-sources/{database}/{table}
+  - api-endpoint:GET /contract-note-data-sources
+  - api-endpoint:GET /contract-note-templates/{templateId}/data-sources
+  - api-endpoint:POST /contract-note-templates/{templateId}/data-sources
+- from: US-07
+  to: US-03
+  via:
+  - api-endpoint:GET /contract-note-data-sources/{database}/{table}/columns
+  - api-endpoint:GET /contract-note-shared-sections/{sharedSectionId}/data-source-dependencies
+- from: US-07
+  to: US-04
+  via:
+  - shared-lib:dependency-scanner
+- from: US-07
+  to: US-06
+  via:
+  - service:DataSourceService
+- from: US-08
+  to: US-03
+  via:
+  - cdk-construct:DataSourceApi
+- from: US-08
+  to: US-05
+  via:
+  - lambda:enrich-data-sources
+  - state-machine:render-pipeline-enrichment
+- from: US-08
+  to: US-06
+  via:
+  - frontend-component:template-edit-data-sources-panel
+- from: US-08
+  to: US-07
+  via:
+  - frontend-component:section-variant-field-browser
+waves:
+- wave: 1
+  stories:
+  - US-01
+- wave: 2
+  stories:
+  - US-02
+  - US-04
+- wave: 3
+  stories:
+  - US-03
+  - US-05
+- wave: 4
+  stories:
+  - US-06
+- wave: 5
+  stories:
+  - US-07
+- wave: 6
+  stories:
+  - US-08
+issues: []
+ok: true

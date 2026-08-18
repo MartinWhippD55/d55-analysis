@@ -1,0 +1,52 @@
+id: US-05
+title: Render pipeline enrichment (new Step Functions state)
+userStory: As a system operator, I want a new enrich-data-sources state between select-template
+  and render-sections that queries each attached data source by BrytNumber via Athena
+  and merges the results into ContractData, so that data source fields populate on
+  the PDF.
+coversRequirements:
+- '5'
+exports:
+- shared-lib:athena-client
+- lambda:enrich-data-sources
+- state-machine:render-pipeline-enrichment
+dependsOn:
+- shared-lib:data-source-types
+- shared-lib:glue-catalog-client
+- cdk-construct:project-role-trust-policy
+- cdk-construct:athena-workgroup
+subtasks:
+- id: US-05-1
+  title: 'Implement Athena query executor (api/src/render/athena-client.ts): assume
+    Project Role; run SELECT * FROM {db}.{table} WHERE bryt_number = ? LIMIT 1; parse
+    rows; no rows -> empty, multiple -> first+warn, error -> throw'
+  requirements:
+  - '5'
+  optional: false
+- id: US-05-2
+  title: 'Implement enrich-data-sources handler (api/src/render/enrich-data-sources.ts):
+    read template DATASOURCE records; none -> pass through; extract customerreference;
+    query each source concurrently; merge under {table}.{column}'
+  requirements:
+  - '5'
+  optional: false
+- id: US-05-3
+  title: 'Wire the state into render-pipeline.ts: add EnrichDataSourcesHandler NodejsFunction,
+    insert between selectTemplate and renderSections, add to handle-failure catch
+    array, grant table read + Athena/AssumeRole'
+  requirements:
+  - '5'
+  optional: false
+- id: US-05-4
+  title: 'Property tests for enrichment (Property 7: namespaced data; 8: empty pass-through;
+    9: empty rows continue; 10: failure routes to handle-failure)'
+  requirements:
+  - '5'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-data-source-extensibility
+  labels:
+  - backend
+  - pipeline
+  estimateDays: 1.5

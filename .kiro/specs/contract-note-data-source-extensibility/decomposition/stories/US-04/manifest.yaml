@@ -1,0 +1,37 @@
+id: US-04
+title: Data source dependency scanner
+userStory: As a Business_User, I want shared sections to automatically track which
+  data sources they depend on, derived from the namespaced fields used across all
+  of a section's variant schemas, so that templates using them can be checked.
+coversRequirements:
+- '4'
+exports:
+- shared-lib:dependency-scanner
+dependsOn:
+- shared-lib:data-source-types
+subtasks:
+- id: US-04-1
+  title: 'Implement pdf-me schema field-reference scanner: walk all pages of { schemas:
+    [[...]] }, collect element names containing ''.'', map prefix -> table name'
+  requirements:
+  - '4'
+  optional: false
+- id: US-04-2
+  title: 'Implement shared-section dependency recompute: on variant schema save /
+    version publish, scan all variants'' schemas, compute union of referenced data
+    sources, reconcile DATASOURCE_DEP records'
+  requirements:
+  - '4'
+  optional: false
+- id: US-04-3
+  title: 'Property tests for dependency tracking (Property 5: dependency = union across
+    variants)'
+  requirements:
+  - '4'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-data-source-extensibility
+  labels:
+  - backend
+  estimateDays: 1.0

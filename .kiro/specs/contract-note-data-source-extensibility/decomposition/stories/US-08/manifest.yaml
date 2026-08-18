@@ -1,0 +1,37 @@
+id: US-08
+title: Integration wiring & end-to-end validation
+userStory: As a developer, I want all components deployed and wired (API Gateway routes,
+  Lambda->Project Role assume, Athena workgroup/results bucket, env vars) with end-to-end
+  tests, so that the data source feature works as a whole.
+coversRequirements:
+- '6'
+exports:
+- cdk-instance:deployment
+dependsOn:
+- cdk-construct:DataSourceApi
+- lambda:enrich-data-sources
+- state-machine:render-pipeline-enrichment
+- frontend-component:template-edit-data-sources-panel
+- frontend-component:section-variant-field-browser
+subtasks:
+- id: US-08-1
+  title: 'Finalise CDK deployment: confirm API Gateway routes, Lambda->Project Role
+    assume, Athena workgroup/results bucket, and env vars are all wired in the stack'
+  requirements:
+  - '6'
+  optional: false
+- id: US-08-2
+  title: 'Integration tests: subscribe Glue table -> appears; attach -> drop XML ->
+    enriched fields render; remove bryt_number -> filtered out; force Athena error
+    -> handle-failure'
+  requirements:
+  - '1'
+  - '5'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-data-source-extensibility
+  labels:
+  - infra
+  - integration
+  estimateDays: 1.0

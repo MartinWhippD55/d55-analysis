@@ -1,0 +1,41 @@
+id: US-01
+title: 'Foundation: shared data-source types & infrastructure'
+userStory: As a developer, I want the shared data-source TypeScript types + DynamoDB
+  record shapes, the Unified Studio Project Role trust-policy change, and the Athena
+  workgroup + results bucket, so that every other story has a stable foundation to
+  build on.
+coversRequirements:
+- '6'
+exports:
+- shared-lib:data-source-types
+- cdk-construct:project-role-trust-policy
+- cdk-construct:athena-workgroup
+dependsOn: []
+subtasks:
+- id: US-01-1
+  title: Extend shared-lib/types.ts with data source entities (TemplateDataSource,
+    SharedSectionDataSourceDependency entity types + records + AvailableDataSource/DataSourceColumn/SectionDataSourceDependency
+    interfaces + SK aliases)
+  requirements:
+  - '2'
+  - '4'
+  optional: false
+- id: US-01-2
+  title: Modify Project Role trust policy to allow the data-source + enrich Lambda
+    execution roles to assume it; expose PROJECT_ROLE_ARN as a CDK param/env var
+  requirements:
+  - '6'
+  optional: false
+- id: US-01-3
+  title: Configure Athena workgroup and S3 results bucket; grant the Project Role
+    access to both
+  requirements:
+  - '5'
+  optional: false
+jira:
+  issueType: Story
+  epic: contract-note-data-source-extensibility
+  labels:
+  - infra
+  - backend
+  estimateDays: 1.5

@@ -1,0 +1,44 @@
+id: US-06
+title: 'Frontend: Template Edit data sources panel'
+userStory: As a Business_User, I want a Data Sources panel on the template edit screen
+  to view, attach and detach data sources (with an in-use warning), so that a template's
+  sections can reference their fields.
+coversRequirements:
+- '2'
+exports:
+- service:DataSourceService
+- frontend-component:template-edit-data-sources-panel
+- frontend-component:data-source-picker-dialog
+dependsOn:
+- shared-lib:data-source-types
+- api-endpoint:GET /contract-note-data-sources
+- api-endpoint:GET /contract-note-templates/{templateId}/data-sources
+- api-endpoint:POST /contract-note-templates/{templateId}/data-sources
+- api-endpoint:DELETE /contract-note-templates/{templateId}/data-sources/{database}/{table}
+subtasks:
+- id: US-06-1
+  title: Implement DataSourceService (list available, get columns, attach/detach,
+    list attached, list shared-section deps) wired to the API Gateway endpoints
+  requirements:
+  - '1'
+  - '2'
+  optional: false
+- id: US-06-2
+  title: Extend template-edit component with a Data Sources panel (show attached;
+    [+ Attach] picker; detach with confirmation warning if a variant references its
+    fields; available regardless of DRAFT/PUBLISHED)
+  requirements:
+  - '2'
+  optional: false
+- id: US-06-3
+  title: Implement data source picker dialog (available sources excluding attached,
+    with table/database/column count)
+  requirements:
+  - '2'
+  optional: false
+jira:
+  issueType: Story
+  epic: contract-note-data-source-extensibility
+  labels:
+  - frontend
+  estimateDays: 1.5

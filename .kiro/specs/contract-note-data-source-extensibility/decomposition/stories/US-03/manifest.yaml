@@ -1,0 +1,86 @@
+id: US-03
+title: Data Source API handlers + routing
+userStory: As a frontend developer, I want API endpoints to list available data sources,
+  get their columns, and attach/detach/list data sources on a template (plus a shared
+  section's tracked dependencies), so that the Admin Portal can manage attachments.
+coversRequirements:
+- '2'
+- '7'
+exports:
+- api-endpoint:GET /contract-note-data-sources
+- api-endpoint:GET /contract-note-data-sources/{database}/{table}/columns
+- api-endpoint:GET /contract-note-templates/{templateId}/data-sources
+- api-endpoint:POST /contract-note-templates/{templateId}/data-sources
+- api-endpoint:DELETE /contract-note-templates/{templateId}/data-sources/{database}/{table}
+- api-endpoint:GET /contract-note-shared-sections/{sharedSectionId}/data-source-dependencies
+- cdk-construct:DataSourceApi
+dependsOn:
+- shared-lib:data-source-types
+- shared-lib:glue-catalog-client
+- cdk-construct:project-role-trust-policy
+subtasks:
+- id: US-03-1
+  title: 'Declare routes in contract-note-foundation.ts: contract-note-data-sources
+    root (+ {database}/{table}/columns), data-sources under templates/{templateId},
+    data-source-dependencies under shared-sections/{id}; extend ContractNoteApiRoutes
+    with DataSourceRouteResources'
+  requirements:
+  - '7'
+  optional: false
+- id: US-03-2
+  title: Implement list-available handler (Glue client -> [{database, tableName, columnCount}])
+  requirements:
+  - '1'
+  - '7'
+  optional: false
+- id: US-03-3
+  title: Implement get-columns handler (column names + types for a table)
+  requirements:
+  - '7'
+  optional: false
+- id: US-03-4
+  title: Implement attach-data-source handler (validate table exists + has bryt_number;
+    write DATASOURCE record)
+  requirements:
+  - '2'
+  - '7'
+  optional: false
+- id: US-03-5
+  title: Implement detach-data-source handler (scan all sections' variants for referencing
+    fields; 409 with affected section+variant list, else remove)
+  requirements:
+  - '2'
+  - '7'
+  optional: false
+- id: US-03-6
+  title: Implement list-attached handler (query DATASOURCE records for a template)
+  requirements:
+  - '2'
+  - '7'
+  optional: false
+- id: US-03-7
+  title: Implement list-shared-section-deps handler (query DATASOURCE_DEP records)
+  requirements:
+  - '4'
+  optional: false
+- id: US-03-8
+  title: Create DataSourceApi CDK construct (per-op NodejsFunctions, grant table/Glue/Athena/AssumeRole,
+    wire LambdaIntegrations, pass PROJECT_ROLE_ARN + Athena config); instantiate in
+    contract-note-stack.ts
+  requirements:
+  - '6'
+  - '7'
+  optional: false
+- id: US-03-9
+  title: 'Property tests for data source API (Property 2: attachment round-trip; Property
+    3: detachment with variant-field-in-use warning)'
+  requirements:
+  - '2'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-data-source-extensibility
+  labels:
+  - backend
+  - api
+  estimateDays: 2.0

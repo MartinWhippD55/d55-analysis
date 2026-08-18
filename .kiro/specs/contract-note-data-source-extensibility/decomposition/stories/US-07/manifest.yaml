@@ -1,0 +1,52 @@
+id: US-07
+title: 'Frontend: section-variant editor field browser & shared-section deps'
+userStory: As a Business_User, I want data source fields in the section-variant editor
+  palette, a missing-dependency prompt when adding a shared section, and dependencies
+  shown on the shared section detail screen, so that I can design enriched sections
+  safely.
+coversRequirements:
+- '3'
+- '4'
+exports:
+- frontend-component:section-variant-field-browser
+- frontend-component:shared-section-dependency-check
+- frontend-component:shared-section-deps-display
+dependsOn:
+- service:DataSourceService
+- api-endpoint:GET /contract-note-data-sources/{database}/{table}/columns
+- api-endpoint:GET /contract-note-shared-sections/{sharedSectionId}/data-source-dependencies
+- shared-lib:dependency-scanner
+subtasks:
+- id: US-07-1
+  title: 'Surface data source fields in the pdfme-designer palette for the edited
+    variant: collapsible groups per data source; fields labelled {table}.{column}
+    with type, visually distinct; placed fields use the namespaced name'
+  requirements:
+  - '3'
+  optional: false
+- id: US-07-2
+  title: 'Implement shared section attachment dependency check: on adding a shared
+    section, read its DATASOURCE_DEP records; if the template is missing required
+    sources, prompt to add them first'
+  requirements:
+  - '4'
+  optional: false
+- id: US-07-3
+  title: Display data source dependencies on the shared section detail screen
+  requirements:
+  - '4'
+  optional: false
+- id: US-07-4
+  title: 'Property tests for frontend logic (Property 4: field availability scoped
+    to attachments; Property 6: missing dependency enforcement)'
+  requirements:
+  - '2'
+  - '3'
+  - '4'
+  optional: true
+jira:
+  issueType: Story
+  epic: contract-note-data-source-extensibility
+  labels:
+  - frontend
+  estimateDays: 1.5

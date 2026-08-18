@@ -1,0 +1,740 @@
+{
+  "parent_spec": "contract-note-data-source-extensibility",
+  "set_label": "s2s-contract-note-data-source-extensibility",
+  "epic": {
+    "summary": "contract-note-data-source-extensibility (delivery)",
+    "epic_name": "contract-note-data-source-extensibility",
+    "description": "Umbrella epic decomposed from spec 'contract-note-data-source-extensibility' by spec-to-stories.",
+    "identity_label": "s2s-contract-note-data-source-extensibility-epic",
+    "labels": [
+      "s2s-contract-note-data-source-extensibility",
+      "s2s-contract-note-data-source-extensibility-epic"
+    ]
+  },
+  "stories": [
+    {
+      "sid": "US-01",
+      "summary": "Foundation: shared data-source types & infrastructure",
+      "description": "As a developer, I want the shared data-source TypeScript types + DynamoDB record shapes, the Unified Studio Project Role trust-policy change, and the Athena workgroup + results bucket, so that every other story has a stable foundation to build on.\n\nCovers parent requirements: 6\nTraceability: s2s-contract-note-data-source-extensibility-US-01",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-data-source-extensibility-US-01",
+      "labels": [
+        "s2s-contract-note-data-source-extensibility",
+        "s2s-contract-note-data-source-extensibility-US-01",
+        "infra",
+        "backend"
+      ],
+      "covers_requirements": [
+        "6"
+      ],
+      "estimate_days": 1.5,
+      "subtasks": [
+        {
+          "tid": "US-01-1",
+          "summary": "Extend shared-lib/types.ts with data source entities (TemplateDataSource, SharedSectionDataSourceDependency entity types + records + AvailableDataSource/DataSourceColumn/SectionDataSourceDependency interfaces + SK aliases)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-01-1",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-01-1"
+          ],
+          "requirements": [
+            "2",
+            "4"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-01-2",
+          "summary": "Modify Project Role trust policy to allow the data-source + enrich Lambda execution roles to assume it; expose PROJECT_ROLE_ARN as a CDK param/env var",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-01-2",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-01-2"
+          ],
+          "requirements": [
+            "6"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-01-3",
+          "summary": "Configure Athena workgroup and S3 results bucket; grant the Project Role access to both",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-01-3",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-01-3"
+          ],
+          "requirements": [
+            "5"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "sid": "US-02",
+      "summary": "Glue Data Catalog discovery client",
+      "description": "As a Business_User, I want the system to discover the Glue tables available to the Project Role (filtered to those joinable by bryt_number) with their columns, so that subscribed data sources become usable without code changes.\n\nCovers parent requirements: 1\nTraceability: s2s-contract-note-data-source-extensibility-US-02",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-data-source-extensibility-US-02",
+      "labels": [
+        "s2s-contract-note-data-source-extensibility",
+        "s2s-contract-note-data-source-extensibility-US-02",
+        "backend"
+      ],
+      "covers_requirements": [
+        "1"
+      ],
+      "estimate_days": 1.0,
+      "subtasks": [
+        {
+          "tid": "US-02-1",
+          "summary": "Implement Glue catalog client: AssumeRole -> Project Role creds, list databases/tables, filter to bryt_number tables, return AvailableDataSource[] with columns",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-02-1",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-02-1"
+          ],
+          "requirements": [
+            "1"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-02-2",
+          "summary": "Implement column detail fetcher: full column list (name, type) for a specific {database}/{table}",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-02-2",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-02-2"
+          ],
+          "requirements": [
+            "3",
+            "7"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-02-3",
+          "summary": "Property tests for discovery (Property 1: only bryt_number tables discoverable; Property 11: new subscriptions immediately discoverable)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-02-3",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-02-3",
+            "optional"
+          ],
+          "requirements": [
+            "1",
+            "6"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-04",
+      "summary": "Data source dependency scanner",
+      "description": "As a Business_User, I want shared sections to automatically track which data sources they depend on, derived from the namespaced fields used across all of a section's variant schemas, so that templates using them can be checked.\n\nCovers parent requirements: 4\nTraceability: s2s-contract-note-data-source-extensibility-US-04",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-data-source-extensibility-US-04",
+      "labels": [
+        "s2s-contract-note-data-source-extensibility",
+        "s2s-contract-note-data-source-extensibility-US-04",
+        "backend"
+      ],
+      "covers_requirements": [
+        "4"
+      ],
+      "estimate_days": 1.0,
+      "subtasks": [
+        {
+          "tid": "US-04-1",
+          "summary": "Implement pdf-me schema field-reference scanner: walk all pages of { schemas: [[...]] }, collect element names containing '.', map prefix -> table name",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-04-1",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-04-1"
+          ],
+          "requirements": [
+            "4"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-04-2",
+          "summary": "Implement shared-section dependency recompute: on variant schema save / version publish, scan all variants' schemas, compute union of referenced data sources, reconcile DATASOURCE_DEP records",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-04-2",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-04-2"
+          ],
+          "requirements": [
+            "4"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-04-3",
+          "summary": "Property tests for dependency tracking (Property 5: dependency = union across variants)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-04-3",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-04-3",
+            "optional"
+          ],
+          "requirements": [
+            "4"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-03",
+      "summary": "Data Source API handlers + routing",
+      "description": "As a frontend developer, I want API endpoints to list available data sources, get their columns, and attach/detach/list data sources on a template (plus a shared section's tracked dependencies), so that the Admin Portal can manage attachments.\n\nCovers parent requirements: 2, 7\nTraceability: s2s-contract-note-data-source-extensibility-US-03",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-data-source-extensibility-US-03",
+      "labels": [
+        "s2s-contract-note-data-source-extensibility",
+        "s2s-contract-note-data-source-extensibility-US-03",
+        "backend",
+        "api"
+      ],
+      "covers_requirements": [
+        "2",
+        "7"
+      ],
+      "estimate_days": 2.0,
+      "subtasks": [
+        {
+          "tid": "US-03-1",
+          "summary": "Declare routes in contract-note-foundation.ts: contract-note-data-sources root (+ {database}/{table}/columns), data-sources under templates/{templateId}, data-source-dependencies under shared-sections/{id}; extend ContractNoteApiRoutes with DataSourceRouteResources",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-03-1",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-03-1"
+          ],
+          "requirements": [
+            "7"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-2",
+          "summary": "Implement list-available handler (Glue client -> [{database, tableName, columnCount}])",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-03-2",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-03-2"
+          ],
+          "requirements": [
+            "1",
+            "7"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-3",
+          "summary": "Implement get-columns handler (column names + types for a table)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-03-3",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-03-3"
+          ],
+          "requirements": [
+            "7"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-4",
+          "summary": "Implement attach-data-source handler (validate table exists + has bryt_number; write DATASOURCE record)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-03-4",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-03-4"
+          ],
+          "requirements": [
+            "2",
+            "7"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-5",
+          "summary": "Implement detach-data-source handler (scan all sections' variants for referencing fields; 409 with affected section+variant list, else remove)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-03-5",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-03-5"
+          ],
+          "requirements": [
+            "2",
+            "7"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-6",
+          "summary": "Implement list-attached handler (query DATASOURCE records for a template)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-03-6",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-03-6"
+          ],
+          "requirements": [
+            "2",
+            "7"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-7",
+          "summary": "Implement list-shared-section-deps handler (query DATASOURCE_DEP records)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-03-7",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-03-7"
+          ],
+          "requirements": [
+            "4"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-8",
+          "summary": "Create DataSourceApi CDK construct (per-op NodejsFunctions, grant table/Glue/Athena/AssumeRole, wire LambdaIntegrations, pass PROJECT_ROLE_ARN + Athena config); instantiate in contract-note-stack.ts",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-03-8",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-03-8"
+          ],
+          "requirements": [
+            "6",
+            "7"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-03-9",
+          "summary": "Property tests for data source API (Property 2: attachment round-trip; Property 3: detachment with variant-field-in-use warning)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-03-9",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-03-9",
+            "optional"
+          ],
+          "requirements": [
+            "2"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-05",
+      "summary": "Render pipeline enrichment (new Step Functions state)",
+      "description": "As a system operator, I want a new enrich-data-sources state between select-template and render-sections that queries each attached data source by BrytNumber via Athena and merges the results into ContractData, so that data source fields populate on the PDF.\n\nCovers parent requirements: 5\nTraceability: s2s-contract-note-data-source-extensibility-US-05",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-data-source-extensibility-US-05",
+      "labels": [
+        "s2s-contract-note-data-source-extensibility",
+        "s2s-contract-note-data-source-extensibility-US-05",
+        "backend",
+        "pipeline"
+      ],
+      "covers_requirements": [
+        "5"
+      ],
+      "estimate_days": 1.5,
+      "subtasks": [
+        {
+          "tid": "US-05-1",
+          "summary": "Implement Athena query executor (api/src/render/athena-client.ts): assume Project Role; run SELECT * FROM {db}.{table} WHERE bryt_number = ? LIMIT 1; parse rows; no rows -> empty, multiple -> first+warn, error -> throw",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-05-1",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-05-1"
+          ],
+          "requirements": [
+            "5"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-05-2",
+          "summary": "Implement enrich-data-sources handler (api/src/render/enrich-data-sources.ts): read template DATASOURCE records; none -> pass through; extract customerreference; query each source concurrently; merge under {table}.{column}",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-05-2",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-05-2"
+          ],
+          "requirements": [
+            "5"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-05-3",
+          "summary": "Wire the state into render-pipeline.ts: add EnrichDataSourcesHandler NodejsFunction, insert between selectTemplate and renderSections, add to handle-failure catch array, grant table read + Athena/AssumeRole",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-05-3",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-05-3"
+          ],
+          "requirements": [
+            "5"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-05-4",
+          "summary": "Property tests for enrichment (Property 7: namespaced data; 8: empty pass-through; 9: empty rows continue; 10: failure routes to handle-failure)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-05-4",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-05-4",
+            "optional"
+          ],
+          "requirements": [
+            "5"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-06",
+      "summary": "Frontend: Template Edit data sources panel",
+      "description": "As a Business_User, I want a Data Sources panel on the template edit screen to view, attach and detach data sources (with an in-use warning), so that a template's sections can reference their fields.\n\nCovers parent requirements: 2\nTraceability: s2s-contract-note-data-source-extensibility-US-06",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-data-source-extensibility-US-06",
+      "labels": [
+        "s2s-contract-note-data-source-extensibility",
+        "s2s-contract-note-data-source-extensibility-US-06",
+        "frontend"
+      ],
+      "covers_requirements": [
+        "2"
+      ],
+      "estimate_days": 1.5,
+      "subtasks": [
+        {
+          "tid": "US-06-1",
+          "summary": "Implement DataSourceService (list available, get columns, attach/detach, list attached, list shared-section deps) wired to the API Gateway endpoints",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-06-1",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-06-1"
+          ],
+          "requirements": [
+            "1",
+            "2"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-2",
+          "summary": "Extend template-edit component with a Data Sources panel (show attached; [+ Attach] picker; detach with confirmation warning if a variant references its fields; available regardless of DRAFT/PUBLISHED)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-06-2",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-06-2"
+          ],
+          "requirements": [
+            "2"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-06-3",
+          "summary": "Implement data source picker dialog (available sources excluding attached, with table/database/column count)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-06-3",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-06-3"
+          ],
+          "requirements": [
+            "2"
+          ],
+          "optional": false
+        }
+      ]
+    },
+    {
+      "sid": "US-07",
+      "summary": "Frontend: section-variant editor field browser & shared-section deps",
+      "description": "As a Business_User, I want data source fields in the section-variant editor palette, a missing-dependency prompt when adding a shared section, and dependencies shown on the shared section detail screen, so that I can design enriched sections safely.\n\nCovers parent requirements: 3, 4\nTraceability: s2s-contract-note-data-source-extensibility-US-07",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-data-source-extensibility-US-07",
+      "labels": [
+        "s2s-contract-note-data-source-extensibility",
+        "s2s-contract-note-data-source-extensibility-US-07",
+        "frontend"
+      ],
+      "covers_requirements": [
+        "3",
+        "4"
+      ],
+      "estimate_days": 1.5,
+      "subtasks": [
+        {
+          "tid": "US-07-1",
+          "summary": "Surface data source fields in the pdfme-designer palette for the edited variant: collapsible groups per data source; fields labelled {table}.{column} with type, visually distinct; placed fields use the namespaced name",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-07-1",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-07-1"
+          ],
+          "requirements": [
+            "3"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-07-2",
+          "summary": "Implement shared section attachment dependency check: on adding a shared section, read its DATASOURCE_DEP records; if the template is missing required sources, prompt to add them first",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-07-2",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-07-2"
+          ],
+          "requirements": [
+            "4"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-07-3",
+          "summary": "Display data source dependencies on the shared section detail screen",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-07-3",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-07-3"
+          ],
+          "requirements": [
+            "4"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-07-4",
+          "summary": "Property tests for frontend logic (Property 4: field availability scoped to attachments; Property 6: missing dependency enforcement)",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-07-4",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-07-4",
+            "optional"
+          ],
+          "requirements": [
+            "2",
+            "3",
+            "4"
+          ],
+          "optional": true
+        }
+      ]
+    },
+    {
+      "sid": "US-08",
+      "summary": "Integration wiring & end-to-end validation",
+      "description": "As a developer, I want all components deployed and wired (API Gateway routes, Lambda->Project Role assume, Athena workgroup/results bucket, env vars) with end-to-end tests, so that the data source feature works as a whole.\n\nCovers parent requirements: 6\nTraceability: s2s-contract-note-data-source-extensibility-US-08",
+      "issue_type": "Story",
+      "identity_label": "s2s-contract-note-data-source-extensibility-US-08",
+      "labels": [
+        "s2s-contract-note-data-source-extensibility",
+        "s2s-contract-note-data-source-extensibility-US-08",
+        "infra",
+        "integration"
+      ],
+      "covers_requirements": [
+        "6"
+      ],
+      "estimate_days": 1.0,
+      "subtasks": [
+        {
+          "tid": "US-08-1",
+          "summary": "Finalise CDK deployment: confirm API Gateway routes, Lambda->Project Role assume, Athena workgroup/results bucket, and env vars are all wired in the stack",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-08-1",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-08-1"
+          ],
+          "requirements": [
+            "6"
+          ],
+          "optional": false
+        },
+        {
+          "tid": "US-08-2",
+          "summary": "Integration tests: subscribe Glue table -> appears; attach -> drop XML -> enriched fields render; remove bryt_number -> filtered out; force Athena error -> handle-failure",
+          "identity_label": "s2s-contract-note-data-source-extensibility-US-08-2",
+          "labels": [
+            "s2s-contract-note-data-source-extensibility",
+            "s2s-contract-note-data-source-extensibility-US-08-2",
+            "optional"
+          ],
+          "requirements": [
+            "1",
+            "5"
+          ],
+          "optional": true
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-02",
+      "via": [
+        "cdk-construct:project-role-trust-policy",
+        "shared-lib:data-source-types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-03",
+      "via": [
+        "cdk-construct:project-role-trust-policy",
+        "shared-lib:data-source-types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-02",
+      "inward": "US-03",
+      "via": [
+        "shared-lib:glue-catalog-client"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-04",
+      "via": [
+        "shared-lib:data-source-types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-05",
+      "via": [
+        "cdk-construct:athena-workgroup",
+        "cdk-construct:project-role-trust-policy",
+        "shared-lib:data-source-types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-02",
+      "inward": "US-05",
+      "via": [
+        "shared-lib:glue-catalog-client"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-01",
+      "inward": "US-06",
+      "via": [
+        "shared-lib:data-source-types"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-03",
+      "inward": "US-06",
+      "via": [
+        "api-endpoint:DELETE /contract-note-templates/{templateId}/data-sources/{database}/{table}",
+        "api-endpoint:GET /contract-note-data-sources",
+        "api-endpoint:GET /contract-note-templates/{templateId}/data-sources",
+        "api-endpoint:POST /contract-note-templates/{templateId}/data-sources"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-03",
+      "inward": "US-07",
+      "via": [
+        "api-endpoint:GET /contract-note-data-sources/{database}/{table}/columns",
+        "api-endpoint:GET /contract-note-shared-sections/{sharedSectionId}/data-source-dependencies"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-04",
+      "inward": "US-07",
+      "via": [
+        "shared-lib:dependency-scanner"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-06",
+      "inward": "US-07",
+      "via": [
+        "service:DataSourceService"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-03",
+      "inward": "US-08",
+      "via": [
+        "cdk-construct:DataSourceApi"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-05",
+      "inward": "US-08",
+      "via": [
+        "lambda:enrich-data-sources",
+        "state-machine:render-pipeline-enrichment"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-06",
+      "inward": "US-08",
+      "via": [
+        "frontend-component:template-edit-data-sources-panel"
+      ]
+    },
+    {
+      "link_type": "Blocks",
+      "outward": "US-07",
+      "inward": "US-08",
+      "via": [
+        "frontend-component:section-variant-field-browser"
+      ]
+    }
+  ],
+  "waves": [
+    [
+      "US-01"
+    ],
+    [
+      "US-02",
+      "US-04"
+    ],
+    [
+      "US-03",
+      "US-05"
+    ],
+    [
+      "US-06"
+    ],
+    [
+      "US-07"
+    ],
+    [
+      "US-08"
+    ]
+  ]
+}
