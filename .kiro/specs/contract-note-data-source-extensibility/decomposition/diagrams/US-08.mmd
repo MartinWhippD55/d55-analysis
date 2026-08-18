@@ -1,0 +1,14 @@
+%% US-08 / SQP-5109 — what it builds and where it's used (baseline from graph.yaml).
+flowchart LR
+  subgraph BUILDS["US-08 / SQP-5109<br/>Integration wiring & end-to-end validation builds"]
+    direction TB
+    cdk_instance_deployment["cdk-instance:deployment"]
+  end
+  US_03["US-03 / SQP-5086<br/>Data Source API handlers + routing"]
+  US_03 -->|"cdk-construct:DataSourceApi"| BUILDS
+  US_05["US-05 / SQP-5087<br/>Render pipeline enrichment (new Step Functions state)"]
+  US_05 -->|"lambda:enrich-data-sources, state-machine:render-pipeline-enrichment"| BUILDS
+  US_06["US-06 / SQP-5108<br/>Frontend: Template Edit data sources panel"]
+  US_06 -->|"frontend-component:template-edit-data-sources-panel"| BUILDS
+  US_07["US-07 / SQP-5107<br/>Frontend: section-variant editor field browser & shared-section deps"]
+  US_07 -->|"frontend-component:section-variant-field-browser"| BUILDS

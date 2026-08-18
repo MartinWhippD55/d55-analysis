@@ -1,0 +1,16 @@
+%% US-07 / SQP-5107 — what it builds and where it's used (baseline from graph.yaml).
+flowchart LR
+  subgraph BUILDS["US-07 / SQP-5107<br/>Frontend: section-variant editor field browser & shared-section deps builds"]
+    direction TB
+    frontend_component_section_variant_field_browser["frontend-component:section-variant-field-browser"]
+    frontend_component_shared_section_dependency_check["frontend-component:shared-section-dependency-check"]
+    frontend_component_shared_section_deps_display["frontend-component:shared-section-deps-display"]
+  end
+  US_03["US-03 / SQP-5086<br/>Data Source API handlers + routing"]
+  US_03 -->|"api-endpoint:GET /contract-note-data-sources/{database}/{table}/columns, api-endpoint:GET /contract-note-shared-sections/{sharedSectionId}/data-source-dependencies"| BUILDS
+  US_04["US-04 / SQP-5084<br/>Data source dependency scanner"]
+  US_04 -->|"shared-lib:dependency-scanner"| BUILDS
+  US_06["US-06 / SQP-5108<br/>Frontend: Template Edit data sources panel"]
+  US_06 -->|"service:DataSourceService"| BUILDS
+  US_08["US-08 / SQP-5109<br/>Integration wiring & end-to-end validation"]
+  BUILDS -->|"frontend-component:section-variant-field-browser"| US_08

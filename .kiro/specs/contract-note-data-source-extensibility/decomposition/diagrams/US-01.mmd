@@ -1,0 +1,18 @@
+%% US-01 / SQP-5080 — what it builds and where it's used (baseline from graph.yaml).
+flowchart LR
+  subgraph BUILDS["US-01 / SQP-5080<br/>Foundation: shared data-source types & infrastructure builds"]
+    direction TB
+    cdk_construct_athena_workgroup["cdk-construct:athena-workgroup"]
+    cdk_construct_project_role_trust_policy["cdk-construct:project-role-trust-policy"]
+    shared_lib_data_source_types["shared-lib:data-source-types"]
+  end
+  US_02["US-02 / SQP-5085<br/>Glue Data Catalog discovery client"]
+  BUILDS -->|"cdk-construct:project-role-trust-policy, shared-lib:data-source-types"| US_02
+  US_03["US-03 / SQP-5086<br/>Data Source API handlers + routing"]
+  BUILDS -->|"cdk-construct:project-role-trust-policy, shared-lib:data-source-types"| US_03
+  US_04["US-04 / SQP-5084<br/>Data source dependency scanner"]
+  BUILDS -->|"shared-lib:data-source-types"| US_04
+  US_05["US-05 / SQP-5087<br/>Render pipeline enrichment (new Step Functions state)"]
+  BUILDS -->|"cdk-construct:athena-workgroup, cdk-construct:project-role-trust-policy, shared-lib:data-source-types"| US_05
+  US_06["US-06 / SQP-5108<br/>Frontend: Template Edit data sources panel"]
+  BUILDS -->|"shared-lib:data-source-types"| US_06

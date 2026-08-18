@@ -1,0 +1,22 @@
+%% US-03 / SQP-5086 — what it builds and where it's used (baseline from graph.yaml).
+flowchart LR
+  subgraph BUILDS["US-03 / SQP-5086<br/>Data Source API handlers + routing builds"]
+    direction TB
+    api_endpoint_DELETE_contract_note_templates_templateId_data_sources_database_table["api-endpoint:DELETE /contract-note-templates/{templateId}/data-sources/{database}/{table}"]
+    api_endpoint_GET_contract_note_data_sources["api-endpoint:GET /contract-note-data-sources"]
+    api_endpoint_GET_contract_note_data_sources_database_table_columns["api-endpoint:GET /contract-note-data-sources/{database}/{table}/columns"]
+    api_endpoint_GET_contract_note_shared_sections_sharedSectionId_data_source_dependencies["api-endpoint:GET /contract-note-shared-sections/{sharedSectionId}/data-source-dependencies"]
+    api_endpoint_GET_contract_note_templates_templateId_data_sources["api-endpoint:GET /contract-note-templates/{templateId}/data-sources"]
+    api_endpoint_POST_contract_note_templates_templateId_data_sources["api-endpoint:POST /contract-note-templates/{templateId}/data-sources"]
+    cdk_construct_DataSourceApi["cdk-construct:DataSourceApi"]
+  end
+  US_01["US-01 / SQP-5080<br/>Foundation: shared data-source types & infrastructure"]
+  US_01 -->|"cdk-construct:project-role-trust-policy, shared-lib:data-source-types"| BUILDS
+  US_02["US-02 / SQP-5085<br/>Glue Data Catalog discovery client"]
+  US_02 -->|"shared-lib:glue-catalog-client"| BUILDS
+  US_06["US-06 / SQP-5108<br/>Frontend: Template Edit data sources panel"]
+  BUILDS -->|"api-endpoint:DELETE /contract-note-templates/{templateId}/data-sources/{database}/{table}, api-endpoint:GET /contract-note-data-sources, api-endpoint:GET /contract-note-templates/{templateId}/data-sources, api-endpoint:POST /contract-note-templates/{templateId}/data-sources"| US_06
+  US_07["US-07 / SQP-5107<br/>Frontend: section-variant editor field browser & shared-section deps"]
+  BUILDS -->|"api-endpoint:GET /contract-note-data-sources/{database}/{table}/columns, api-endpoint:GET /contract-note-shared-sections/{sharedSectionId}/data-source-dependencies"| US_07
+  US_08["US-08 / SQP-5109<br/>Integration wiring & end-to-end validation"]
+  BUILDS -->|"cdk-construct:DataSourceApi"| US_08

@@ -51,3 +51,7 @@ Wave-1 foundation of Estimate 3b. It delivers the shared data-source TypeScript 
 ## Traceability
 
 Covers parent requirements: 6 · `s2s-contract-note-data-source-extensibility-US-01`
+
+## Architecture
+
+The diagram shows what this story builds and where it is used. As the Wave 1 foundation, US-01 delivers three components — the shared data-source types (`shared-lib:data-source-types`), the Project Role trust-policy change, and the Athena workgroup + results bucket — and adds no runtime behaviour of its own. Its outputs feed almost every downstream story: the types are consumed by US-02, US-03, US-04, US-05 and US-06; the trust policy is assumed by the Glue/Athena work in US-02, US-03 and US-05; and the Athena workgroup underpins the render-time enrichment in US-05. It has no dependencies of its own.

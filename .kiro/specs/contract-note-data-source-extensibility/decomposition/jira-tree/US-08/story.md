@@ -52,3 +52,7 @@ Terminal, Wave 6 story. It wires the components delivered by the earlier waves �
 ## Traceability
 
 Covers parent requirements: 6 · `s2s-contract-note-data-source-extensibility-US-08`
+
+## Architecture
+
+The diagram shows what this story builds and where it is used. US-08 is the terminal Wave 6 story: it delivers the finalised CDK deployment (`cdk-instance:deployment`) with no new business logic. It ties together every upstream component — the `DataSourceApi` construct (US-03), the `enrich-data-sources` Lambda and enrichment state (US-05), and the two Admin Portal frontend panels (US-06, US-07) — into a single working stack and validates discovery and enrichment end to end. It has no downstream consumers; it is where the feature comes together.

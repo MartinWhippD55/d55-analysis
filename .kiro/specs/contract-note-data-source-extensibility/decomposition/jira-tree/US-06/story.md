@@ -48,3 +48,7 @@ Delivers the Admin Portal front end for attaching data sources to a contract not
 ## Traceability
 
 Covers parent requirements: 2 · `s2s-contract-note-data-source-extensibility-US-06`
+
+## Architecture
+
+The diagram shows what this story builds and where it is used. US-06 delivers the Template Edit frontend slice: the Data Sources panel, the picker dialog, and the shared `DataSourceService` that wires both to the US-03 API. It depends on US-01 (shared types) and US-03 (the API endpoints it calls). Its `DataSourceService` is reused by US-07's field browser and dependency checks, and US-08 wires the panel into the deployed system for end-to-end validation.

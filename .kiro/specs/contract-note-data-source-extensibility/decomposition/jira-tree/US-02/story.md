@@ -42,3 +42,7 @@ Delivers the Glue Data Catalog discovery client: a shared backend module that as
 ## Traceability
 
 Covers parent requirements: 1 · `s2s-contract-note-data-source-extensibility-US-02`
+
+## Architecture
+
+The diagram shows what this story builds and where it is used. US-02 delivers the Glue Data Catalog discovery client (`shared-lib:glue-catalog-client`) — the read side that assumes the Project Role, lists `bryt_number` tables and returns their columns. It builds on US-01 (shared types + trust policy) and is consumed by two downstream stories: the Data Source API (US-03) uses it to list available sources and columns, and the render-pipeline enrichment (US-05) uses it when resolving attached sources. Because access is via the Project Role, newly subscribed tables become discoverable with no IAM change or redeploy.

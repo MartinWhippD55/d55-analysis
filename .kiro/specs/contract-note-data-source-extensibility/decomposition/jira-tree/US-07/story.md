@@ -49,3 +49,7 @@ The Admin Portal frontend slice of the data source extensibility feature. It ext
 ## Traceability
 
 Covers parent requirements: 3, 4 · `s2s-contract-note-data-source-extensibility-US-07`
+
+## Architecture
+
+The diagram shows what this story builds and where it is used. US-07 delivers the section-variant editor frontend: the field browser that surfaces data source columns as draggable `{table}.{column}` fields, the missing-dependency prompt when adding a shared section, and the dependency display on the shared section detail screen. It builds on US-03 (columns + dependency endpoints), US-04 (the dependency scanner), and US-06 (`DataSourceService`). US-08 wires it into the deployed system and validates the full authoring-to-render flow.

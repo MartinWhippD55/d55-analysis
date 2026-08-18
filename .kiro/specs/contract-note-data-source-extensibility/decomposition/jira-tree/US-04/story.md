@@ -41,3 +41,7 @@ Delivers the shared dependency scanner that lets shared sections auto-track whic
 ## Traceability
 
 Covers parent requirements: 4 · `s2s-contract-note-data-source-extensibility-US-04`
+
+## Architecture
+
+The diagram shows what this story builds and where it is used. US-04 delivers the dependency scanner (`shared-lib:dependency-scanner`) — it walks a shared section's variant schemas, collects namespaced field references, and reconciles the section's `DATASOURCE_DEP` records as the union across variants. It builds on US-01 (shared types) and is consumed by US-07, whose missing-dependency prompt enforces that a template has the sources a shared section requires before it can be attached.

@@ -1,0 +1,10 @@
+%% US-04 / SQP-5084 — what it builds and where it's used (baseline from graph.yaml).
+flowchart LR
+  subgraph BUILDS["US-04 / SQP-5084<br/>Data source dependency scanner builds"]
+    direction TB
+    shared_lib_dependency_scanner["shared-lib:dependency-scanner"]
+  end
+  US_01["US-01 / SQP-5080<br/>Foundation: shared data-source types & infrastructure"]
+  US_01 -->|"shared-lib:data-source-types"| BUILDS
+  US_07["US-07 / SQP-5107<br/>Frontend: section-variant editor field browser & shared-section deps"]
+  BUILDS -->|"shared-lib:dependency-scanner"| US_07

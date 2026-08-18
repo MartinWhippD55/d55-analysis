@@ -48,3 +48,7 @@ Adds render-time enrichment as a dedicated Step Functions state. A new `enrich-d
 ## Traceability
 
 Covers parent requirements: 5 · `s2s-contract-note-data-source-extensibility-US-05`
+
+## Architecture
+
+The diagram shows what this story builds and where it is used. US-05 delivers the render-time enrichment slice: the Athena client (`shared-lib:athena-client`), the `enrich-data-sources` Lambda, and the new Step Functions state wired between select-template and render-sections. It depends on US-01 (shared types, trust policy, Athena workgroup) and US-02 (the Glue discovery client). At render time it reads the template's attached sources, queries each by `bryt_number` via Athena, and merges the columns into `ContractData` under the `{table}.{column}` namespace. US-08 wires the state into the deployed pipeline and validates it end to end.

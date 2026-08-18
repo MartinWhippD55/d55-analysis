@@ -58,3 +58,7 @@ Implements the backend API layer for data source management: six API Gateway end
 ## Traceability
 
 Covers parent requirements: 2, 7 · `s2s-contract-note-data-source-extensibility-US-03`
+
+## Architecture
+
+The diagram shows what this story builds and where it is used. US-03 delivers the six Data Source API endpoints and the `DataSourceApi` CDK construct — the backend surface for listing, attaching, detaching and inspecting data sources. It depends on US-01 (shared types + trust policy) and US-02 (the Glue discovery client it calls for available sources and columns). Its endpoints are consumed by the frontend panels in US-06 (attach/detach/list) and US-07 (columns + shared-section dependencies), and its construct is wired into the deployed stack by US-08.

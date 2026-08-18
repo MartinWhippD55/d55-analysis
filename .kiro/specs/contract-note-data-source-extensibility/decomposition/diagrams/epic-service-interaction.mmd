@@ -1,0 +1,55 @@
+%% Epic SQP-5079 — contract-note data-source extensibility: runtime service interaction.
+%% Hand-authored end-to-end flow (graph.yaml encodes build deps, not runtime flow).
+%% Each participant annotated with its delivering story (US-xx / key).
+flowchart TB
+  admin(("Template<br/>admin"))
+
+  subgraph configure["Configure — Template Edit UI"]
+    panel["Data Sources panel<br/>US-06 / SQP-5108"]
+    svc["DataSourceService<br/>US-06 / SQP-5108"]
+    browser["Section-variant field browser<br/>US-07 / SQP-5107"]
+  end
+
+  api["Data Source API + routing<br/>US-03 / SQP-5086"]
+  glue["Glue discovery client<br/>US-02 / SQP-5085"]
+  catalog[("Glue Data Catalog<br/>bryt_number tables")]
+  scanner["Dependency scanner<br/>US-04 / SQP-5084"]
+  ddb[("DATASOURCE +<br/>DATASOURCE_DEP records")]
+
+  subgraph renderflow["Render time — Step Functions"]
+    state["render-pipeline enrichment state<br/>US-05 / SQP-5087"]
+    enrich["enrich-data-sources Lambda<br/>US-05 / SQP-5087"]
+    athena["Athena client<br/>US-05 / SQP-5087"]
+  end
+  athenasvc[("Athena<br/>SELECT WHERE bryt_number")]
+  pdf["Enriched contract-note PDF"]
+
+  subgraph foundation["Foundation — US-01 / SQP-5080"]
+    types["shared data-source types"]
+    trust["Project Role trust policy"]
+    workgroup["Athena workgroup + results bucket"]
+  end
+
+  admin --> panel
+  panel --> svc
+  svc -->|"list available / attach / detach"| api
+  api -->|"discover tables + columns"| glue
+  glue -->|"assume Project Role"| catalog
+  api -->|"write / read attachment records"| ddb
+  browser -->|"browse columns"| api
+  browser -->|"place {table}.{column} fields"| scanner
+  scanner -->|"reconcile shared-section deps"| ddb
+
+  state --> enrich
+  enrich -->|"read template data sources"| ddb
+  enrich --> athena
+  athena -->|"assume Project Role"| athenasvc
+  athenasvc -->|"rows by bryt_number"| enrich
+  enrich -->|"merge under {table}.{column}"| pdf
+
+  foundation -. underpins .-> api
+  foundation -. underpins .-> glue
+  foundation -. underpins .-> athena
+
+  deploy["Integration wiring &amp; deployment<br/>US-08 / SQP-5109"]
+  deploy -. deploys .-> foundation

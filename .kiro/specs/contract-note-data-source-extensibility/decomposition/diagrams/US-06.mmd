@@ -1,0 +1,16 @@
+%% US-06 / SQP-5108 — what it builds and where it's used (baseline from graph.yaml).
+flowchart LR
+  subgraph BUILDS["US-06 / SQP-5108<br/>Frontend: Template Edit data sources panel builds"]
+    direction TB
+    frontend_component_data_source_picker_dialog["frontend-component:data-source-picker-dialog"]
+    frontend_component_template_edit_data_sources_panel["frontend-component:template-edit-data-sources-panel"]
+    service_DataSourceService["service:DataSourceService"]
+  end
+  US_01["US-01 / SQP-5080<br/>Foundation: shared data-source types & infrastructure"]
+  US_01 -->|"shared-lib:data-source-types"| BUILDS
+  US_03["US-03 / SQP-5086<br/>Data Source API handlers + routing"]
+  US_03 -->|"api-endpoint:DELETE /contract-note-templates/{templateId}/data-sources/{database}/{table}, api-endpoint:GET /contract-note-data-sources, api-endpoint:GET /contract-note-templates/{templateId}/data-sources, api-endpoint:POST /contract-note-templates/{templateId}/data-sources"| BUILDS
+  US_07["US-07 / SQP-5107<br/>Frontend: section-variant editor field browser & shared-section deps"]
+  BUILDS -->|"service:DataSourceService"| US_07
+  US_08["US-08 / SQP-5109<br/>Integration wiring & end-to-end validation"]
+  BUILDS -->|"frontend-component:template-edit-data-sources-panel"| US_08
