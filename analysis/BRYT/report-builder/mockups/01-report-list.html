@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reports - Wireframe</title>
+    <link rel="stylesheet" href="wireframe.css">
+    <style>
+        .toolbar { padding: 14px 24px; border-bottom: 1.5px dashed var(--faint);
+                   display: flex; gap: 12px; align-items: center; }
+        .search { flex: 1; border: 1.5px solid #555; padding: 7px 12px;
+                  font-family: inherit; font-size: 14px; border-radius: 3px; color: var(--muted); }
+        .tables-cell .badge { margin-right: 4px; }
+        .muted { color: var(--muted); font-size: 13px; }
+        /* async run status pills */
+        .status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+        .dot { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink);
+               display: inline-block; }
+        .dot.done { background: #333; }
+        .dot.run { background: #888; }
+        .dot.queue { background: #fff; }
+        .dot.fail { background: #fff; border-style: dashed; }
+        .status .ts { color: var(--muted); font-size: 12px; }
+        .whoami { font-size: 12px; color: var(--muted); }
+    </style>
+</head>
+<body>
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>My Reports</h1>
+                <div class="whoami">Signed in as harbourside.foods@example.com &#8226; showing only your reports</div>
+            </div>
+            <button class="btn">+ New Report</button>
+        </div>
+
+        <div class="toolbar">
+            <input class="search" value="Search my reports..." />
+            <span class="muted">Sort: Last run &#9662;</span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Report name</th>
+                    <th style="width:320px;">Tables used</th>
+                    <th style="width:200px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Monthly Consumption by Site</td>
+                    <td class="tables-cell"><span class="badge">Sites</span><span class="badge">Meters</span><span class="badge">Meter Readings</span></td>
+                    <td>
+                        <button class="btn-sm">View</button>
+                        <button class="btn-sm">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Overdue Invoices &gt; 30 days</td>
+                    <td class="tables-cell"><span class="badge">Customers</span><span class="badge">Invoices</span></td>
+                    <td>
+                        <button class="btn-sm">View</button>
+                        <button class="btn-sm">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Contract Renewals Due Q3</td>
+                    <td class="tables-cell"><span class="badge">Contracts</span><span class="badge">Contract Notes</span><span class="badge">Customers</span></td>
+                    <td>
+                        <button class="btn-sm">View</button>
+                        <button class="btn-sm">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Meter Read Exceptions</td>
+                    <td class="tables-cell"><span class="badge">Meters</span><span class="badge">Meter Readings</span></td>
+                    <td>
+                        <button class="btn-sm">View</button>
+                        <button class="btn-sm">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Tariff Change Impact - 2026</td>
+                    <td class="tables-cell"><span class="badge">Tariffs</span><span class="badge">Contracts</span><span class="badge">Sites</span></td>
+                    <td>
+                        <button class="btn-sm">View</button>
+                        <button class="btn-sm">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="note">Reports are private to the signed-in customer (identified from their JWT). <strong>View</strong> opens the report in the builder, where "Run" and the full execution history (Queued &#8594; Running &#8594; Complete/Failed, with downloads) live. Delete removes the saved report.</div>
+    </div>
+</body>
+</html>

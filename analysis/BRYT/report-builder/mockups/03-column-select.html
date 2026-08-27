@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Columns - Wireframe</title>
+    <link rel="stylesheet" href="wireframe.css">
+    <style>
+        .modal { width: 640px; }
+        .select-all { padding: 12px 24px; border-bottom: 1.5px dashed var(--faint);
+                      display: flex; align-items: center; gap: 10px; font-size: 15px; }
+        .col-search { margin-left: auto; border: 1.5px solid #555; padding: 5px 10px;
+                      font-family: inherit; font-size: 13px; border-radius: 3px; color: var(--muted); }
+        .col-list { max-height: 360px; overflow: hidden; }
+        .crow { padding: 9px 24px; border-bottom: 1px dashed var(--line);
+                display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .crow .ty { margin-left: auto; color: var(--faint); font-size: 11px; }
+        .crow .req { font-size: 10px; color: var(--muted); border: 1px solid #bbb;
+                     border-radius: 3px; padding: 1px 5px; }
+        .count { font-size: 13px; color: var(--muted); }
+    </style>
+</head>
+<body class="modal-mode">
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Select columns &#8212; Contract Notes</h2>
+            <span style="color:#aaa;">&#10005;</span>
+        </div>
+
+        <div class="select-all">
+            <span style="font-size:18px;">&#9745;</span>
+            <strong>Select all</strong>
+            <span class="count">&#8212; 9 of 31 selected</span>
+            <input class="col-search" value="Filter columns..." />
+        </div>
+
+        <div class="modal-body" style="display:block;">
+            <div class="col-list">
+                <div class="crow"><span>&#9745;</span> id <span class="req">key</span> <span class="ty">int</span></div>
+                <div class="crow"><span>&#9745;</span> contract_ref <span class="ty">text</span></div>
+                <div class="crow"><span>&#9745;</span> customer_id <span class="req">key</span> <span class="ty">int</span></div>
+                <div class="crow"><span>&#9745;</span> note_status <span class="ty">enum</span></div>
+                <div class="crow"><span>&#9745;</span> issued_date <span class="ty">date</span></div>
+                <div class="crow"><span>&#9745;</span> signed_date <span class="ty">date</span></div>
+                <div class="crow"><span>&#9744;</span> docusign_envelope_id <span class="ty">text</span></div>
+                <div class="crow"><span>&#9744;</span> template_version <span class="ty">int</span></div>
+                <div class="crow"><span>&#9745;</span> total_value <span class="ty">money</span></div>
+                <div class="crow"><span>&#9744;</span> created_by <span class="ty">text</span></div>
+                <div class="crow"><span>&#9744;</span> created_at <span class="ty">timestamp</span></div>
+            </div>
+        </div>
+
+        <div class="note">Newly added tables start with key columns pre-ticked. Toggle "Select all", search to filter a long column list, or tick columns individually.</div>
+
+        <div class="modal-footer">
+            <button class="btn-sm">Cancel</button>
+            <button class="btn">Add table (9 columns)</button>
+        </div>
+    </div>
+</body>
+</html>

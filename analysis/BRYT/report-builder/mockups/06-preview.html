@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Preview - Wireframe</title>
+    <link rel="stylesheet" href="wireframe.css">
+    <style>
+        .modal { width: 900px; }
+        .summary { padding: 12px 24px; border-bottom: 1.5px dashed var(--faint);
+                   display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+        .chip-tag { display: inline-block; border: 1.5px dashed #555; border-radius: 12px;
+                    padding: 3px 10px; font-size: 12px; }
+        .summary .count { margin-left: auto; color: var(--muted); }
+        .modal-body { display: block; }
+        td .badge.active { border-color: #555; color: var(--ink); }
+    </style>
+</head>
+<body class="modal-mode">
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Preview &#8212; Contract Renewals Due</h2>
+            <span style="color:#aaa;">&#10005;</span>
+        </div>
+
+        <div class="summary">
+            <strong>Filters:</strong>
+            <span class="chip-tag">status = Active</span>
+            <span class="chip-tag">end_date within 90 days</span>
+            <span class="chip-tag">sort: end_date &#8593;</span>
+            <span class="count">sample &#8226; showing first 6 of ~42 rows</span>
+        </div>
+
+        <div class="modal-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>Contract ref</th>
+                        <th>Site</th>
+                        <th>Region</th>
+                        <th>End date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Harbourside Foods Ltd</td>
+                        <td>CN-2021-0488</td>
+                        <td>Leith Depot</td>
+                        <td>Scotland</td>
+                        <td>02 Sep 2026</td>
+                        <td><span class="badge active">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Meridian Care Group</td>
+                        <td>CN-2020-1173</td>
+                        <td>Coventry HQ</td>
+                        <td>Midlands</td>
+                        <td>11 Sep 2026</td>
+                        <td><span class="badge active">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Northgate Logistics</td>
+                        <td>CN-2022-0091</td>
+                        <td>Warrington DC</td>
+                        <td>North West</td>
+                        <td>19 Sep 2026</td>
+                        <td><span class="badge active">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Bramble &amp; Rowe</td>
+                        <td>CN-2021-0620</td>
+                        <td>Bristol Store</td>
+                        <td>South West</td>
+                        <td>28 Sep 2026</td>
+                        <td><span class="badge active">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Kestrel Manufacturing</td>
+                        <td>CN-2019-0345</td>
+                        <td>Sheffield Works</td>
+                        <td>Yorkshire</td>
+                        <td>04 Oct 2026</td>
+                        <td><span class="badge active">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>Aldergrove Hotels</td>
+                        <td>CN-2022-0508</td>
+                        <td>Belfast Central</td>
+                        <td>N. Ireland</td>
+                        <td>15 Oct 2026</td>
+                        <td><span class="badge active">Active</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="note">A quick sample of what the report will look like with the current tables, columns and filters &#8212; enough to sanity-check layout before running the full query. It does not run the full async job.</div>
+
+        <div class="modal-footer">
+            <button class="btn">Close</button>
+        </div>
+    </div>
+</body>
+</html>

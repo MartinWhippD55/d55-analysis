@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Runs - Wireframe</title>
+    <link rel="stylesheet" href="wireframe.css">
+    <style>
+        .modal { width: 760px; }
+        .runbar { padding: 14px 24px; border-bottom: 1.5px dashed var(--faint);
+                  display: flex; align-items: center; gap: 12px; }
+        .runbar .hint { font-size: 12px; color: var(--muted); }
+        .runbar .spacer { flex: 1; }
+        .modal-body { display: block; }
+        /* async run status pills (shared visual language with screen 01) */
+        .status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+        .dot { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink);
+               display: inline-block; }
+        .dot.done { background: #333; }
+        .dot.run { background: #888; }
+        .dot.queue { background: #fff; }
+        .dot.fail { background: #fff; border-style: dashed; }
+        td .ts { color: var(--muted); font-size: 12px; }
+        .trigger { font-size: 11px; color: var(--muted); border: 1px solid #bbb;
+                   border-radius: 3px; padding: 1px 5px; }
+        .err { font-size: 12px; color: var(--muted); font-style: italic; cursor: help;
+               display: inline-block; max-width: 190px; white-space: nowrap;
+               overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+    </style>
+</head>
+<body class="modal-mode">
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Run &amp; history &#8212; Contract Renewals Due</h2>
+            <span style="color:#aaa;">&#10005;</span>
+        </div>
+
+        <div class="runbar">
+            <button class="btn">&#9654; Run now</button>
+            <span class="hint">Queues an async query against Athena &#8212; results appear below when ready.</span>
+            <span class="spacer"></span>
+            <button class="btn-sm">Refresh</button>
+        </div>
+
+        <div class="modal-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:70px;">Run</th>
+                        <th style="width:180px;">Started</th>
+                        <th>Status</th>
+                        <th style="width:90px;">Rows</th>
+                        <th style="width:200px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#129</td>
+                        <td><span class="ts">27 Aug 13:10</span> <span class="trigger">manual</span></td>
+                        <td><span class="status"><span class="dot run"></span> Running <span class="ts">00:22 elapsed</span></span></td>
+                        <td class="ts">&#8212;</td>
+                        <td><button class="btn-sm">Cancel</button></td>
+                    </tr>
+                    <tr>
+                        <td>#128</td>
+                        <td><span class="ts">27 Aug 13:02</span> <span class="trigger">manual</span></td>
+                        <td><span class="status"><span class="dot done"></span> Complete <span class="ts">4.2s</span></span></td>
+                        <td>42</td>
+                        <td><button class="btn-sm">&#8681; Download CSV</button></td>
+                    </tr>
+                    <tr>
+                        <td>#127</td>
+                        <td><span class="ts">20 Aug 08:00</span> <span class="trigger">scheduled</span></td>
+                        <td><span class="status"><span class="dot done"></span> Complete <span class="ts">3.9s</span></span></td>
+                        <td>39</td>
+                        <td><button class="btn-sm">&#8681; Download CSV</button></td>
+                    </tr>
+                    <tr>
+                        <td>#126</td>
+                        <td><span class="ts">12 Aug 09:14</span> <span class="trigger">manual</span></td>
+                        <td><span class="status"><span class="dot fail"></span> Failed</span></td>
+                        <td class="ts">&#8212;</td>
+                        <td><span class="err" title="Query exhausted resources at scale factor: query timed out after 300s while scanning meter_readings (partition 2019-2026). Try narrowing the date range or selecting fewer columns.">Query timed out after 300s while scanning&#8230; &#9432;</span></td>
+                    </tr>
+                    <tr>
+                        <td>#125</td>
+                        <td><span class="ts">13 Jul 08:00</span> <span class="trigger">scheduled</span></td>
+                        <td><span class="status"><span class="dot done"></span> Complete <span class="ts">5.1s</span></span></td>
+                        <td>36</td>
+                        <td><button class="btn-sm">&#8681; Download CSV</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="note">Each "Run now" queues a separate execution; the list is this report's run history (most recent first) with its trigger (manual or scheduled). Completed runs offer <strong>Download CSV</strong>. Failed runs show a truncated error &#8212; hover the &#9432; for the full message.</div>
+
+        <div class="modal-footer">
+            <button class="btn-sm">Close</button>
+        </div>
+    </div>
+</body>
+</html>

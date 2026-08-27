@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save Report - Wireframe</title>
+    <link rel="stylesheet" href="wireframe.css">
+    <style>
+        .modal { width: 560px; }
+        .modal-body { display: block; padding: 20px 24px; }
+        .row2 { display: flex; gap: 16px; }
+        .row2 .form-group { flex: 1; }
+        .check { display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 12px; }
+        select, .fake-select { width: 100%; border: 1.5px solid #555; padding: 8px 12px;
+                 font-family: inherit; font-size: 14px; border-radius: 3px; color: var(--ink);
+                 background: #fff; }
+        .hint { font-size: 12px; color: var(--muted); }
+        .tables-used .badge { margin-right: 4px; }
+    </style>
+</head>
+<body class="modal-mode">
+    <div class="wireframe-label">WIREFRAME - layout only</div>
+
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Save report</h2>
+            <span style="color:#aaa;">&#10005;</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Report name</label>
+                <input value="Contract Renewals Due" />
+            </div>
+
+            <div class="form-group">
+                <label>Description (optional)</label>
+                <textarea>Active contracts ending within 90 days, with site and region. Used for the quarterly renewals review.</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Tables used</label>
+                <div class="tables-used">
+                    <span class="badge">Customers</span><span class="badge">Contracts</span><span class="badge">Sites</span>
+                </div>
+            </div>
+
+            <div class="hint">Saved reports appear in "My Reports" and can be run or re-opened in the builder at any time.</div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-sm">Cancel</button>
+            <button class="btn">Save report</button>
+        </div>
+    </div>
+</body>
+</html>
