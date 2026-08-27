@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Continue Report Builder",
+  "description": "Resumes the Report Builder feature: reads the session handoff and picks up the next unchecked task.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Read analysis/BRYT/report-builder/session.md in full, then open analysis/BRYT/report-builder/plan.md and identify the first task that is not done (marked [ ] todo or [~] in progress). Briefly tell me the current status and the next task, then begin working on that task. Follow the session loop: mark the task [~] when you start and [x] when done, and update the Status block in session.md plus the Decision log in plan.md before finishing. Do not re-derive decisions already recorded in session.md."
+  }
+}

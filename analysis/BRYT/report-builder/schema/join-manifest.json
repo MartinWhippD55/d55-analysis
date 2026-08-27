@@ -1,0 +1,239 @@
+{
+  "version": "0.2.0",
+  "generatedFor": "Task 0.3 — Draft the Join_Manifest",
+  "requirement": "R18.4 / R18.5",
+  "source": "schema/schema.md + schema/bryt-number-audit.md (Glue catalog; value-checked in dev twin)",
+  "status": "draft",
+  "phase05": "0.2.0 applies the Phase 0.5 decisions (see ../phase-0.5-decisions.md): (Q8) pins scope to `IN (:authorised_bryt_numbers)`; (R1) loa_activity pins customer-only; (R2) ecoes_activity moved to excluded (deferred, not in MVP allow-list); (R3) customer_id joins cast int->varchar. MVP allow-list = the 9 dev-verified tables.",
+  "database": {
+    "prod": "rel_esg_prod_data_eng_master_record_db",
+    "dev": "dev_esg_ci_data_eng_master_record_db"
+  },
+  "conventions": {
+    "brytNumber": {
+      "canonicalColumn": "bryt_number",
+      "format": "BRYT + 6 digits (e.g. BRYT031884)",
+      "supply": "server-supplied trusted context from the JWT; never taken from the model or user prompt (R10.3, R11)"
+    },
+    "mpan": {
+      "width": 13,
+      "fixedWidth": true,
+      "normalise": false,
+      "note": "fixed 13-char string on both sides; joined by equality, no normalisation (dev-verified min=max=13)"
+    },
+    "effectiveWindow": {
+      "note": "mpan -> bryt_number is many-over-time (change-of-tenancy). An mpan-keyed row belongs to a bryt only for the period that bryt held the supply. Pinning on mpan equality alone leaks other tenants' rows.",
+      "openEnded": "a NULL or empty supply_end_date means the supply is still current (treat as +infinity)"
+    },
+    "bindParams": {
+      ":bryt_number": "DEPRECATED single-value form. Use :authorised_bryt_numbers.",
+      ":authorised_bryt_numbers": "the signed-in user's Authorised_Bryt_Numbers set (one or more; trusted, server-supplied). Pins use `IN (:authorised_bryt_numbers)`; single-account selection passes a one-element list that must be a member (Phase 0.5 Q8, R10.6)."
+    }
+  },
+
+  "pins": [
+    {
+      "table": "account_activity",
+      "kind": "direct",
+      "column": "bryt_number",
+      "predicate": "account_activity.bryt_number IN (:authorised_bryt_numbers)"
+    },
+    {
+      "table": "case_activity",
+      "kind": "direct",
+      "column": "bryt_number",
+      "predicate": "case_activity.bryt_number IN (:authorised_bryt_numbers)"
+    },
+    {
+      "table": "financial_activity",
+      "kind": "direct",
+      "column": "bryt_number",
+      "predicate": "financial_activity.bryt_number IN (:authorised_bryt_numbers)"
+    },
+    {
+      "table": "statement_of_account_activity",
+      "kind": "direct",
+      "column": "bryt_number",
+      "predicate": "statement_of_account_activity.bryt_number IN (:authorised_bryt_numbers)"
+    },
+    {
+      "table": "supply_activity",
+      "kind": "direct",
+      "column": "bryt_number",
+      "predicate": "supply_activity.bryt_number IN (:authorised_bryt_numbers)"
+    },
+    {
+      "table": "loa_activity",
+      "kind": "direct",
+      "column": "customer_bryt_number",
+      "predicate": "loa_activity.customer_bryt_number IN (:authorised_bryt_numbers)",
+      "contentColumns": { "tpi": "tpi_bryt_number" },
+      "note": "Phase 0.5 (R1): the Customer Portal signs in customers, so the pin is customer-only on customer_bryt_number. tpi_bryt_number is a non-pinning content column. If TPI logins are ever added, add a role-based tpi pin + a table-specific verifier rule then."
+    },
+
+    {
+      "table": "consumption_activity",
+      "kind": "via-mpan",
+      "mpanColumn": "mpan",
+      "eventDateColumn": "date",
+      "mapping": "supply_mpan",
+      "requiresJoin": true,
+      "pinPredicate": "supply_mpan.bryt_number IN (:authorised_bryt_numbers)",
+      "joinPredicate": "consumption_activity.mpan = supply_mpan.mpan AND consumption_activity.date >= supply_mpan.supply_start_date AND (supply_mpan.supply_end_date IS NULL OR consumption_activity.date <= supply_mpan.supply_end_date)",
+      "note": "Must be joined to supply_mpan with the effective-date window. An unjoined SELECT MUST be rejected by the verifier (R11/R13)."
+    },
+    {
+      "table": "meter_reading_activity",
+      "kind": "via-mpan",
+      "mpanColumn": "mpan",
+      "eventDateColumn": "reading_date",
+      "mapping": "supply_mpan",
+      "requiresJoin": true,
+      "pinPredicate": "supply_mpan.bryt_number IN (:authorised_bryt_numbers)",
+      "joinPredicate": "meter_reading_activity.mpan = supply_mpan.mpan AND date(meter_reading_activity.reading_date) >= supply_mpan.supply_start_date AND (supply_mpan.supply_end_date IS NULL OR date(meter_reading_activity.reading_date) <= supply_mpan.supply_end_date)",
+      "note": "reading_date is a timestamp; cast to date for the window comparison."
+    },
+    {
+      "table": "sm_consumption_activity",
+      "kind": "via-mpan",
+      "mpanColumn": "mpan",
+      "eventDateColumn": "date_only",
+      "mapping": "supply_mpan",
+      "requiresJoin": true,
+      "pinPredicate": "supply_mpan.bryt_number IN (:authorised_bryt_numbers)",
+      "joinPredicate": "sm_consumption_activity.mpan = supply_mpan.mpan AND sm_consumption_activity.date_only >= supply_mpan.supply_start_date AND (supply_mpan.supply_end_date IS NULL OR sm_consumption_activity.date_only <= supply_mpan.supply_end_date)",
+      "note": "date_only is a date column; date_time (timestamp) is the finer-grained alternative."
+    }
+  ],
+
+  "mappings": [
+    {
+      "name": "supply_mpan",
+      "purpose": "Authoritative (bryt_number, mpan, effective-window) mapping used to pin every mpan-keyed table.",
+      "sourceTable": "supply_activity",
+      "definition": "SELECT s.bryt_number, sup.mpan, sup.supply_start_date, sup.supply_end_date FROM supply_activity s CROSS JOIN UNNEST(s.supplies) AS t(sup)",
+      "brytColumn": "bryt_number",
+      "keyColumns": ["mpan"],
+      "windowColumns": { "from": "supply_start_date", "to": "supply_end_date" },
+      "cardinalityNote": "mpan -> bryt is many-over-time. In dev, 1,338 (mpan, bryt) pairs over 1,323 distinct mpans (7 mpans map to >1 bryt via CoT). The window columns are mandatory in every pin that uses this mapping.",
+      "alternativeSource": {
+        "table": "account_activity",
+        "path": "customer_supply[].supply[].mpan",
+        "reason": "Deeper double-nesting; supply_activity (single-level supplies[]) is preferred as the mapping source."
+      }
+    }
+  ],
+
+  "joins": [
+    {
+      "id": "account__case",
+      "left": "account_activity",
+      "right": "case_activity",
+      "on": [ { "left": "bryt_number", "right": "bryt_number" }, { "left": "account_id", "right": "account_id" } ],
+      "cardinality": "one-to-many",
+      "confidence": "high",
+      "note": "Both carry bryt_number and account_id."
+    },
+    {
+      "id": "account__supply",
+      "left": "account_activity",
+      "right": "supply_activity",
+      "on": [ { "left": "bryt_number", "right": "bryt_number" }, { "left": "customer_id", "right": "customer_id", "cast": "CAST(supply_activity.customer_id AS varchar) = account_activity.customer_id" } ],
+      "predicate": "account_activity.bryt_number = supply_activity.bryt_number AND CAST(supply_activity.customer_id AS varchar) = account_activity.customer_id",
+      "cardinality": "one-to-one",
+      "confidence": "high",
+      "note": "Phase 0.5 (R3): account_activity.customer_id is string, supply_activity.customer_id is int — cast the int side to varchar so auto-join emits valid Athena SQL."
+    },
+    {
+      "id": "account__financial",
+      "left": "account_activity",
+      "right": "financial_activity",
+      "on": [ { "left": "bryt_number", "right": "bryt_number" }, { "left": "customer_id", "right": "customer_id" } ],
+      "cardinality": "one-to-many",
+      "confidence": "medium",
+      "note": "financial_activity has no account_id; linked via bryt_number + customer_id. Phase 0.5 (R3): apply the same int->varchar customer_id cast as account__supply if financial_activity.customer_id is int — confirm the type at design time."
+    },
+    {
+      "id": "account__statement",
+      "left": "account_activity",
+      "right": "statement_of_account_activity",
+      "on": [ { "left": "bryt_number", "right": "bryt_number" }, { "left": "customer_id", "right": "customer_id" } ],
+      "cardinality": "one-to-many",
+      "confidence": "medium",
+      "note": "Linked via bryt_number + customer_id. Phase 0.5 (R3): apply the same int->varchar customer_id cast as account__supply if statement_of_account_activity.customer_id is int — confirm the type at design time."
+    },
+    {
+      "id": "financial__statement",
+      "left": "financial_activity",
+      "right": "statement_of_account_activity",
+      "on": [ { "left": "bryt_number", "right": "bryt_number" }, { "left": "customer_id", "right": "customer_id" }, { "left": "mpan", "right": "mpan" } ],
+      "cardinality": "many-to-many",
+      "confidence": "medium",
+      "note": "Structurally similar billing tables; join is plausible but not value-verified. Prefer narrowing by mpan."
+    },
+    {
+      "id": "loa_customer__account",
+      "left": "loa_activity",
+      "right": "account_activity",
+      "on": [ { "left": "customer_bryt_number", "right": "bryt_number" }, { "left": "customer_account_id", "right": "account_id" } ],
+      "cardinality": "many-to-one",
+      "confidence": "high",
+      "note": "The customer side of a Letter of Authority."
+    },
+    {
+      "id": "loa_tpi__account",
+      "left": "loa_activity",
+      "right": "account_activity",
+      "on": [ { "left": "tpi_bryt_number", "right": "bryt_number" }, { "left": "tpi_account_id", "right": "account_id" } ],
+      "cardinality": "many-to-one",
+      "confidence": "medium",
+      "note": "The TPI side of an LOA (the intermediary's own account). Only relevant to a TPI login."
+    },
+    {
+      "id": "consumption__meter_reading",
+      "left": "consumption_activity",
+      "right": "meter_reading_activity",
+      "on": [ { "left": "mpan", "right": "mpan" } ],
+      "cardinality": "many-to-many",
+      "confidence": "high",
+      "note": "Content join on metering point. Does NOT by itself establish the bryt pin — both sides still require the supply_mpan pin join."
+    },
+    {
+      "id": "consumption__sm_consumption",
+      "left": "consumption_activity",
+      "right": "sm_consumption_activity",
+      "on": [ { "left": "mpan", "right": "mpan" } ],
+      "cardinality": "many-to-many",
+      "confidence": "high",
+      "note": "Content join on metering point. Still requires the supply_mpan pin join on both sides."
+    },
+    {
+      "id": "meter_reading__sm_consumption",
+      "left": "meter_reading_activity",
+      "right": "sm_consumption_activity",
+      "on": [ { "left": "mpan", "right": "mpan" }, { "left": "meter_serial_number", "right": "meter_serial_number" } ],
+      "cardinality": "many-to-many",
+      "confidence": "high",
+      "note": "Content join on metering point + meter serial. Still requires the supply_mpan pin join on both sides."
+    }
+  ],
+
+  "excluded": [
+    {
+      "table": "ecoes_activity",
+      "reason": "Phase 0.5 (R2): DEFERRED from the MVP allow-list. Not present in the dev twin (pin schema-verified only, never value-checked) and it is a per-mpan snapshot with no single per-row event date, so the effective-date window that protects the other via-mpan tables cannot be applied per row. Fail closed. Re-admit when (a) a scoped prod Lake Formation grant allows value verification and (b) an as-of anchor is agreed — candidate: master_record_created_datetime resolved against the supply window containing it. Pin shape when promoted: via-mpan on mpan_core (alt queried_mpan) through supply_mpan."
+    },
+    {
+      "table": "jira_issue_activity",
+      "reason": "Internal Jira ops data (249 cols). No bryt_number, no mpan, no customer key — cannot be safely pinned to a customer (R18.2)."
+    },
+    {
+      "table": "jira_changelog_activity",
+      "reason": "Internal Jira changelog data. No customer key — cannot be safely pinned to a customer (R18.2)."
+    },
+    {
+      "table": "consumption_activity_view_test",
+      "reason": "A _view_test table (Task 0.1). Treat as a candidate, not allow-listed. Same via-mpan pin shape as consumption_activity (mpan col 27, date col 4) if it is ever promoted."
+    }
+  ]
+}
