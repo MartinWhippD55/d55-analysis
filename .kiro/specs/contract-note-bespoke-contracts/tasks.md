@@ -63,22 +63,30 @@ Implement bespoke (custom) contract note management within the BrytAdminPortal, 
     - **Property 7: Bespoke list reflects current state**
     - **Validates: Requirements 3.3, 2.1, 2.2, 2.4**
 
-- [ ] 3. On-demand render
-  - [ ] 3.1 Implement `render-bespoke` handler
-    - Set status to "rendering"
-    - Resolve sections for the bespoke contract note
-    - Invoke the render pipeline logic (section render + stitch) synchronously with the bespoke sections and stored contract data
-    - On success: write PDF to S3, create render history record, update status to "rendered", set currentRenderS3Key
-    - On failure: update status to "failed", store error message in render history
-    - Increment render version number
-    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+- [ ] 3. On-demand render (reuses the template-preview render pipeline)
+  - [ ] 3.1 Extend the render pipeline to resolve bespoke sections
+    - The on-demand render mode already exists (direct `contractData`, explicit target, custom `outputKey`, startable via StartExecution) — reuse it
+    - Extend the `select-template` entry step to accept a `bespokeId` (or an explicit section-reference list) so the pipeline can render bespoke section copies stored under `BESPOKE#{bespokeId}` rather than only `TEMPLATE#{templateId}`
+    - _Requirements: 5.1, 5.2_
 
-  - [ ] 3.2 Implement `list-renders` handler
+  - [ ] 3.2 Implement `render-bespoke` handler (async start)
+    - Set status to "rendering"
+    - Start a render state-machine execution (reuse the `start-template-preview` pattern) with the bespoke section reference, stored contract data, and a versioned `outputKey`
+    - Return 202 with the execution reference; increment render version number
+    - _Requirements: 5.1, 5.2, 5.5_
+
+  - [ ] 3.3 Implement `get-render` handler (poll + persist)
+    - Poll the execution via DescribeExecution (reuse the `get-template-preview` pattern, including structured error extraction from the error bucket)
+    - On success: persist PDF to the versioned render-history key, create render history record, update status to "rendered", set currentRenderS3Key
+    - On failure: update status to "failed", store error message in render history
+    - _Requirements: 5.3, 5.4_
+
+  - [ ] 3.4 Implement `list-renders` handler
     - Return render history records ordered by version descending
     - Include PDF download links (pre-signed S3 URLs)
     - _Requirements: 6.1, 6.2, 6.3_
 
-  - [ ]* 3.3 Write property tests for on-demand render
+  - [ ]* 3.5 Write property tests for on-demand render
     - **Property 4: On-demand render produces valid PDF**
     - **Property 5: Render history is append-only**
     - **Validates: Requirements 5.1, 5.2, 5.3, 6.1, 6.2, 6.3**
@@ -101,8 +109,8 @@ Implement bespoke (custom) contract note management within the BrytAdminPortal, 
 - [ ] 6. Angular frontend - Bespoke module
   - [ ] 6.1 Create BespokeModule with routing and BespokeService
     - Routes: bespoke list, bespoke edit
-    - BespokeService: list, create, get, update, delete, render, list renders, send DocuSign, get contract data
-    - Add route guard for Cognito group membership
+    - BespokeService: list, create, get, update, delete, render, poll render status, list renders, send DocuSign, get contract data
+    - Reuse the existing `ContractNoteGroupGuardService` (CONTRACT_NOTE_ADMINS) for route guarding — already built
     - _Requirements: 9.1_
 
   - [ ] 6.2 Implement BespokeListComponent
@@ -116,7 +124,7 @@ Implement bespoke (custom) contract note management within the BrytAdminPortal, 
     - Section management (reuse patterns from TemplateEditComponent)
     - Section editor integration (reuse SectionEditorComponent)
     - Version history per section (reuse SectionVersionHistoryComponent)
-    - "Save & Render" button with loading state and success/error feedback
+    - "Save & Render" button with loading state and success/error feedback (reuse the template-edit poll loop and base64 → blob → new-tab PDF rendering)
     - "Send via DocuSign" button (visible when status = rendered)
     - DocuSign status display (sent, completed, declined, expired)
     - _Requirements: 4.1, 4.2, 4.3, 4.5, 5.1, 7.1_
@@ -151,7 +159,7 @@ Implement bespoke (custom) contract note management within the BrytAdminPortal, 
   - [ ] 8.1 Wire CDK deployment
     - Add API Gateway routes for bespoke endpoints
     - Ensure Lambda IAM permissions for DynamoDB, S3, Salesforce (secrets), DocuSign (secrets)
-    - Ensure render pipeline Lambda can be invoked synchronously from bespoke render handler
+    - Grant the bespoke render handler permission to start and describe the render state machine execution (StartExecution/DescribeExecution), and read the output/error buckets — mirroring the template-preview handler permissions
     - _Requirements: 1.1, 5.1, 7.2, 9.1_
 
   - [ ] 8.2 Add navigation entry in Admin Portal sidebar for Bespoke Contract Notes
@@ -169,11 +177,51 @@ Implement bespoke (custom) contract note management within the BrytAdminPortal, 
 - [ ] 9. Final checkpoint
   - Ensure all tests pass, ask the user if questions arise.
 
+## Task Dependency Graph
+
+```mermaid
+graph TD
+    T1[1. Pipeline skip mechanism] --> T2[2. Bespoke API endpoints]
+    T2 --> T3[3. On-demand render]
+    T3 --> T4[4. Checkpoint - Backend complete]
+    T4 --> T5[5. Manual DocuSign trigger]
+    T2 --> T6[6. Angular frontend - Bespoke module]
+    T3 --> T6
+    T5 --> T6
+    T6 --> T7[7. Checkpoint - Frontend complete]
+    T7 --> T8[8. Integration wiring]
+    T8 --> T9[9. Final checkpoint]
+```
+
+Execution waves (tasks in the same wave have no dependency on each other and may run in parallel):
+
+```json
+{
+  "waves": [
+    { "wave": 1, "tasks": ["1"] },
+    { "wave": 2, "tasks": ["2"] },
+    { "wave": 3, "tasks": ["3"] },
+    { "wave": 4, "tasks": ["4"] },
+    { "wave": 5, "tasks": ["5"] },
+    { "wave": 6, "tasks": ["6"] },
+    { "wave": 7, "tasks": ["7"] },
+    { "wave": 8, "tasks": ["8"] },
+    { "wave": 9, "tasks": ["9"] }
+  ]
+}
+```
+
+Notes on ordering:
+- Task 1 (pipeline skip + pending record) is independent and can start first; it feeds the pending requests the rest of the flow consumes.
+- Task 3 (on-demand render) reuses the render state machine and start+poll pattern already built for template preview; its only pipeline change is extending section resolution (3.1), so it can start as soon as the bespoke section storage from Task 2 exists.
+- Task 5 (manual DocuSign) reuses Estimate 2's envelope logic and depends only on a rendered PDF existing (Task 3).
+- Task 6 (frontend) needs the API (Task 2), the render flow (Task 3), and the DocuSign trigger (Task 5) to wire the full editor; the group guard is reused from Estimate 1 and needs no new work.
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for faster MVP
 - The bespoke editor reuses many components from Estimate 1 (section editor, version history, shared sections)
-- On-demand render uses the same Lambda logic as the automated pipeline but invoked synchronously
+- On-demand render reuses the render state machine and the start-execution + poll pattern already built for template preview (not a synchronous Lambda invoke); the only render-pipeline change is extending section resolution to bespoke section copies
 - DocuSign integration reuses Estimate 2's envelope creation — the existing webhook handler handles completion
 - The pipeline skip is fail-safe: if Salesforce is unreachable, we proceed with standard rendering rather than blocking
 - Clone from template creates fully independent copies to ensure bespoke edits never affect standard templates

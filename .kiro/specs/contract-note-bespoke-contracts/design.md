@@ -11,6 +11,17 @@ The system introduces:
 4. Manual DocuSign integration reusing the envelope logic from Estimate 2
 5. Version history for both section edits and rendered outputs
 
+### Prior Work Reused (reduces scope)
+
+The template-preview feature (delivered separately) has already built the foundation this estimate assumed it would need to create:
+
+- **On-demand render pipeline** — the render state machine now accepts a direct `contractData` payload, an explicit `templateId`, and a custom `outputKey`, and can be started on demand (not only via S3 upload). The bespoke render reuses this rather than building a new render path.
+- **Start + poll invocation pattern** — the `start-template-preview` / `get-template-preview` handlers established the async start-execution + `DescribeExecution` polling pattern, including structured error extraction from the error bucket.
+- **Frontend render UX** — the template edit screen already has the poll loop and base64 → blob → new-tab PDF rendering, which the bespoke editor reuses for "Save & Render".
+- **Access control** — the `CONTRACT_NOTE_ADMINS` Cognito group route guard (`ContractNoteGroupGuardService`) already gates the contract-notes area and can be reused directly (Requirement 9).
+
+Remaining render work specific to this estimate: extending section resolution to bespoke section copies (`BESPOKE#{bespokeId}`), and persisting versioned render history (the preview render is ephemeral).
+
 ## Architecture
 
 ### High-Level Flow
@@ -41,7 +52,7 @@ flowchart TD
 |----------|--------|-----------|
 | Bespoke flag source | Salesforce field lookup during pipeline processing | Single source of truth for customer data; avoids duplicating customer config |
 | Section storage | Independent copies (not template references) | Bespoke edits must not affect standard templates; full isolation |
-| Render mechanism | Reuse existing render pipeline Lambda (invoked synchronously) | Avoid code duplication; same section-render-and-stitch logic |
+| Render mechanism | Reuse the existing render Step Functions state machine, started on demand and polled for completion | The template-preview feature (already built) proved this pattern; avoids code duplication; same section-render-and-stitch logic |
 | DocuSign integration | Reuse Estimate 2's envelope creation logic | Same flow, just triggered manually instead of automatically |
 | Contract data access | Store original contract JSON alongside the bespoke record | Available for reference panel and for render-time field resolution |
 | Version history | Same pattern as standard sections (Estimate 1, Req 16) | Consistent UX; same DynamoDB version records |
@@ -114,18 +125,34 @@ graph TD
 | GET | /contract-note-bespoke/{id} | get-bespoke | Returns bespoke contract note with sections and metadata |
 | PUT | /contract-note-bespoke/{id} | update-bespoke | Updates metadata |
 | DELETE | /contract-note-bespoke/{id} | delete-bespoke | Deletes bespoke contract note |
-| POST | /contract-note-bespoke/{id}/render | render-bespoke | Triggers on-demand render, returns PDF location |
+| POST | /contract-note-bespoke/{id}/render | render-bespoke | Starts an on-demand render execution (async), returns 202 with execution reference; sets status to `rendering` |
+| GET | /contract-note-bespoke/{id}/render/{version} | get-render | Polls render execution status (DescribeExecution); on success persists PDF and returns location, on failure returns error |
 | GET | /contract-note-bespoke/{id}/renders | list-renders | Returns render history |
 | POST | /contract-note-bespoke/{id}/send-docusign | send-docusign | Triggers DocuSign envelope creation |
 | GET | /contract-note-bespoke/{id}/contract-data | get-contract-data | Returns the customer's contract JSON for the reference panel |
 
 ### Render Pipeline Extension
 
-The existing render-contract-note Lambda is extended with:
-1. **Bespoke flag check** — queries Salesforce for the customer flag; if set, writes a pending record and halts
-2. **On-demand render mode** — can be invoked synchronously (not just via S3 trigger) with a bespoke section configuration and contract data
+**What already exists (from the template-preview feature).** The render Step Functions state machine (ParseInput → SelectTemplate → RenderSections → Stitch → WriteOutput) has already been extended to support an on-demand render mode alongside the original S3-event trigger. Specifically:
+- `parse-input` accepts a direct `contractData` payload (skipping the S3 XML fetch) and passes through `outputKey`, `preview`, and `templateId`.
+- `select-template` accepts an explicit `templateId` to bypass rule-matching and render a specific configuration's sections.
+- `write-output` honours a caller-supplied `outputKey`.
+- The state machine can be started directly via `StartExecution` (deterministic execution name) and polled via `DescribeExecution`, with structured failure details read back from the error bucket.
 
-The on-demand render follows the same flow: resolve sections → fetch schemas → render each via @pdfme/generator → stitch via pdf-lib → write to S3.
+The bespoke render **reuses this mechanism** — it does not need a new synchronous render path. Two changes are still required:
+
+1. **Bespoke flag check** — queries Salesforce for the customer flag during pipeline processing; if set, writes a pending record and halts. (Net-new.)
+2. **Bespoke section resolution** — the current `select-template` step resolves sections only by `TEMPLATE#{templateId}`. Bespoke contract notes store independent section copies under `BESPOKE#{bespokeId}`. The entry step must be extended to accept either a `bespokeId` or an explicit list of section references, so the pipeline can render a bespoke configuration that is not backed by a published template. (Net-new, but a bounded extension of the existing on-demand path.)
+
+The on-demand render otherwise follows the same flow: resolve sections → fetch schemas → render each via @pdfme/generator → stitch via pdf-lib → write to S3.
+
+### Render Invocation Pattern (start + poll)
+
+The render is **asynchronous**: the bespoke render handler starts a state-machine execution and returns immediately; the frontend polls a status endpoint until the execution completes, then downloads the PDF. This mirrors the template-preview flow exactly:
+- `POST .../render` → starts the execution (deterministic name derived from the render version), returns `202` with an execution reference and status `rendering`.
+- `GET .../renders` (or a dedicated status endpoint) → polls via `DescribeExecution`; on `SUCCEEDED` the PDF is persisted to the bespoke render-history key and the status becomes `rendered`; on failure the status becomes `failed` with the extracted error message.
+
+The frontend reuses the existing poll loop and base64 → blob rendering logic from the template edit screen.
 
 ### DocuSign Integration (Reuse)
 
