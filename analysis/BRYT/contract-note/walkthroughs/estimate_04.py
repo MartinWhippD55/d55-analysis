@@ -40,8 +40,11 @@ DOC = {
             "body": [
                 "This estimate is deliberately thin on new machinery. It reuses Estimate 1's section editor, "
                 "shared sections, and render-and-stitch pipeline, and Estimate 2's DocuSign envelope logic. "
-                "The new parts are the pipeline skip, the bespoke list and editor screens, on-demand rendering, "
-                "and render history.",
+                "The recently delivered template-preview feature has already done much of the heavy lifting: "
+                "the render pipeline can now be started on demand and polled for completion, the front end "
+                "already has the poll-and-display logic, and the contract-note area is already access-gated. "
+                "The new parts are the pipeline skip, the bespoke list and editor screens, extending section "
+                "resolution to bespoke notes, and persisting render history.",
             ],
         },
         # ---------------------------------------------------------------
@@ -97,8 +100,8 @@ DOC = {
                  "Single source of truth for customer data; no duplicated configuration"],
                 ["Cloned sections", "Independent copies, not template references",
                  "Bespoke edits must not affect standard templates, and vice versa; full isolation"],
-                ["Render mechanism", "Reuse the Estimate 1 render Lambda, invoked on demand",
-                 "Same section-render-and-stitch logic; no duplicate rendering code"],
+                ["Render mechanism", "Reuse the render state machine, started on demand and polled",
+                 "The template-preview feature proved this pattern; same section-render-and-stitch logic, no duplicate rendering code"],
                 ["DocuSign", "Reuse Estimate 2's envelope logic, triggered manually",
                  "Identical signing flow, just started by a button instead of automatically"],
                 ["Contract data", "Stored alongside the bespoke record",
@@ -166,9 +169,11 @@ DOC = {
             "pageBreak": True,
             "body": [
                 "Unlike the automated pipeline, bespoke notes render when the user asks. Save & Render resolves "
-                "the note's sections, invokes the same render-and-stitch logic as the standard pipeline (this "
-                "time synchronously) using the customer's stored contract data, and writes the resulting PDF to "
-                "S3.",
+                "the note's sections, then starts the same render-and-stitch state machine used by the standard "
+                "pipeline (the very mechanism the template-preview feature already exercises) using the "
+                "customer's stored contract data. The front end polls for completion and then writes the "
+                "resulting PDF to S3. The only pipeline change is teaching the render's first step to resolve "
+                "a bespoke note's own section copies, rather than only a published template's sections.",
                 "Every render is preserved. Each one appends a new version to the render history, with the "
                 "timestamp, the user who triggered it, and a link to that PDF, so a user can always retrieve an "
                 "earlier version. The current version is clearly marked, and it is the one used when the note "
@@ -222,10 +227,10 @@ DOC = {
             "rows": [
                 ["Pipeline skip", "Salesforce bespoke-flag check (fail-safe), pending record creation, contract data stored for later"],
                 ["Bespoke API", "List, create (clone or blank), get, update, delete, section management, contract-data endpoint"],
-                ["On-demand render", "Synchronous render handler, render history, download links"],
+                ["On-demand render", "Extend section resolution to bespoke notes, start/poll render handlers (reusing the template-preview pattern), render history, download links"],
                 ["Manual DocuSign", "Send handler reusing Estimate 2 envelope logic; envelope status on the note"],
-                ["Bespoke module (Angular)", "List screen, editor, contract-data reference panel, render history, creation/clone dialog"],
-                ["Integration", "CDK routes, IAM, synchronous render invocation, portal navigation, end-to-end validation"],
+                ["Bespoke module (Angular)", "List screen, editor, contract-data reference panel, render history, creation/clone dialog; reuses the existing group guard and render poll/display logic"],
+                ["Integration", "CDK routes, IAM (start/describe the render state machine), portal navigation, end-to-end validation"],
             ],
         },
         {
