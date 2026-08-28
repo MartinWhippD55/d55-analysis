@@ -1,0 +1,766 @@
+openapi: 3.1.0
+info:
+  title: BRYT Report Builder API
+  version: 0.1.0
+  description: >
+    Backend API for the self-service Report Builder, delivered as a new
+    `BrytReportBuilder` repository. A signed-in Customer Portal user assembles a
+    logical **Report_Design** (tables, columns, joins, filters, sort), refines it
+    with a Bedrock assistant, previews it, saves it, and runs it asynchronously
+    against Amazon Athena to produce a downloadable CSV.
+
+
+    **Security model.** Every request resolves the effective portal-user identity
+    server-side from the JWT (using the `Admin_Override` email when present),
+    resolves the set of authorised bryt numbers by replicating the Customer
+    Portal access logic, and scopes all store access to that identity. Identity
+    and bryt numbers are **never** read from headers, query parameters, or the
+    request body. Every generated query is pinned to the authorised bryt numbers
+    from trusted server-side context; an independent verifier re-checks the pin
+    and bounds before execution and re-checks every result row before download.
+
+
+    **ASSUMPTION:** Concrete request/response shapes are inferred from the design
+    document (`.kiro/specs/report-builder/design.md`) and the TypeScript
+    interfaces it defines. Fields marked `ASSUMPTION:` in descriptions should be
+    confirmed against the implementation.
+  contact:
+    name: D55 Consulting
+
+servers:
+  - url: https://{apiId}.execute-api.{region}.amazonaws.com/{stage}
+    description: API Gateway REST endpoint (per environment)
+    variables:
+      apiId:
+        default: example123
+      region:
+        default: eu-west-2
+      stage:
+        default: dev
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Reports
+    description: CRUD for saved report designs (owner-scoped)
+  - name: Catalog
+    description: Allow-listed catalog of tables/columns and the Join_Manifest
+  - name: Assistant
+    description: Bedrock Converse assistant that edits the shared Report_Design
+  - name: Preview
+    description: Synchronous bounded preview (does not queue a run)
+  - name: Runs
+    description: Asynchronous run lifecycle, status, cancel, and CSV download
+
+paths:
+  /reports:
+    get:
+      tags: [Reports]
+      summary: List the signed-in user's reports
+      description: >
+        Returns only the reports owned by the effective identity. Supports
+        case-insensitive name search and A-Z / Z-A sort (served by the name GSI).
+      operationId: listReports
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: The owner's reports (possibly empty).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportSummaryList'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [Reports]
+      summary: Create a report
+      description: Persists a new Report_Design scoped to the effective identity.
+      operationId: createReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SaveReportRequest' }
+      responses:
+        '201':
+          description: The created report.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Report' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /reports/{reportId}:
+    parameters:
+      - $ref: '#/components/parameters/ReportId'
+    get:
+      tags: [Reports]
+      summary: Read a report
+      description: Returns the report's Report_Design and metadata. A report not owned by the effective identity returns 404 without disclosing existence.
+      operationId: getReport
+      responses:
+        '200':
+          description: The report.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Report' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Reports]
+      summary: Update a report (in place)
+      description: Overwrites the existing report's design and metadata in place - no duplicate entry.
+      operationId: updateReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SaveReportRequest' }
+      responses:
+        '200':
+          description: The updated report.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Report' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Reports]
+      summary: Delete a report
+      operationId: deleteReport
+      responses:
+        '204': { description: Deleted. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /catalog:
+    get:
+      tags: [Catalog]
+      summary: Get the allow-listed catalog
+      description: >
+        Returns the curated allow-list of tables and columns, intersected with
+        live Glue metadata. Fails closed: if the Glue database is unavailable it
+        returns a data-source-unavailable error and exposes no tables.
+      operationId: getCatalog
+      responses:
+        '200':
+          description: The catalog.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Catalog' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '503':
+          description: The catalog data source is unavailable (fail-closed).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /catalog/manifest:
+    get:
+      tags: [Catalog]
+      summary: Get the Join_Manifest
+      description: Serves the read-only Join_Manifest (pins and join predicates) to clients and the assistant.
+      operationId: getManifest
+      responses:
+        '200':
+          description: The Join_Manifest.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JoinManifest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /reports/{reportId}/assistant:
+    parameters:
+      - $ref: '#/components/parameters/ReportId'
+    post:
+      tags: [Assistant]
+      summary: Send a message to the assistant
+      description: >
+        Runs one Bedrock Converse turn over the current Report_Design. The Lambda
+        injects trusted context (authorised bryt numbers, Join_Manifest) and
+        forces a `validate_query` (Athena EXPLAIN) before finalising an applied
+        change. Returns the updated design plus a per-change and applied-change
+        summary.
+      operationId: assistantChat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssistantRequest' }
+      responses:
+        '200':
+          description: The assistant's response and the updated design.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AssistantResponse' }
+        '400':
+          description: 'Invalid message (empty, whitespace-only, or over the length limit).'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '504':
+          description: The assistant or validation did not respond within the time budget.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /reports/{reportId}/preview:
+    parameters:
+      - $ref: '#/components/parameters/ReportId'
+    post:
+      tags: [Preview]
+      summary: Preview a report (bounded, synchronous)
+      description: >
+        Runs the same generate -> verify path with preview bounds (100 rows /
+        1 GiB), pinned to the authorised bryt numbers, under a 10s budget. Does
+        not queue an asynchronous run. Returns at most 100 rows projecting only
+        the selected columns in design order, plus the filter/sort summary.
+      operationId: previewReport
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PreviewRequest' }
+      responses:
+        '200':
+          description: The bounded preview result (may be empty).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PreviewResult' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422':
+          description: Generation or verification failed; the design is unchanged and no run was queued.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '504':
+          description: Preview did not complete within the time budget.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /reports/{reportId}/runs:
+    parameters:
+      - $ref: '#/components/parameters/ReportId'
+    post:
+      tags: [Runs]
+      summary: Queue a run
+      description: Writes a Queued run record, starts the Step Functions pipeline, and returns the run id and Queued status within ~3s.
+      operationId: queueRun
+      responses:
+        '202':
+          description: The queued run.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Run' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500':
+          description: The run could not be started.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    get:
+      tags: [Runs]
+      summary: List recent runs
+      description: Returns up to the 50 most-recent runs for the report, newest first.
+      operationId: listRuns
+      responses:
+        '200':
+          description: The report's recent runs.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunList' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /reports/{reportId}/runs/{runId}:
+    parameters:
+      - $ref: '#/components/parameters/ReportId'
+      - $ref: '#/components/parameters/RunId'
+    get:
+      tags: [Runs]
+      summary: Get run status
+      operationId: getRun
+      responses:
+        '200':
+          description: The run.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Run' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /reports/{reportId}/runs/{runId}/cancel:
+    parameters:
+      - $ref: '#/components/parameters/ReportId'
+      - $ref: '#/components/parameters/RunId'
+    post:
+      tags: [Runs]
+      summary: Cancel a run
+      description: Valid only for Queued or Running runs; stops the Step Functions execution and the Athena query and sets Cancelled. Terminal states reject cancellation.
+      operationId: cancelRun
+      responses:
+        '200':
+          description: The updated run.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Run' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: The run is in a terminal state and cannot be cancelled.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /reports/{reportId}/runs/{runId}/result:
+    parameters:
+      - $ref: '#/components/parameters/ReportId'
+      - $ref: '#/components/parameters/RunId'
+    get:
+      tags: [Runs]
+      summary: Download the run result CSV
+      description: Valid only for Complete (verified) runs. Returns a short-lived pre-signed URL to the owner-scoped Result_Store CSV.
+      operationId: downloadResult
+      responses:
+        '200':
+          description: A pre-signed download URL for the CSV.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DownloadLink' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404':
+          description: The run is not complete, or the result object is unavailable.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        Cognito-issued JWT. The API Gateway authorizer rejects missing, expired,
+        or invalid tokens. The effective identity and authorised bryt numbers are
+        resolved server-side from the token claims only.
+
+  parameters:
+    ReportId:
+      name: reportId
+      in: path
+      required: true
+      description: ULID of the report.
+      schema: { type: string }
+    RunId:
+      name: runId
+      in: path
+      required: true
+      description: Run identifier within the report.
+      schema: { type: string }
+    SearchQuery:
+      name: q
+      in: query
+      required: false
+      description: Case-insensitive substring match on report name.
+      schema: { type: string }
+    Sort:
+      name: sort
+      in: query
+      required: false
+      description: Name sort order (defaults to ascending).
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: asc
+
+  responses:
+    Unauthorized:
+      description: The JWT is absent, expired, or identifies no valid user, or the user has no authorised bryt numbers.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: The entity does not exist for the effective identity (existence for other users is not disclosed).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: The request or Report_Design failed validation (e.g. a non-allow-listed table/column or an undefined join).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      description: Standard error envelope.
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: 'Machine-readable error code, e.g. UNAUTHORIZED, VALIDATION_ERROR, VERIFICATION_FAILED, DATA_SOURCE_UNAVAILABLE.'
+            message: { type: string }
+            details:
+              type: array
+              items: { type: string }
+
+    ReportDesign:
+      type: object
+      description: The logical, shared report design edited by both the canvas and the assistant. Never SQL.
+      required: [reportId, name, tables, joins, filters, sort, schemaVersion]
+      properties:
+        reportId:
+          type: string
+          description: ULID; stable across saves.
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: 1-200 while editing; 1-100 on save.
+        description:
+          type: string
+          maxLength: 500
+        tables:
+          type: array
+          items: { $ref: '#/components/schemas/SelectedTable' }
+        joins:
+          type: array
+          items: { $ref: '#/components/schemas/DesignJoin' }
+        filters:
+          type: array
+          items: { $ref: '#/components/schemas/DesignFilter' }
+        sort:
+          type: array
+          description: Ordered; left-to-right precedence.
+          items: { $ref: '#/components/schemas/SortRule' }
+        scope:
+          $ref: '#/components/schemas/BrytScope'
+        schemaVersion:
+          type: integer
+          description: For forward migration of the serialised form.
+      example:
+        reportId: 01J2ZK8T3N9Q7B4C5D6E7F8G9H
+        name: Contracts ending in 90 days
+        description: Fixed-price contracts with their sites
+        schemaVersion: 1
+        tables:
+          - table: account_activity
+            columns: [bryt_number, account_id, product_type]
+          - table: supply_activity
+            columns: [bryt_number, mpan, supply_start_date, supply_end_date]
+        joins:
+          - joinId: account_to_supply
+            left: account_activity
+            right: supply_activity
+        filters:
+          - table: account_activity
+            column: product_type
+            op: eq
+            value: Fixed
+        sort:
+          - table: account_activity
+            column: account_id
+            direction: asc
+        scope:
+          brytNumber: BRYT123456
+
+    SelectedTable:
+      type: object
+      required: [table, columns]
+      properties:
+        table:
+          type: string
+          description: Must be an allow-listed Catalog table.
+        columns:
+          type: array
+          items: { type: string }
+          description: Must be allow-listed columns of `table`.
+
+    DesignJoin:
+      type: object
+      required: [joinId, left, right]
+      properties:
+        joinId:
+          type: string
+          description: Must match a Join_Manifest join id.
+        left: { type: string }
+        right: { type: string }
+
+    DesignFilter:
+      type: object
+      required: [table, column, op]
+      properties:
+        table: { type: string }
+        column: { type: string }
+        op:
+          type: string
+          enum: [eq, ne, lt, lte, gt, gte, contains, startsWith, in, between, isNull, notNull]
+        value:
+          description: Treated as a bound parameter, never string-concatenated.
+        values:
+          type: array
+          description: For `in` / `between`.
+          items: {}
+
+    SortRule:
+      type: object
+      required: [table, column, direction]
+      properties:
+        table: { type: string }
+        column: { type: string }
+        direction:
+          type: string
+          enum: [asc, desc]
+
+    BrytScope:
+      type: object
+      description: Optional single-account narrowing. The server always re-checks membership of the authorised set.
+      required: [brytNumber]
+      properties:
+        brytNumber:
+          type: string
+          description: BRYT + 6 digits.
+
+    SaveReportRequest:
+      type: object
+      required: [name, design]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        design:
+          $ref: '#/components/schemas/ReportDesign'
+
+    Report:
+      type: object
+      description: A saved report with its metadata and design.
+      required: [reportId, name, tables, design, createdAt, updatedAt]
+      properties:
+        reportId: { type: string }
+        name: { type: string }
+        description: { type: string }
+        tables:
+          type: array
+          items: { type: string }
+          description: Table names, for the My Reports badges.
+        design: { $ref: '#/components/schemas/ReportDesign' }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    ReportSummary:
+      type: object
+      required: [reportId, name, tables]
+      properties:
+        reportId: { type: string }
+        name: { type: string }
+        description: { type: string }
+        tables:
+          type: array
+          items: { type: string }
+        updatedAt: { type: string, format: date-time }
+
+    ReportSummaryList:
+      type: object
+      required: [reports]
+      properties:
+        reports:
+          type: array
+          items: { $ref: '#/components/schemas/ReportSummary' }
+
+    Catalog:
+      type: object
+      required: [tables]
+      properties:
+        tables:
+          type: array
+          items: { $ref: '#/components/schemas/CatalogTable' }
+
+    CatalogTable:
+      type: object
+      required: [name, columnCount, columns]
+      properties:
+        name: { type: string }
+        columnCount: { type: integer }
+        columns:
+          type: array
+          items: { $ref: '#/components/schemas/CatalogColumn' }
+
+    CatalogColumn:
+      type: object
+      required: [name, dataType, isKey]
+      properties:
+        name: { type: string }
+        dataType:
+          type: string
+          description: Glue/Athena type.
+        isKey:
+          type: boolean
+          description: Join key or primary key - tagged and pre-selected in the picker.
+
+    JoinManifest:
+      type: object
+      description: >
+        Read-only manifest separating security pins from content joins. ASSUMPTION:
+        shapes mirror `analysis/BRYT/report-builder/schema/join-manifest.json` (v0.2.0).
+      required: [version, pins, joins]
+      properties:
+        version: { type: string }
+        pins:
+          type: array
+          items: { $ref: '#/components/schemas/ManifestPin' }
+        joins:
+          type: array
+          items: { $ref: '#/components/schemas/ManifestJoin' }
+
+    ManifestPin:
+      type: object
+      required: [table, kind]
+      properties:
+        table: { type: string }
+        kind:
+          type: string
+          enum: [direct, direct-role, via-mpan]
+        column:
+          type: string
+          description: The bryt-number column for a direct pin.
+        window:
+          type: boolean
+          description: Whether a via-mpan pin carries the effective-date window (always true for via-mpan).
+
+    ManifestJoin:
+      type: object
+      required: [id, left, right, predicate]
+      properties:
+        id: { type: string }
+        left: { type: string }
+        right: { type: string }
+        predicate:
+          type: string
+          description: The join condition, e.g. account_activity.customer_id = supply_activity.customer_id.
+
+    AssistantRequest:
+      type: object
+      required: [message, design]
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: 1-2000 chars from the drawer; the API hard limit is 4000.
+        design:
+          $ref: '#/components/schemas/ReportDesign'
+
+    AssistantResponse:
+      type: object
+      required: [design, summary]
+      properties:
+        design:
+          $ref: '#/components/schemas/ReportDesign'
+        summary:
+          type: string
+          description: Applied-change summary.
+        changes:
+          type: array
+          description: Per-change descriptions.
+          items: { type: string }
+        declined:
+          type: boolean
+          description: True when the request could not be satisfied within the catalog/manifest; the design is unchanged.
+
+    PreviewRequest:
+      type: object
+      description: Optional overrides; by default the report's saved design is previewed.
+      properties:
+        design:
+          $ref: '#/components/schemas/ReportDesign'
+
+    PreviewResult:
+      type: object
+      required: [columns, rows, rowLimit, filterSortSummary]
+      properties:
+        columns:
+          type: array
+          description: Selected columns in design order.
+          items: { type: string }
+        rows:
+          type: array
+          description: At most 100 rows.
+          items:
+            type: array
+            items: {}
+        rowLimit:
+          type: integer
+          description: The applied bound (100).
+        filterSortSummary:
+          type: array
+          items: { type: string }
+
+    Run:
+      type: object
+      required: [reportId, runNo, status, startedAt, trigger]
+      properties:
+        reportId: { type: string }
+        runNo: { type: integer }
+        trigger:
+          type: string
+          enum: [manual]
+        status:
+          $ref: '#/components/schemas/RunStatus'
+        startedAt: { type: string, format: date-time }
+        rowCount:
+          type: integer
+          minimum: 0
+          maximum: 999999999
+        errorMessage:
+          type: string
+          maxLength: 1000
+        resultLocation:
+          type: string
+          description: Result_Store key; present only when Complete and verified.
+
+    RunStatus:
+      type: string
+      enum: [Queued, Running, Complete, Failed, Cancelled]
+
+    RunList:
+      type: object
+      required: [runs]
+      properties:
+        runs:
+          type: array
+          maxItems: 50
+          items: { $ref: '#/components/schemas/Run' }
+
+    DownloadLink:
+      type: object
+      required: [url, expiresAt]
+      properties:
+        url:
+          type: string
+          format: uri
+          description: Short-lived pre-signed URL to the owner-scoped CSV.
+        expiresAt: { type: string, format: date-time }
