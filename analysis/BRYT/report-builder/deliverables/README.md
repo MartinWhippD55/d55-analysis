@@ -10,6 +10,7 @@ skill suite; branding is D55 + BRYT Energy.
 | Deliverable | File(s) | Built by |
 |---|---|---|
 | **Summary presentation** | [`outputs/presentation-preview.html`](outputs/presentation-preview.html) | `build_standalone_html.py` |
+| **Executive summary** | [`outputs/report-builder-exec-summary.html`](outputs/report-builder-exec-summary.html) · [`.pdf`](outputs/report-builder-exec-summary.pdf) | `walkthroughs/report_builder_exec_summary.py` |
 | **Technical walkthrough** | [`outputs/report-builder.html`](outputs/report-builder.html) · [`.pdf`](outputs/report-builder.pdf) | `walkthroughs/report_builder.py` |
 | **Data model** | [`outputs/data-model.html`](outputs/data-model.html) · [`.pdf`](outputs/data-model.pdf) | `walkthroughs/data_model.py` |
 | **API reference (OpenAPI 3.1)** | [`api/report-builder-api.yaml`](api/report-builder-api.yaml) · [`api/report-builder-api.html`](api/report-builder-api.html) | `api/build_html.py` |
@@ -29,7 +30,7 @@ writes the spreadsheet. `figures.py` reads the spreadsheet's authoritative
 **Task Detail** rows and every generator imports from it. So a single edit
 propagates everywhere on the next regenerate.
 
-Current total: **~78 developer days** (67 required + 11 optional testing).
+Current total: **~24 developer days** (~15 required core build + ~9 optional testing).
 
 > The figures are **inferred** from the task breakdown — the spec carries no day
 > numbers of its own. The day-weighting table at the top of

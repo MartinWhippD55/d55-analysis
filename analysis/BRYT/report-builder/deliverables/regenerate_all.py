@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parent          # deliverables/
 REPO = ROOT.parents[3]                           # workspace root
 WALK = ROOT / "walkthroughs" / "build_walkthrough.py"
 
-WALKTHROUGHS = ["report_builder", "report_builder_no_estimates", "data_model"]
+WALKTHROUGHS = ["report_builder", "report_builder_no_estimates", "report_builder_exec_summary", "data_model"]
 
 PY = sys.executable
 NO_PDF = "--no-pdf" in sys.argv
