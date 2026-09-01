@@ -32,6 +32,7 @@ WALKTHROUGHS = [
     "estimate_03",
     "estimate_04",
     "estimate_05",
+    "remaining_scope",  # combined Est 2-5 summary ("Contract Note - Remaining Scope")
     "data_model",
 ]
 
