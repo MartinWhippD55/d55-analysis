@@ -1,0 +1,3 @@
+# Bundle-local dependencies for the mcp-setup engine (stdlib-only at runtime).
+hypothesis      # property-based tests
+pytest          # test runner

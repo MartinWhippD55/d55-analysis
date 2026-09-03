@@ -1,0 +1,62 @@
+{
+  "_comment": "Portable reference set of MCP servers for the D55 toolchain. The engine diffs a developer's mcp.json against this and merges in only what's missing. Machine/user/secret bits are placeholders ({{...}}) resolved per developer at setup time — never copy absolute paths, emails, or tokens from one machine to another.",
+  "servers": {
+    "playwright": {
+      "runtime": "node",
+      "spec": {
+        "command": "npx",
+        "args": ["@playwright/mcp@latest"],
+        "disabled": false,
+        "autoApprove": [
+          "browser_navigate",
+          "browser_snapshot",
+          "browser_click",
+          "browser_evaluate",
+          "browser_take_screenshot",
+          "browser_press_key",
+          "browser_wait_for"
+        ]
+      },
+      "notes": "Headless browser automation + screenshots (used by deliverables verification, screen-mockups).",
+      "verify_tool": "browser_navigate"
+    },
+    "excalidraw": {
+      "runtime": "node",
+      "spec": {
+        "command": "npx",
+        "args": ["mcp-excalidraw@latest"],
+        "disabled": false,
+        "autoApprove": ["create-excalidraw-diagram"]
+      },
+      "notes": "Excalidraw diagram rendering.",
+      "verify_tool": "create-excalidraw-diagram"
+    },
+    "atlassian": {
+      "runtime": "python-uvx",
+      "spec": {
+        "command": "uvx",
+        "args": ["mcp-atlassian", "--env-file", "{{env_file}}"],
+        "env": {
+          "JIRA_URL": "{{JIRA_URL}}",
+          "JIRA_USERNAME": "{{JIRA_USERNAME}}"
+        },
+        "disabled": false,
+        "autoApprove": []
+      },
+      "placeholders": {
+        "env_file": "Absolute path to the gitignored atlassian.env in the target workspace. Default: <workspace>/.kiro/settings/atlassian.env",
+        "JIRA_URL": "Atlassian site URL. D55 team default: https://d55ltd.atlassian.net",
+        "JIRA_USERNAME": "Your Atlassian account email (e.g. jane.doe@d55.co.uk)"
+      },
+      "defaults": {
+        "JIRA_URL": "https://d55ltd.atlassian.net"
+      },
+      "secrets": {
+        "env_file_keys": ["JIRA_API_TOKEN"],
+        "notes": "JIRA_API_TOKEN lives ONLY in the --env-file (matched by .kiro/settings/*.env in .gitignore). Never place the token in mcp.json and never print it. Create a token at https://id.atlassian.com/manage-profile/security/api-tokens."
+      },
+      "notes": "Jira via mcp-atlassian. The command resolves to the uvx on the target's PATH (do not hardcode another machine's absolute uvx path).",
+      "verify_tool": "jira_get_user_profile"
+    }
+  }
+}
