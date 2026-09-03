@@ -152,7 +152,7 @@ intentional remainder) **and** `validate_tree == []`.
   If it doesn't exist, run **decomposition-to-jira** step 1 first.
 - For the push: the **Atlassian Jira MCP** connected (tool prefix
   `mcp_atlassian_jira_*`). Sanity-check with a read call
-  (`jira_get_user_profile martin.whipp@d55.co.uk`) before writing anything. If
+  (e.g. `jira_get_all_projects`) before writing anything. If
   disconnected, ensure `.kiro/settings/atlassian.env` holds a valid token and
   reconnect the `atlassian` server from the Kiro MCP panel.
 - A **target project key**. Ask the user. Trial against **`TEST`** (Bryt MSP Project)

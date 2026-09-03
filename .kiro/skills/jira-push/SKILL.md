@@ -77,8 +77,8 @@ exactly.
   `.kiro/specs/<parent>/decomposition/jira-tree/` (produced and enriched by
   **jira-tree**). If it doesn't exist, run **jira-tree** first.
 - The **Atlassian Jira MCP** connected (tool prefix `mcp_atlassian_jira_*`).
-  Sanity-check with a read call (`jira_get_user_profile martin.whipp@d55.co.uk`)
-  before writing anything. If disconnected, ensure `.kiro/settings/atlassian.env`
+  Sanity-check with a read call (e.g. `jira_get_all_projects`) before writing
+  anything. If disconnected, ensure `.kiro/settings/atlassian.env`
   holds a valid token and reconnect the `atlassian` server from the Kiro MCP panel.
 - A **target project key**. Ask the user. Trial against **`TEST`** (Bryt MSP Project)
   before any real project (e.g. **`BRYT`**), and only on explicit confirmation.

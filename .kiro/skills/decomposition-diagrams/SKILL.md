@@ -79,7 +79,7 @@ python -m pytest ../jira-image-embed               # the embed engine you delega
 ```
 
 Sanity-check the MCP with a read before any write (e.g.
-`jira_get_user_profile martin.whipp@d55.co.uk`). If disconnected, ensure
+`jira_get_all_projects`). If disconnected, ensure
 `.kiro/settings/atlassian.env` holds a valid token and reconnect the `atlassian`
 server.
 

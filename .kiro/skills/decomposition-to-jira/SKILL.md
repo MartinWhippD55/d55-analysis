@@ -37,7 +37,7 @@ Run the engine from the bundle root (`python -m pytest`, or import `engine.plan`
   `.kiro/specs/<parent>/decomposition/` containing `graph.yaml` and
   `stories/*/manifest.yaml`. If it does not exist, run **spec-to-stories** first.
 - The **Atlassian Jira MCP** connected (tool prefix `mcp_atlassian_jira_*`). Sanity
-  check with a read call, e.g. `jira_get_user_profile martin.whipp@d55.co.uk`, before
+  check with a read call, e.g. `jira_get_all_projects`, before
   writing anything. If disconnected, ensure `.kiro/settings/atlassian.env` holds a
   valid token and reconnect the `atlassian` server from the Kiro MCP panel.
 - A **target project key**. Ask the user. Use **`TEST`** (Bryt MSP Project) as the
