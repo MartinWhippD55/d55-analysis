@@ -20,7 +20,7 @@ from typing import Optional
 
 # Conventional asset filenames looked up by ``from_assets_dir``.
 _LOGO_NAMES = ("d55-logo-white.png", "logo-white.png", "logo.png")
-_BG_NAMES = ("D55_TEAMS_BACKGROUND_No_LOGO.jpg", "background.jpg", "bg.jpg", "cover-bg.jpg")
+_BG_NAMES = ("D55_TEAMS_BACKGROUND_No_LOGO.jpg", "d55-bg.jpg", "background.jpg", "bg.jpg", "cover-bg.jpg")
 _CLIENT_LOGO_NAMES = ("client-logo.png", "client-logo-white.png")
 
 

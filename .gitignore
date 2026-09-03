@@ -10,5 +10,8 @@ reference-repos/
 # Derived client delivery bundles (regenerable via client_bundle)
 programmes/*-client-bundle/
 
+# Generated deliverables (regenerable via spec-to-deliverables regenerate_all.py)
+deliverables/
+
 # MCP secrets — never commit API tokens
 .kiro/settings/*.env

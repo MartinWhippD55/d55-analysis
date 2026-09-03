@@ -57,3 +57,25 @@ def test_weights_override():
 
 def test_non_task_lines_ignored():
     assert parse_tasks_text("just prose\n# heading\n", "Est 1") == []
+
+
+def test_completed_checkboxes_are_parsed():
+    # A fully checked-off plan must still be estimable (effort != completion).
+    text = "- [x] 1. Parent\n  - [x] 1.1 Implement the REST handler\n  - [X] 1.2 Build the Angular component\n"
+    tasks = parse_tasks_text(text, "Est 1")
+    assert [t["task_id"] for t in tasks] == ["1.1", "1.2"]
+
+
+def test_top_level_task_without_subtasks_is_counted():
+    text = (
+        "- [x] 1. Provision CDK stack\n"          # no numbered sub-tasks -> counts itself
+        "  - some descriptive bullet\n"             # not a task line -> ignored
+        "  - _Requirements: 1.1_\n"
+        "- [x] 2. Parent with subs\n"
+        "  - [x] 2.1 Build the Angular component\n"
+    )
+    tasks = parse_tasks_text(text, "Est 1")
+    ids = [t["task_id"] for t in tasks]
+    assert ids == ["1", "2.1"]                       # top-level 1 counted; 2 replaced by 2.1
+    top = [t for t in tasks if t["task_id"] == "1"][0]
+    assert top["category"] == "infrastructure"       # "Provision CDK stack"

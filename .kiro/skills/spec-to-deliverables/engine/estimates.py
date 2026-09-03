@@ -35,8 +35,12 @@ DEFAULT_WEIGHTS = {
     "checkpoint": 0.0,
 }
 
-# Sub-task line, e.g. "  - [ ]* 1.2 Do the thing" (optional marked with '*').
-_TASK_RE = re.compile(r"\s+- \[ \](\*?)\s+(\d+\.\d+[a-z]?)\s+(.*)")
+# Task lines. Checkbox may be incomplete "[ ]" or complete "[x]" — effort is
+# estimated regardless of completion state. Optional tasks are marked with '*'.
+# Top-level task, e.g. "- [x] 3. Do the thing" (integer id, no indent).
+_TOP_RE = re.compile(r"^- \[[ xX]\](\*?)\s+(\d+)\.\s+(.*)")
+# Sub-task, e.g. "  - [ ]* 1.2 Do the thing" (decimal id, indented).
+_SUB_RE = re.compile(r"^\s+- \[[ xX]\](\*?)\s+(\d+\.\d+[a-z]?)\s+(.*)")
 
 
 def classify_task(task_text: str) -> str:
@@ -60,25 +64,49 @@ def classify_task(task_text: str) -> str:
 
 
 def parse_tasks_text(text: str, estimate_name: str, weights: Optional[dict] = None) -> list[dict]:
-    """Pure: parse a tasks.md string into weighted task rows."""
+    """Pure: parse a tasks.md string into weighted task rows.
+
+    A top-level task with numbered sub-tasks contributes its **sub-tasks** (the
+    finer-grained units); a top-level task with no numbered sub-tasks contributes
+    **itself** as one unit, so nothing is missed regardless of breakdown depth.
+    """
     weights = weights or DEFAULT_WEIGHTS
-    tasks = []
-    for line in text.split("\n"):
-        m = _TASK_RE.match(line)
-        if not m:
-            continue
-        is_optional = m.group(1) == "*"
-        task_id = m.group(2)
-        task_text = m.group(3).strip()
+
+    def _mk(task_id: str, task_text: str, is_optional: bool) -> dict:
         category = classify_task(task_text)
-        tasks.append({
+        return {
             "estimate": estimate_name,
             "task_id": task_id,
-            "task": task_text,
+            "task": task_text.strip(),
             "category": category,
             "days": weights.get(category, 0.0),
             "optional": is_optional,
-        })
+        }
+
+    groups: list[dict] = []
+    current: Optional[dict] = None
+    for line in text.split("\n"):
+        top = _TOP_RE.match(line)
+        sub = _SUB_RE.match(line)
+        if top:
+            current = _mk(top.group(2), top.group(3), top.group(1) == "*")
+            current["_subs"] = []
+            groups.append(current)
+        elif sub:
+            entry = _mk(sub.group(2), sub.group(3), sub.group(1) == "*")
+            if current is not None:
+                current["_subs"].append(entry)
+            else:  # a sub-task with no preceding top-level task — count it directly
+                groups.append({**entry, "_subs": [], "_leaf": True})
+
+    tasks: list[dict] = []
+    for g in groups:
+        subs = g.pop("_subs", [])
+        g.pop("_leaf", None)
+        if subs:
+            tasks.extend(subs)
+        else:
+            tasks.append(g)
     return tasks
 
 
