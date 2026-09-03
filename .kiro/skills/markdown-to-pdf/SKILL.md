@@ -11,9 +11,9 @@ typography, tables, callouts) with a single command. Free-standing: bundles its
 own converter, brand assets, and a focused Markdown parser — no third-party
 Markdown library needed. Reference example lives in `examples/`.
 
-Related: `deliverables-toolkit` covers the block-authored document engine (hand
--written content modules). Use *this* skill when the source is already Markdown
-and you just want it rendered to a branded PDF.
+Related: the `spec-to-deliverables` skill (its `deliverables-toolkit.md`) covers the
+block-authored document engine (hand-written content modules). Use *this* skill when
+the source is already Markdown and you just want it rendered to a branded PDF.
 
 ## Usage
 
@@ -78,7 +78,7 @@ grey; colon-separated so it is safe inside table cells), and inline `**bold**`,
 - Colours/typography match the D55 deliverables (navy `#1a0a3e`, accent
   `#5dade2`, Inter font). Content pages use Word-style margins via CSS `@page`.
 
-## Verification (per deliverables-toolkit)
+## Verification (per spec-to-deliverables' deliverables-toolkit.md)
 
 The agent cannot see images — measure, don't look:
 

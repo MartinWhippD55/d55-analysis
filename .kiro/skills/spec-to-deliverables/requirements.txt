@@ -1,0 +1,8 @@
+# Bundle-local dependencies for the spec-to-deliverables engine.
+# The bundle assumes a Python interpreter (+ Chromium for Playwright PDF/deck rendering).
+openpyxl        # estimates spreadsheet read/write
+playwright      # HTML -> PDF (walkthroughs) and DOM verification
+pypdf           # PDF verification (page count, size, orphan-heading checks)
+pyyaml          # OpenAPI YAML load
+hypothesis      # property-based tests
+pytest          # test runner

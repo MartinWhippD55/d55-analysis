@@ -18,8 +18,9 @@ components it owns, which it consumes, and which stories must land first.
 This is a hybrid skill: a small **deterministic engine** does the graph maths
 (build, validate, topological sort, wave layering, Jira export) and the **agent**
 does the authoring (reading the parent spec, grouping work into stories, writing
-each mini-spec). Read `deliverables-toolkit` only if you also want to produce
-client-facing PDFs afterwards — this skill is about developer-facing delivery.
+each mini-spec). Read the `spec-to-deliverables` skill (its `deliverables-toolkit.md`)
+only if you also want to produce client-facing PDFs afterwards — this skill is about
+developer-facing delivery.
 
 ## Self-sufficient bundle
 

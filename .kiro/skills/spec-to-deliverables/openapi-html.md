@@ -6,15 +6,15 @@ inclusion: manual
 
 # OpenAPI HTML
 
-Where a spec defines an API surface, produce an OpenAPI 3.1 YAML plus a **fully self-contained** HTML reference (spec + rendering runtime both inlined, opens offline in any browser). Reference: `analysis/BRYT/contract-note/api/` (`contract-note-api.yaml`, `build_html.py`).
+Where a spec defines an API surface, produce an OpenAPI 3.1 YAML plus a **fully self-contained** HTML reference (spec + rendering runtime both inlined, opens offline in any browser). Outputs land in the run's `<deliverables-dir>/` (default `deliverables/<spec>/`, e.g. an `api/` subfolder). Optional worked example: `analysis/BRYT/contract-note/api/` (`contract-note-api.yaml`, `build_html.py`) if present in this repo — reference only.
 
-Read `deliverables-toolkit` first.
+Read `deliverables-toolkit.md` (in this folder) first.
 
 ## Steps
 
 ### Step 1: Derive the spec
 
-1. From the design docs, pull the endpoint tables (method, path, purpose) and the TypeScript/interface definitions (→ component schemas).
+1. From the design docs (under `.kiro/specs/<spec>/`), pull the endpoint tables (method, path, purpose) and the TypeScript/interface definitions (→ component schemas).
 2. Write an OpenAPI 3.1 YAML: `paths` grouped by `tags`, reusable `components` (schemas, parameters, responses, security schemes).
 3. Where the design describes behaviour in prose rather than concrete request/response bodies, infer reasonable shapes and mark each with `ASSUMPTION:` in the description so the client can confirm.
 4. Model a standard error envelope, a security scheme (e.g. bearer/Cognito), and any recurring responses (401/403/404/409/validation) once and `$ref` them.
@@ -30,11 +30,13 @@ Validate with `openapi-spec-validator` (`pip install openapi-spec-validator`). A
 
 ### Step 4: Build the self-contained HTML
 
-The key gotcha: Redocly's `build-docs` still links its runtime from a CDN, so that output is **not** offline. Instead, write a small `build_html.py` that:
+The key gotcha: Redocly's `build-docs` still links its runtime from a CDN, so that output is **not** offline. The vendored `engine.openapi_html` avoids that — it inlines both the spec (as JSON) and the Redoc runtime (downloaded once and cached, gitignored):
 
-1. Loads the YAML and inlines it as a JSON object in the page.
-2. Downloads the Redoc standalone runtime once (cache it locally, gitignored) and inlines it in a `<script>`.
-3. Initialises Redoc against the inlined spec.
+```python
+import sys; sys.path.insert(0, ".kiro/skills/spec-to-deliverables")
+from engine.openapi_html import build_openapi_html
+build_openapi_html("deliverables/<spec>/api/api.yaml", "deliverables/<spec>/api/api.html")
+```
 
 Result: one HTML file with **zero external references**.
 
@@ -45,4 +47,4 @@ Serve on localhost, load in the browser, and confirm: title correct, operation c
 ## Notes
 
 - Exclude from the offline check the cosmetic `example.com` placeholders that Redoc emits; only script/style/runtime refs matter.
-- Keep an `api/README.md` documenting scope, assumptions, and how to validate/regenerate.
+- Keep an `api/README.md` (in `<deliverables-dir>/`) documenting scope, assumptions, and how to validate/regenerate.

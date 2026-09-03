@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.hypothesis/
+# cached Redoc runtime (re-downloaded on demand)
+_redoc.js
