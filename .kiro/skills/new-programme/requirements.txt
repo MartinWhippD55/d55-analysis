@@ -1,7 +1,0 @@
-# Bundle-local dependencies for the New Programme skill.
-# The bundle assumes only a Python interpreter (+ Chromium for Playwright) on the host.
-openpyxl
-playwright
-pypdf
-hypothesis
-pyyaml

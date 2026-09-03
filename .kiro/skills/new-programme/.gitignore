@@ -1,6 +1,0 @@
-# Bundle-local ignores — transient test/build artefacts.
-__pycache__/
-*.pyc
-.pytest_cache/
-.hypothesis/
-output/
