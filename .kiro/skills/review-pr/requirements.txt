@@ -1,0 +1,3 @@
+# Bundle-local dependencies for the review-pr engine.
+hypothesis      # property-based tests
+pytest          # test runner

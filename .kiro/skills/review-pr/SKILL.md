@@ -8,6 +8,27 @@ inclusion: manual
 
 Fetches a GitHub Pull Request, performs an iterative code review, and produces a findings summary plus a polished PR comment.
 
+This is a **hybrid skill**: a small **deterministic engine** renders the review comment (findings table, positives, verdict table) from structured findings so the format is always consistent and testable, and the **agent** does the reviewing (reading diffs, judging, writing findings). The engine never calls `gh` or GitHub.
+
+## Self-sufficient bundle
+
+```
+.kiro/skills/review-pr/
+  SKILL.md                 this file
+  requirements.txt         hypothesis, pytest
+  pytest.ini
+  engine/
+    comment.py             Finding / VerdictRow models + render_comment / render_findings_table
+  templates/
+    context.md.tmpl        PR context scaffold
+    state.md.tmpl          loop-state tracker scaffold
+    review-comment.md.tmpl  the canonical comment shape (reference)
+  tests/
+    test_comment.py        rendering, pipe-escaping, numbering, legends (incl. property-based)
+```
+
+Run the engine from the bundle root (`python -m pytest`, or `import engine.comment`).
+
 ## Usage
 
 The user will provide either:
@@ -26,6 +47,8 @@ PRs/<repo>-<number>/
 └── review-comment.md  # Polished comment posted to the PR (findings + verdict tables)
 ```
 
+Scaffold `context.md` and `state.md` from `templates/` in this folder.
+
 ## Steps
 
 ### Step 1: Fetch PR Context
@@ -42,7 +65,7 @@ PRs/<repo>-<number>/
    gh api repos/<owner>/<repo>/pulls/<number>/comments --paginate --jq ".[] | {path: .path, body: .body, user: .user.login, line: .line}"
    ```
 
-4. Write `PRs/<repo>-<number>/context.md` with:
+4. Write `PRs/<repo>-<number>/context.md` (from `templates/context.md.tmpl`) with:
    - PR metadata table (title, author, state, branches, stats, URL)
    - PR description (quoted)
    - Any existing comments/review feedback for context
@@ -57,7 +80,7 @@ PRs/<repo>-<number>/
 
 ### Step 3: Iterative File Review
 
-1. Create `PRs/<repo>-<number>/state.md` to track progress:
+1. Create `PRs/<repo>-<number>/state.md` (from `templates/state.md.tmpl`) to track progress:
    - List of all files to review
    - Current position in the list
    - Files completed
@@ -81,8 +104,8 @@ PRs/<repo>-<number>/
 3. If the diff is too large to fetch via API, note this and move on.
 
 4. Prioritise reviewing:
-   - Infrastructure/CDK changes (high blast radius)
-   - Business logic (Glue scripts, Lambdas)
+   - Infrastructure / IaC changes (high blast radius)
+   - Core business logic
    - Configuration files
    - Skip: lock files, generated files, trivial renames
 
@@ -97,61 +120,49 @@ PRs/<repo>-<number>/
 
 ### Step 5: Draft the PR Comment
 
-Write `PRs/<repo>-<number>/review-comment.md` using the standard template below. This is
-the artefact that gets posted to the PR, so keep it self-contained and skimmable.
+Render `PRs/<repo>-<number>/review-comment.md` with the vendored engine, so the tables, numbering and legends are always well-formed (cell contents are pipe-escaped for you):
 
-The template has four parts: an intro, a **findings table**, a **positives** list, and a
-**verdict table**. Use the severity/status emojis consistently.
+```python
+import sys; sys.path.insert(0, ".kiro/skills/review-pr")
+from engine.comment import Finding, VerdictRow, render_comment
 
-**Severity legend (findings table):**
-| Emoji | Meaning |
-|-------|---------|
-| 🔴 Blocking | Must be fixed before merge (bug, security, data loss). |
-| 🟡 Confirm | Not necessarily wrong, but needs the author to confirm intent before merge. |
-| 🔵 Non-blocking | Minor cleanup / suggestion that can land later. |
-| ✅ Acknowledged | Raised, then confirmed as expected/intentional (keep it visible with a follow-up note). |
-
-**Status legend (verdict table):** 🟢 good / strong · 🟡 needs confirmation · 🔴 problem.
-
-**Template:**
-
-```markdown
-## Review Summary — <feature / PR title>
-
-<One or two sentences: overall impression and whether these are blockers or confirmations.>
-
-### Findings
-
-| # | Severity | Area | Finding | Suggested action |
-|---|----------|------|---------|------------------|
-| 1 | 🟡 Confirm | `path/to/file` | <what and why it matters> | <what you'd like the author to do> |
-| 2 | 🔵 Non-blocking | <area> | <finding> | <suggestion> |
-
-### Positives
-
-- ✅ <specific good pattern, with the concrete reason it's good>
-- ✅ <another — be specific, not generic praise>
-
-### Verdict
-
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| Code quality | 🟢 Strong | <one line> |
-| Test coverage | 🟢 Strong | <one line> |
-| Blocking issues | 🟢 None | <one line> |
-| Before merge | 🟡 Confirm | <the confirm-level findings by number> |
-| Follow-ups | 🔵 Minor | <the non-blocking findings by number> |
-| **Overall** | **🟢 Good to merge** | <the bottom line> |
+md = render_comment(
+    title="<feature / PR title>",
+    summary="<one or two sentences: overall impression, blockers vs confirmations>",
+    findings=[
+        Finding("confirm", "`path/to/file`", "<what and why it matters>", "<what you'd like the author to do>"),
+        Finding("non_blocking", "<area>", "<finding>", "<suggestion>"),
+    ],
+    positives=["<specific good pattern, with the concrete reason it's good>", "<another — be specific>"],
+    verdict=[
+        VerdictRow("Code quality", "good", "<one line>"),
+        VerdictRow("Test coverage", "good", "<one line>"),
+        VerdictRow("Blocking issues", "good", "None"),
+        VerdictRow("Before merge", "confirm", "<the confirm-level findings by number>"),
+        VerdictRow("Follow-ups", "non_blocking", "<the non-blocking findings by number>"),
+        VerdictRow("Overall", "good", "<the bottom line>", bold=True),
+    ],
+)
+open("PRs/<repo>-<number>/review-comment.md", "w", encoding="utf-8").write(md)
 ```
+
+The engine renders the four parts (intro, **findings table**, **positives**, **verdict table**) using consistent emojis. `templates/review-comment.md.tmpl` shows the canonical shape for reference.
+
+**Severity keys (findings table):**
+| Key | Renders | Meaning |
+|-----|---------|---------|
+| `blocking` | 🔴 Blocking | Must be fixed before merge (bug, security, data loss). |
+| `confirm` | 🟡 Confirm | Not necessarily wrong, but needs the author to confirm intent before merge. |
+| `non_blocking` | 🔵 Non-blocking | Minor cleanup / suggestion that can land later. |
+| `acknowledged` | ✅ Acknowledged | Raised, then confirmed as expected/intentional (keep it visible with a follow-up note). |
+
+**Status keys (verdict table):** `good` → 🟢 · `confirm` → 🟡 · `problem` → 🔴.
 
 Guidance:
 - Reference findings by their table number in the verdict rows so the two line up.
-- When the author confirms a 🟡 item during discussion, don't delete it — flip it to
-  ✅ Acknowledged, record the explanation, and note any planned follow-up. This preserves
-  the review trail.
+- When the author confirms a 🟡 item during discussion, don't delete it — flip it to `acknowledged`, record the explanation, and note any planned follow-up. This preserves the review trail.
 - Keep positives specific and evidence-based; avoid generic filler.
-- Adjust the **Overall** row to match reality (🟢 good to merge / 🟡 changes requested /
-  🔴 do not merge).
+- Set the final `Overall` verdict row to match reality (🟢 good to merge / 🟡 changes requested / 🔴 do not merge).
 
 ### Step 6: Post (with approval)
 
@@ -167,9 +178,15 @@ Guidance:
    gh pr comment <number> --repo <owner/repo> --edit-last --body-file "PRs/<repo>-<number>/review-comment.md"
    ```
 
+## Verify
+
+- `python -m pytest` in the bundle (engine correctness — rendering, pipe-escaping, numbering, legends).
+- Before posting, eyeball the rendered `review-comment.md`: the findings are numbered, the verdict rows reference those numbers, and the tables render (no broken cells).
+
 ## Notes
 
 - If interrupted mid-review, `state.md` allows resuming from where we left off.
-- Group related files together for review (e.g., a Lambda's index.ts + its tests) rather than reviewing in isolation.
+- Group related files together for review (e.g., a handler + its tests) rather than reviewing in isolation.
 - The diff API returns patches per-file which avoids the 20,000-line limit on full PR diffs.
 - Be constructive in findings — focus on actionable feedback, not style nitpicks.
+- Posting is **not** auto-approved — always confirm with the user first.
