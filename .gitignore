@@ -15,3 +15,6 @@ deliverables/
 
 # MCP secrets — never commit API tokens
 .kiro/settings/*.env
+
+# Skills bundle (regenerable, large binary)
+.kiro/skills.zip
