@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raid / Venatrix — Walkthrough Prep</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --ink: #23232f;
+    --brand: #1a0a3e;
+    --brand-2: #4b2fa8;
+    --accent: #7c5cff;
+    --muted: #6b6b7b;
+    --line: #e5e2ef;
+    --bg: #f6f5fb;
+    --card: #ffffff;
+    --ok: #1c7c54;
+    --warn: #b45309;
+    --todo-bg: #fff7ed;
+    --todo-border: #fdba74;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header.page {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+    color: #fff;
+    padding: 36px 0 30px;
+    margin-bottom: 0;
+  }
+  header.page .wrap { padding-bottom: 0; }
+  header.page .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.8;
+  }
+  header.page h1 { font-size: 30px; font-weight: 700; margin: 6px 0 8px; }
+  header.page p.sub { opacity: 0.9; font-weight: 300; max-width: 680px; }
+
+  /* Tabs */
+  .tabs {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--brand);
+    display: flex; flex-wrap: wrap; gap: 2px;
+    padding: 0 20px;
+    box-shadow: 0 2px 10px rgba(26,10,62,0.25);
+  }
+  .tabs .wrap { display: flex; flex-wrap: wrap; gap: 4px; padding: 0; }
+  .tab-btn {
+    appearance: none; border: 0; background: transparent;
+    color: rgba(255,255,255,0.7);
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    padding: 14px 18px; cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color .15s, border-color .15s;
+  }
+  .tab-btn:hover { color: #fff; }
+  .tab-btn.active { color: #fff; border-bottom-color: var(--accent); }
+
+  .panel { display: none; padding-top: 28px; }
+  .panel.active { display: block; }
+
+  h2.section { font-size: 22px; color: var(--brand); margin: 4px 0 4px; }
+  p.lead { color: var(--muted); margin-bottom: 18px; max-width: 720px; }
+
+  /* Cards */
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 20px 22px; margin-bottom: 16px;
+  }
+  .card h3 { color: var(--brand); font-size: 17px; margin-bottom: 8px; }
+  .card ul { margin: 6px 0 6px 20px; }
+  .card li { margin-bottom: 4px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .kv { display: grid; grid-template-columns: 130px 1fr; gap: 6px 14px; }
+  .kv dt { font-weight: 600; color: var(--brand); }
+  .kv dd { color: var(--ink); }
+
+  /* Accordion */
+  .acc { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: var(--card); }
+  .acc-head {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; text-align: left; appearance: none; border: 0; background: transparent;
+    font-family: inherit; font-size: 16px; font-weight: 600; color: var(--brand);
+    padding: 16px 20px; cursor: pointer;
+  }
+  .acc-head:hover { background: #faf9ff; }
+  .acc-head .chev { transition: transform .2s; color: var(--accent); font-size: 18px; }
+  .acc.open .acc-head .chev { transform: rotate(90deg); }
+  .acc-body { display: none; padding: 0 20px 18px; border-top: 1px solid var(--line); }
+  .acc.open .acc-body { display: block; }
+  .acc-body h4 { color: var(--brand-2); font-size: 13px; text-transform: uppercase; letter-spacing: 0.6px; margin: 14px 0 4px; }
+  .acc-body ul { margin: 4px 0 4px 20px; }
+  .acc-body li { margin-bottom: 4px; }
+  .acc-body a { color: var(--brand-2); }
+
+  .eli5 { background: #f3f0ff; border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; }
+
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+  .tag.stack { background: #ede9fe; color: var(--brand-2); }
+  .tag.aws { background: #fff3e0; color: #b45309; }
+  .tag.sec { background: #fee2e2; color: #b91c1c; }
+
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  @media (max-width: 720px) { .pillars { grid-template-columns: 1fr; } }
+  .pillar { background: #faf9ff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+  .pillar strong { color: var(--brand); display: block; margin-bottom: 2px; }
+
+  .todo {
+    background: var(--todo-bg); border: 1px dashed var(--todo-border);
+    border-radius: 8px; padding: 8px 12px; margin-top: 10px;
+    font-size: 13.5px; color: #92400e;
+  }
+  .todo::before { content: "🔍 To investigate: "; font-weight: 700; }
+
+  .q { padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .q:last-child { border-bottom: 0; }
+  .q .why { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  footer.page { color: var(--muted); font-size: 13px; text-align: center; padding-top: 30px; }
+</style>
+</head>
+<body>
+
+<header class="page">
+  <div class="wrap">
+    <div class="eyebrow">CompanyX &times; CovertSwarm &middot; Engagement Prep</div>
+    <h1>Raid / Venatrix — Code Walkthrough Prep</h1>
+    <p class="sub">Working notes for Thursday's walkthrough. Plain-English overviews of the
+      tech and problem areas, plus questions to send ahead and ask during the call. This is a
+      living document — sections marked <em>to investigate</em> are where we still need to dig in.</p>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="tech">Tech &amp; Areas (ELI5)</button>
+    <button class="tab-btn" data-tab="awssec">AWS Posture</button>
+    <button class="tab-btn" data-tab="ahead">Questions — Ahead</button>
+    <button class="tab-btn" data-tab="during">Questions — During</button>
+    <button class="tab-btn" data-tab="homework">Our Homework</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= OVERVIEW ================= -->
+  <section class="panel active" id="overview">
+    <h2 class="section">Overview</h2>
+    <p class="lead">Who we're meeting, what Venatrix is, and what the engagement is meant to deliver.</p>
+
+    <div class="card">
+      <h3>The meeting</h3>
+      <dl class="kv">
+        <dt>What</dt><dd>Code walkthrough &amp; deeper dive into <strong>Venatrix</strong>.</dd>
+        <dt>When</dt><dd>Thursday.</dd>
+        <dt>Host</dt><dd>Dominika ("Dom"), CovertSwarm.</dd>
+        <dt>Their side</dt><dd>Dom + whoever Jonathan / Rhys forward the invite to.</dd>
+        <dt>Our side</dt><dd>Rhys (our CTO) + engagement team.</dd>
+        <dt>Dom's ask</dt><dd>Send specific questions / topics / areas in advance so their team can prepare.</dd>
+      </dl>
+      <div class="todo">Send Dom our "ahead of the call" topics before Thursday (see the Questions — Ahead tab).</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>The client — CovertSwarm <span class="tag stack">"Raid"</span></h3>
+        <p>Dom's email is on <strong>covertswarm.com</strong>. CovertSwarm is an offensive-security
+          firm: continuous, subscription-based penetration testing under a "Constant Cyber Attack"
+          model — probing a client's attack surface before real attackers do.</p>
+        <ul>
+          <li>Founded 2020 by Anders Reeves; backed by Beech Tree Private Equity.</li>
+          <li>CREST &amp; CBEST accredited; UK + North America operations.</li>
+          <li>Run an <strong>Offensive Operations Center (OOC)</strong> platform for asset discovery,
+            passive vulnerability enumeration, and threat alerting.</li>
+        </ul>
+        <p style="margin-top:10px; font-size:13px; color:var(--muted);">Source: CovertSwarm public
+          site (rephrased for licensing). <a href="https://www.covertswarm.com/about">covertswarm.com/about</a></p>
+        <div class="todo">Security-first client. Expect a high bar on data residency, secret management,
+          least-privilege, and whether any SaaS observability tool is acceptable.</div>
+      </div>
+
+      <div class="card">
+        <h3>Venatrix — what we know</h3>
+        <p>Appears to be an internal <strong>agentic platform</strong>. From Rhys's overview:</p>
+        <ul>
+          <li>Built on <strong>LangGraph</strong> (agent orchestration).</li>
+          <li><strong>Python</strong> backend; <strong>TypeScript</strong> + <strong>Svelte</strong> + <strong>Vite</strong> frontend.</li>
+          <li>CompanyX provides <strong>embedded engineering support</strong>, focused on lean, efficient solutions.</li>
+        </ul>
+        <div class="todo">Confirm what Venatrix actually does (who uses it, what the agents produce), and
+          how it relates to their OOC platform.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Engagement focus</h3>
+      <p>Primary focus is <strong>observability and logging</strong>: capturing agent-run metrics in a
+        central database for analysis and impact visibility. We also advise on <strong>central hosting</strong>.
+        Application and log data stay in <strong>AWS for data residency</strong> unless an alternative offers
+        significant speed, simplicity, or cost advantage.</p>
+    </div>
+
+    <div class="card">
+      <h3>Deliverables &amp; outcomes</h3>
+      <ul>
+        <li><strong>Agent Run Observability</strong> — capture &amp; store agent metrics in a central DB for analysis and visibility.</li>
+        <li><strong>Hosting Recommendation</strong> — lean, AWS-first central hosting: multiple environments (test &amp; prod),
+          auto-scaling &amp; HA, secure secret/config management, disposable infra via IaC, CI/CD pipelines, and AWS spend controls/alerting.</li>
+        <li><strong>Log Storage Architecture</strong> — AWS-first log &amp; metric storage; evaluate alternatives only for clear benefit.</li>
+        <li><strong>Documentation</strong> — supporting docs for the above + onboarding/setup docs for new engineers.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= TECH & AREAS ================= -->
+  <section class="panel" id="tech">
+    <h2 class="section">Tech &amp; Areas — ELI5</h2>
+    <p class="lead">Plain-English overview of each technology and problem area, why it matters for this
+      engagement, and links for further reading. Expand a section to read more.</p>
+
+    <h3 style="color:var(--brand-2); margin:18px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">Their stack</h3>
+
+    <div class="acc">
+      <button class="acc-head">LangGraph <span><span class="tag stack">stack</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> LangGraph is a way to build AI "agents" as a flowchart.
+          Each box (node) does a step — call the model, use a tool, check a result — and the arrows decide
+          what happens next. It keeps track of state as the agent works through the graph, and can loop,
+          branch, or pause for a human. Think of it as the wiring diagram that turns a single LLM call into
+          a multi-step assistant.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>An "agent run" = one trip through the graph. That run is exactly what we need to observe and measure.</li>
+          <li>LangGraph has built-in hooks (callbacks, checkpoints) we can tap for metrics without rewriting agent logic.</li>
+          <li>It's from the LangChain team, so the default observability path is LangSmith (a SaaS) — relevant to the AWS/data-residency question.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://langchain-ai.github.io/langgraph/">LangGraph docs</a></li>
+          <li><a href="https://langchain-ai.github.io/langgraph/concepts/">LangGraph core concepts (state, nodes, edges)</a></li>
+          <li><a href="https://langchain-ai.github.io/langgraph/concepts/persistence/">Persistence &amp; checkpoints</a></li>
+        </ul>
+        <div class="todo">How is their graph structured? How many agents/graphs, what tools, and where are the natural points to capture metrics?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Python <span><span class="tag stack">stack</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> The main backend language. It runs the agents, talks to the
+          LLMs and tools, and will run whatever code we add to record metrics. Popular for AI because most
+          ML/LLM libraries (including LangGraph) are Python-first.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Our instrumentation (emitting metrics/traces) will mostly be Python.</li>
+          <li>Packaging &amp; runtime choices (container image, dependencies) feed into the hosting recommendation.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.python.org/3/">Python docs</a></li>
+          <li><a href="https://opentelemetry.io/docs/languages/python/">OpenTelemetry for Python</a></li>
+        </ul>
+        <div class="todo">Python version, dependency manager (pip/poetry/uv), and how the app is currently packaged/run.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">TypeScript <span><span class="tag stack">stack</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> JavaScript with a safety net. It adds types so the editor
+          and compiler catch mistakes before the code runs. Used here for the front-end (and possibly some tooling).</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>The UI that surfaces agent-run metrics may be built in it — relevant if observability includes a dashboard.</li>
+          <li>Front-end build &amp; deploy pipeline is part of the hosting story.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://www.typescriptlang.org/docs/">TypeScript docs</a></li>
+        </ul>
+        <div class="todo">Is TS only front-end, or is there a TS/Node service too? Shared types between front and back?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Svelte <span><span class="tag stack">stack</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> A tool for building web interfaces. Unlike React, Svelte does
+          most of its work at build time and compiles your components into small, fast vanilla JavaScript — so
+          there's less framework code shipped to the browser. Great for snappy dashboards.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>This is likely the Venatrix UI. If observability includes a "view your agent runs" screen, it lands here.</li>
+          <li>Static-ish output is cheap and simple to host on AWS (S3 + CloudFront).</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://svelte.dev/docs">Svelte docs</a></li>
+          <li><a href="https://kit.svelte.dev/docs">SvelteKit docs</a> (if they use the full-stack framework)</li>
+        </ul>
+        <div class="todo">Plain Svelte or SvelteKit? SvelteKit changes hosting (needs a Node/serverless runtime, not just static files).</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Vite <span><span class="tag stack">stack</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> The build tool / dev server. It gives near-instant reloads
+          while developing and bundles the app for production. Think of it as the kitchen that turns raw
+          Svelte/TS ingredients into the finished website.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Its build output (a folder of static assets) is what CI/CD deploys — informs the pipeline design.</li>
+          <li>Mostly a dev-experience detail; low risk, but part of the onboarding docs.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://vitejs.dev/guide/">Vite docs</a></li>
+        </ul>
+        <div class="todo">Any custom Vite config / env handling that affects builds per environment?</div>
+      </div>
+    </div>
+
+    <h3 style="color:var(--brand-2); margin:26px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">Engagement areas</h3>
+
+    <div class="acc">
+      <button class="acc-head">Agent-run observability &amp; tracing <span><span class="tag aws">focus</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> "Observability" is being able to answer <em>what happened
+          and why</em> after the fact, from the data the system emits. For an AI agent that means: how long did
+          the run take, how many model/tool calls, how many tokens, what did it cost, did it succeed, where did
+          it get stuck. A "trace" stitches those steps into one timeline you can replay.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>This is the <strong>primary deliverable</strong>: capture agent metrics into a central DB for analysis and impact visibility.</li>
+          <li>Key tension: LangGraph's native tool is <strong>LangSmith (SaaS)</strong>, but the client wants AWS-first / data residency. <strong>OpenTelemetry</strong> is the vendor-neutral alternative that can send data to AWS.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.smith.langchain.com/">LangSmith docs</a></li>
+          <li><a href="https://opentelemetry.io/docs/concepts/observability-primer/">OpenTelemetry primer (traces/metrics/logs)</a></li>
+          <li><a href="https://docs.smith.langchain.com/observability">LangGraph/LangChain tracing concepts</a></li>
+        </ul>
+        <div class="todo">Which metrics matter most to <em>them</em>? (cost, latency, success rate, human-in-loop, tool errors). LangSmith SaaS acceptable given they're a security firm, or must everything stay in AWS?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Central metrics database <span><span class="tag aws">AWS</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> One place to store every agent run so you can query and chart
+          it later. Could be a normal relational database (rows &amp; columns), a time-series store (optimised for
+          "metrics over time"), or a search store (optimised for logs/traces). The right pick depends on how they
+          want to slice the data.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>The "central database" is named explicitly in the deliverables. Choice drives cost, query power, and ops burden.</li>
+          <li>AWS options to weigh: <strong>RDS/Aurora Postgres</strong> (flexible, familiar), <strong>Timestream</strong> (time-series), <strong>OpenSearch</strong> (traces/search + dashboards), <strong>S3 + Athena</strong> (cheap, query-on-demand).</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://aws.amazon.com/rds/aurora/">Amazon Aurora</a></li>
+          <li><a href="https://aws.amazon.com/opensearch-service/">Amazon OpenSearch Service</a></li>
+          <li><a href="https://aws.amazon.com/athena/">Amazon Athena (query S3)</a></li>
+        </ul>
+        <div class="todo">Expected volume of runs/day, retention, and query patterns (dashboards vs ad-hoc vs alerting) — these decide the store. Does a "central DB" already exist?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Log &amp; metric storage architecture <span><span class="tag aws">AWS</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> Where the raw logs and metrics live, how long they're kept, and
+          how you search them. AWS-first here means starting with native services and only reaching outside AWS if
+          there's a clear speed/simplicity/cost win.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Explicit deliverable: AWS-first log &amp; metric storage.</li>
+          <li>Common pattern: <strong>CloudWatch Logs</strong> for recent/operational, <strong>S3</strong> for cheap long-term, <strong>Athena/OpenSearch</strong> for querying.</li>
+          <li>Retention tiers keep cost down while meeting any compliance requirement.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html">CloudWatch Logs</a></li>
+          <li><a href="https://docs.aws.amazon.com/whitepapers/latest/build-a-log-analytics-solution-on-aws/">AWS log analytics whitepaper</a></li>
+        </ul>
+        <div class="todo">Retention requirements (compliance-driven?), sensitivity of log contents (PII, client pentest findings?), and any existing logging in place today.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Infrastructure as Code (IaC) <span><span class="tag aws">AWS</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> Instead of clicking around the AWS console to create servers
+          and databases, you describe the whole setup in code files. You can then create, recreate, or tear down
+          entire environments reliably from that code — "disposable infrastructure". Version-controlled, reviewable, repeatable.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Deliverable calls for "disposable infrastructure enabled with infrastructure as code".</li>
+          <li>Main choices: <strong>Terraform</strong> (cloud-agnostic, huge ecosystem) vs <strong>AWS CDK</strong> (write infra in TS/Python — could match their languages).</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://developer.hashicorp.com/terraform/intro">Terraform intro</a></li>
+          <li><a href="https://docs.aws.amazon.com/cdk/v2/guide/home.html">AWS CDK docs</a></li>
+        </ul>
+        <div class="todo">Do they already use IaC? Any team preference/experience (Terraform vs CDK)? Existing AWS Organization / landing-zone conventions to respect?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">CI/CD pipelines <span><span class="tag aws">AWS</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> Automation that takes code from a commit to a running
+          environment. "CI" checks and builds the code; "CD" deploys it. The goal: push code, and it safely lands
+          in test, then production, with no manual steps.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Deliverable: pipelines that "at minimum deploy to environments" and can be built on later.</li>
+          <li>Choices: <strong>GitHub Actions</strong> (if they're on GitHub) vs <strong>AWS CodePipeline</strong>.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.github.com/en/actions">GitHub Actions docs</a></li>
+          <li><a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html">AWS CodePipeline</a></li>
+        </ul>
+        <div class="todo">Where's the code hosted (GitHub/GitLab/CodeCommit)? Any current deploy process? Approval gates needed for prod?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Secrets &amp; configuration management <span><span class="tag aws">AWS</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> API keys, DB passwords and per-environment settings shouldn't
+          live in the code. Instead they're stored in a secure vault and handed to the app at runtime. On AWS that's
+          <strong>Secrets Manager</strong> (with rotation) or <strong>SSM Parameter Store</strong> (simpler/cheaper).</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Deliverable: "secure secret &amp; configuration management" — and doubly important for a security firm.</li>
+          <li>LLM API keys are a real cost/security concern; leaking one is expensive.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">AWS Secrets Manager</a></li>
+          <li><a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html">SSM Parameter Store</a></li>
+        </ul>
+        <div class="todo">How are secrets handled today? Any existing vault (AWS, HashiCorp Vault, .env files)? Rotation requirements?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">AWS spend controls &amp; alerting <span><span class="tag aws">AWS</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> Cloud bills can surprise you. Spend controls set budgets and
+          fire an alert (or take action) when costs trend over. For LLM apps this is doubly relevant because model
+          usage itself costs money per token.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Deliverable: "controls &amp; alerting for AWS account spending".</li>
+          <li>Tools: <strong>AWS Budgets</strong>, <strong>Cost Anomaly Detection</strong>, and per-environment cost tagging.</li>
+          <li>Ties into observability: token/cost per agent run is both a product metric and a spend signal.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html">AWS Budgets</a></li>
+          <li><a href="https://docs.aws.amazon.com/cost-management/latest/userguide/getting-started-ad.html">Cost Anomaly Detection</a></li>
+        </ul>
+        <div class="todo">Who owns the AWS bill today? Any budget thresholds or approval process? Should LLM token cost roll into the same view?</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AWS POSTURE ================= -->
+  <section class="panel" id="awssec">
+    <h2 class="section">AWS Account Setup &amp; Security Posture</h2>
+    <p class="lead">As a security firm, CovertSwarm will judge us on how we secure <em>their</em> cloud, not just
+      how we ship features. This tab is our checklist of the account-structure and security services we'd expect
+      to assess and stand up — with plain-English sound bites we can drop into the conversation.</p>
+
+    <div class="card">
+      <h3>How we'd frame the assessment</h3>
+      <p>We'd position it as a lightweight review against the AWS Well-Architected <strong>Security Pillar</strong>
+        and the CIS AWS Foundations Benchmark — starting from the account structure outward, so recommendations are
+        proportionate and lean rather than a box-ticking audit.</p>
+      <div class="pillars">
+        <div class="pillar"><strong>Identity &amp; access</strong>Who can do what — SSO, roles, least privilege.</div>
+        <div class="pillar"><strong>Detection</strong>Can we see what's happening — logs, threat detection, config drift.</div>
+        <div class="pillar"><strong>Infra protection</strong>Network &amp; edge — VPC, WAF, boundaries.</div>
+        <div class="pillar"><strong>Data protection</strong>Encryption &amp; secrets at rest and in transit.</div>
+        <div class="pillar"><strong>Governance</strong>Account structure, guardrails, spend.</div>
+        <div class="pillar"><strong>Response</strong>What happens when something fires an alert.</div>
+      </div>
+      <div class="todo">Get read-only access to review the current account(s) against this, or run it as a guided walkthrough with their team on the call.</div>
+    </div>
+
+    <h3 style="color:var(--brand-2); margin:22px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">Foundations — account structure &amp; identity</h3>
+
+    <div class="acc">
+      <button class="acc-head">AWS Organizations &amp; Control Tower <span><span class="tag sec">foundation</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "Rather than one big AWS account, we'd use multiple accounts
+          — separating prod, test, logging and security — under a single Organization. Control Tower sets that up
+          with sensible guardrails baked in from day one."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>A multi-account "landing zone" is the modern baseline; it isolates blast radius (a compromise in test can't touch prod).</li>
+          <li>Enables org-wide guardrails (Service Control Policies) and centralised logging/billing — feeds the "multiple environments" deliverable.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html">AWS Organizations</a></li>
+          <li><a href="https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html">AWS Control Tower</a></li>
+        </ul>
+        <div class="todo">Single account or already multi-account? Any existing Organization / SCPs / landing zone we must fit into?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">IAM Identity Center (SSO) <span><span class="tag sec">identity</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "Nobody logs in with long-lived IAM users. Identity Center
+          gives each person single sign-on with short-lived, role-based access across all accounts — ideally wired to
+          their existing identity provider."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Kills the biggest common finding: shared/long-lived credentials. Access becomes temporary and auditable.</li>
+          <li>Central place to grant/revoke people across every account — clean joiner/mover/leaver story.</li>
+          <li>Pairs with MFA enforcement — table stakes for a security client.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html">IAM Identity Center</a></li>
+        </ul>
+        <div class="todo">Do they have an IdP (Okta / Entra ID / Google)? Any IAM users with access keys we should retire? MFA enforced everywhere?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">IAM least-privilege &amp; roles <span><span class="tag sec">identity</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "Every service and person gets only the permissions they
+          actually need — nothing broad or wildcard. Apps assume roles rather than holding keys."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Least privilege is the single most-cited AWS security principle and the first thing a pentester probes.</li>
+          <li>The Python agents should run under narrowly-scoped task roles, not embedded credentials.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html">IAM best practices</a></li>
+          <li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access-analyzer-policy-generation.html">IAM Access Analyzer (policy generation)</a></li>
+        </ul>
+        <div class="todo">Any over-permissive roles / wildcard policies today? Where are workload credentials sourced from?</div>
+      </div>
+    </div>
+
+    <h3 style="color:var(--brand-2); margin:22px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">Detection &amp; visibility</h3>
+
+    <div class="acc">
+      <button class="acc-head">CloudTrail <span><span class="tag sec">detection</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "CloudTrail is the flight recorder for the account — every
+          API call, who made it and when. We'd turn on an organisation-wide trail into a locked-down, central logging
+          account so it can't be tampered with."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Non-negotiable baseline: without it there's no audit trail and no incident forensics.</li>
+          <li>Central, immutable log store (separate account, S3 with object-lock) is a classic best practice — and a likely gap.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html">AWS CloudTrail</a></li>
+        </ul>
+        <div class="todo">Is an org-wide trail enabled? Where do logs land, and are they protected from deletion/tampering?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">GuardDuty <span><span class="tag sec">detection</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "GuardDuty is always-on threat detection. It watches the
+          logs for suspicious behaviour — crypto-mining, credential misuse, odd API calls — and raises findings,
+          with no agents to install."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Low-effort, high-signal detection layer; enabling it org-wide is a quick, credible win.</li>
+          <li>Findings can auto-route to alerts — feeds the "response" side of the posture.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html">Amazon GuardDuty</a></li>
+        </ul>
+        <div class="todo">Enabled across all accounts/regions? Where do findings go — anyone actually watching them?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Security Hub <span><span class="tag sec">detection</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "Security Hub is the single pane of glass. It scores the
+          account against standards like CIS and the AWS Foundational Best Practices, and aggregates findings from
+          GuardDuty, Inspector and others into one prioritised list."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Gives us (and them) a measurable posture score to track improvement against — great for the assessment narrative.</li>
+          <li>Consolidates noise from multiple tools into one view.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html">AWS Security Hub</a></li>
+        </ul>
+        <div class="todo">Turned on? Which standards enabled? Use its baseline score as our "before" snapshot.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">AWS Config <span><span class="tag sec">detection</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "Config records how every resource is set up and continuously
+          checks it against rules — so if something drifts out of compliance (e.g. a bucket goes public), we know
+          immediately and can auto-remediate."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Detects configuration drift — the source of many real-world breaches.</li>
+          <li>Underpins Control Tower guardrails and Security Hub checks.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html">AWS Config</a></li>
+        </ul>
+        <div class="todo">Recording enabled? Any conformance packs (CIS) in use?</div>
+      </div>
+    </div>
+
+    <h3 style="color:var(--brand-2); margin:22px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">Infrastructure &amp; edge protection</h3>
+
+    <div class="acc">
+      <button class="acc-head">AWS WAF (&amp; Shield) <span><span class="tag sec">edge</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "WAF sits in front of the app (on CloudFront or the load
+          balancer) and filters malicious web traffic — SQL injection, cross-site scripting, bad bots — before it
+          reaches Venatrix. Shield adds DDoS protection."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>The Svelte front-end and any public API are the exposed surface; WAF is the front-line control.</li>
+          <li>Managed rule groups give solid coverage with little tuning; rate-limiting protects the LLM backend from abuse (and runaway cost).</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/waf/latest/developerguide/what-is-aws-waf.html">AWS WAF</a></li>
+          <li><a href="https://docs.aws.amazon.com/waf/latest/developerguide/ddos-overview.html">AWS Shield</a></li>
+        </ul>
+        <div class="todo">Is anything public today? Is it behind CloudFront/ALB where WAF can attach? Rate-limiting needed to protect token spend?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">VPC &amp; network boundaries <span><span class="tag sec">network</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "The app runs inside a private network. Databases sit in
+          private subnets with no internet route; only the front door is public. Security groups act as tight,
+          per-service firewalls."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Keeps the metrics DB and internal services off the public internet.</li>
+          <li>VPC endpoints let the app reach AWS services (S3, Secrets Manager) without traffic leaving AWS — reinforces data residency.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html">Amazon VPC</a></li>
+        </ul>
+        <div class="todo">Current network layout? Anything sensitive publicly reachable? Egress controls in place?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Inspector &amp; Macie <span><span class="tag sec">scanning</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "Inspector continuously scans our container images and
+          compute for known vulnerabilities (CVEs). Macie scans S3 for sensitive data like PII, so we know if
+          anything sensitive is sitting where it shouldn't."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Inspector fits neatly into CI/CD — fail a build if the image has critical CVEs.</li>
+          <li>Macie is relevant if agent logs might contain PII or client findings (data-classification question).</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/inspector/latest/user/what-is-inspector.html">Amazon Inspector</a></li>
+          <li><a href="https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html">Amazon Macie</a></li>
+        </ul>
+        <div class="todo">Any image/dependency scanning today? Could logs/S3 hold sensitive data that warrants Macie?</div>
+      </div>
+    </div>
+
+    <h3 style="color:var(--brand-2); margin:22px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">Data protection</h3>
+
+    <div class="acc">
+      <button class="acc-head">KMS &amp; encryption <span><span class="tag sec">data</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "Everything is encrypted at rest and in transit by default.
+          KMS manages the keys, so access to data can be controlled and audited at the key level — and we can use
+          customer-managed keys where they want tighter control."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Encryption-by-default across S3, RDS/Aurora, the metrics DB and logs is a baseline expectation.</li>
+          <li>Key policies add another least-privilege layer; key usage is logged in CloudTrail.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/kms/latest/developerguide/overview.html">AWS KMS</a></li>
+        </ul>
+        <div class="todo">Encryption on everywhere? AWS-managed vs customer-managed keys — any requirement for the latter?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Secrets Manager &amp; config <span><span class="tag sec">data</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "Credentials — including the LLM API keys — live in Secrets
+          Manager, encrypted and rotatable, never in code or environment files checked into git."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Also a core hosting deliverable (see Tech &amp; Areas); the security angle is rotation + no plaintext secrets in the repo.</li>
+          <li>Leaked LLM keys are a direct, expensive cost/security risk.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html">AWS Secrets Manager</a></li>
+        </ul>
+        <div class="todo">Any secrets currently in code / .env / CI variables? Rotation needed on the LLM and DB credentials?</div>
+      </div>
+    </div>
+
+    <h3 style="color:var(--brand-2); margin:22px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">Governance &amp; response</h3>
+
+    <div class="acc">
+      <button class="acc-head">Guardrails, budgets &amp; alerting <span><span class="tag sec">governance</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Sound bite:</strong> "Service Control Policies stop whole categories of risky
+          action org-wide (e.g. disabling CloudTrail, using unapproved regions). Budgets and anomaly detection catch
+          runaway spend, and security findings route to a channel someone actually watches."</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Ties the security posture to the "spend controls &amp; alerting" deliverable — one joined-up governance story.</li>
+          <li>Guardrails prevent misconfiguration rather than just detecting it after the fact.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html">Service Control Policies</a></li>
+          <li><a href="https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html">AWS Budgets</a></li>
+        </ul>
+        <div class="todo">Any SCPs today? Where should security/cost alerts land (Slack/Teams/email/PagerDuty)? Who responds?</div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--todo-border); background:var(--todo-bg);">
+      <h3 style="color:#92400e;">Positioning note</h3>
+      <p style="color:#92400e; margin:0;">This is our territory to shine with a security-native client — but keep
+        it <strong>lean</strong>. Recommend the high-value, low-effort wins first (Identity Center, CloudTrail,
+        GuardDuty, Security Hub baseline), then layer the rest. Frame it as building on what they have, not
+        implying their setup is poor — they'll know this space well and may already have pieces in place.</p>
+    </div>
+  </section>
+
+  <!-- ================= QUESTIONS — AHEAD ================= -->
+  <section class="panel" id="ahead">
+    <h2 class="section">Questions — to send ahead of the call</h2>
+    <p class="lead">Frame these to Dom as "areas we'd like the walkthrough to cover" so their team can
+      prepare and we don't burn call time on setup. Grouped by theme.</p>
+
+    <div class="acc open">
+      <button class="acc-head">Codebase &amp; architecture <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">High-level architecture of Venatrix — how the Svelte/Vite front-end, TypeScript, and Python/LangGraph backend fit together.
+          <span class="why">Lets us follow the walkthrough instead of reverse-engineering it live.</span></div>
+        <div class="q">The LangGraph agent design — what graphs/nodes/tools exist and what a typical agent run looks like end to end.
+          <span class="why">This is the thing we're instrumenting; we need the shape of it.</span></div>
+        <div class="q">Repo layout, build, and local dev setup.
+          <span class="why">Feeds the onboarding-docs deliverable and lets us get hands-on faster.</span></div>
+        <div class="q">Will we get read access to the repo(s) before the call?
+          <span class="why">Pre-reading makes the session far more productive.</span></div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Observability (primary focus) <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">What agent metrics matter most to you today? (latency, token/cost, tool calls, success/failure, human-in-the-loop steps)
+          <span class="why">Defines the metric schema and what "impact visibility" means to them.</span></div>
+        <div class="q">What do you capture today vs. what's missing? Any existing logging/telemetry?
+          <span class="why">Avoids rebuilding what exists; finds the real gaps.</span></div>
+        <div class="q">Who consumes the metrics, and for what decisions? (product impact, cost, debugging)
+          <span class="why">Consumer &amp; use-case drive storage and dashboard choices.</span></div>
+        <div class="q">Is the "central database" greenfield, or does something exist we should build on?
+          <span class="why">Changes the DB recommendation entirely.</span></div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Hosting &amp; infrastructure <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">Current hosting/deployment setup for Venatrix and its pain points.
+          <span class="why">We're recommending hosting; need the starting point.</span></div>
+        <div class="q">Existing AWS footprint, accounts, and any Organization / landing-zone conventions to respect.
+          <span class="why">We should fit their guardrails, not fight them.</span></div>
+        <div class="q">Current CI/CD, IaC (Terraform / CDK / none?), and secret management approach.
+          <span class="why">Match existing skills &amp; tooling for a lean recommendation.</span></div>
+        <div class="q">Which environments do you need? (dev / test / staging / prod)
+          <span class="why">Directly shapes the IaC + pipeline design.</span></div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Data &amp; security <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">Data residency requirements in detail — UK only? EU? Specific regions?
+          <span class="why">Underpins the whole "AWS-first" constraint and the LangSmith decision.</span></div>
+        <div class="q">Sensitivity/classification of agent inputs, outputs, and logs (PII? client pentest findings?).
+          <span class="why">Determines what can go to any third-party tool and retention rules.</span></div>
+        <div class="q">Any constraints on third-party/SaaS observability tools given you're a security firm?
+          <span class="why">May rule LangSmith in or out early.</span></div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Logistics <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">Can the session be recorded? Who owns follow-up actions?
+          <span class="why">So we can revisit detail and assign next steps cleanly.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= QUESTIONS — DURING ================= -->
+  <section class="panel" id="during">
+    <h2 class="section">Questions — to ask during the call</h2>
+    <p class="lead">These are designed to show we understand the domain and put them at ease — signalling
+      we've thought about their constraints (security, cost, data residency), not just the tech.</p>
+
+    <div class="acc open">
+      <button class="acc-head">Show we understand the agent domain <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">"When a run fails or stalls, where does that usually happen — a specific node, a tool timeout, model refusals?"
+          <span class="why">Shows we think in LangGraph terms and care about real failure modes.</span></div>
+        <div class="q">"Do you need per-run <em>tracing</em> (replay the steps) or mainly aggregate <em>metrics</em>, or both?"
+          <span class="why">Demonstrates the trace-vs-metric distinction and steers the storage choice.</span></div>
+        <div class="q">"Are runs mostly synchronous/interactive, or long-running/background? Any human-in-the-loop steps?"
+          <span class="why">Affects compute choice (Lambda vs Fargate) and how we measure duration.</span></div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Show we respect their security posture <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">"Given you're a security firm — is any agent data sensitive enough that it must never leave AWS, even for tracing?"
+          <span class="why">Signals we lead with their constraints; frames the LangSmith vs OTel-to-AWS decision.</span></div>
+        <div class="q">"Do you have an existing secrets standard we should adopt, or is greenfield fine?"
+          <span class="why">Shows we won't impose tooling; we fit their standards.</span></div>
+        <div class="q">"Any compliance regimes (SOC 2, ISO 27001, client contractual) that dictate log retention?"
+          <span class="why">Retention/tiering is cheaper to design in than bolt on.</span></div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Show we think about lean &amp; cost <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">"Roughly how many agent runs per day now, and where do you expect that in 6–12 months?"
+          <span class="why">Right-sizes the DB and hosting; avoids over-engineering.</span></div>
+        <div class="q">"Should LLM token spend sit in the same cost view as AWS spend?"
+          <span class="why">Ties observability to the spend-alerting deliverable — a lean, joined-up angle.</span></div>
+        <div class="q">"What does a good v1 look like to you — minimal working observability, or the full hosting rebuild first?"
+          <span class="why">Aligns scope; shows we want to deliver value early, not boil the ocean.</span></div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Show we think about their team &amp; handover <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">"Who'll own this after we hand over, and what's their comfort with Terraform/CDK, AWS, etc.?"
+          <span class="why">"Embedded, lean support" means building for their team, not for us.</span></div>
+        <div class="q">"What would make the onboarding docs genuinely useful — what trips up new engineers today?"
+          <span class="why">Turns a vague docs deliverable into something targeted.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HOMEWORK ================= -->
+  <section class="panel" id="homework">
+    <h2 class="section">Our homework — before &amp; after the call</h2>
+    <p class="lead">Internal investigation to do so we turn up credible and can move fast afterwards. Everything
+      here is a starting point to expand.</p>
+
+    <div class="card">
+      <h3>Before Thursday</h3>
+      <ul>
+        <li>Skim the LangGraph observability / LangSmith docs so we can talk fluently about tracing options.</li>
+        <li>Sketch a straw-man <strong>agent-run metric schema</strong> (run id, graph, node timings, token counts, cost, status, error, trace link) to react against.</li>
+        <li>Draft the AWS options comparison for the central DB (Aurora Postgres vs Timestream vs OpenSearch vs S3+Athena) with rough trade-offs.</li>
+        <li>Prepare the "AWS-first vs LangSmith SaaS" decision framing — since data residency is likely the pivotal constraint for a security client.</li>
+        <li>Send Dom the "Questions — Ahead" list.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Open decisions to firm up</h3>
+      <ul>
+        <li><strong>Observability approach:</strong> LangSmith (SaaS) vs self-hosted tracing vs OpenTelemetry &#8594; AWS backend.</li>
+        <li><strong>Central DB:</strong> query patterns and volume decide relational vs time-series vs search.</li>
+        <li><strong>IaC tool:</strong> Terraform vs AWS CDK — match their team's skills.</li>
+        <li><strong>Compute:</strong> ECS Fargate vs Lambda vs App Runner for the Python agents; S3+CloudFront (or Amplify) for the Svelte front-end.</li>
+        <li><strong>CI/CD:</strong> GitHub Actions vs CodePipeline, and the environment-promotion flow.</li>
+        <li><strong>Log storage tiers:</strong> CloudWatch vs S3+Athena vs OpenSearch, with retention.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>After the call</h3>
+      <ul>
+        <li>Write up answers against the questions (update <code>questions.md</code>).</li>
+        <li>Turn the straw-man architecture into a first draft recommendation.</li>
+        <li>Outline the onboarding/setup docs based on what we learn about the codebase.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="page">
+  <div class="wrap">Living prep document · Raid / Venatrix · CompanyX engagement · last updated on save</div>
+</footer>
+
+<script>
+  // Tabs
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabButtons.forEach(b => b.classList.toggle('active', b === btn));
+      panels.forEach(p => p.classList.toggle('active', p.id === target));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Accordions
+  document.querySelectorAll('.acc-head').forEach(head => {
+    head.addEventListener('click', () => {
+      head.parentElement.classList.toggle('open');
+    });
+  });
+</script>
+
+</body>
+</html>
