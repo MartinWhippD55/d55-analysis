@@ -1,0 +1,29 @@
+flowchart TB
+  spec[/"Kiro spec<br/>requirements · design · tasks"/]
+
+  subgraph S1["1 · Environment setup"]
+    mcp["mcp-setup"]
+  end
+
+  subgraph S2["2 · Spec to Jira delivery pipeline"]
+    direction LR
+    s2s["spec-to-stories"] --> d2j["decomposition-to-jira"] --> jt["jira-tree"] --> jp["jira-push"] --> dd["decomposition-diagrams"]
+    jie["jira-image-embed"]
+    dd -. "embeds via" .-> jie
+  end
+
+  subgraph S3["3 · Spec to client deliverables"]
+    s2d["spec-to-deliverables"] --> m2p["markdown-to-pdf"]
+    sm["screen-mockups"] -. "mockups" .-> s2d
+  end
+
+  subgraph S4["4 · Standalone dev tools"]
+    rpr["review-pr"]
+  end
+
+  mcp -. "wires up Jira MCP" .-> S2
+  spec --> s2s
+  spec --> s2d
+
+  classDef sec fill:#f4f0ff,stroke:#5dade2,stroke-width:1px,color:#1a0a3e;
+  class S1,S2,S3,S4 sec;

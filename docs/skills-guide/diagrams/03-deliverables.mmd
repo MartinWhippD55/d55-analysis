@@ -1,0 +1,21 @@
+flowchart TB
+  spec[/"spec(s)<br/>requirements · design · tasks"/]
+
+  spec --> O["spec-to-deliverables<br/>(orchestrator)"]
+  sm["screen-mockups"] -. "UI wireframes" .-> O
+
+  O --> est["estimate spreadsheet"]
+  O --> deck["summary presentation"]
+  O --> wt["per-spec walkthrough PDFs"]
+  O --> api["OpenAPI reference (HTML)"]
+  O --> dm["data-model PDF"]
+
+  m2p["markdown-to-pdf"]
+  O -. "shares branded<br/>render engine" .-> m2p
+
+  classDef orch fill:#eaf4fc,stroke:#5dade2,stroke-width:1.5px,color:#1a0a3e;
+  classDef out fill:#f4f0ff,stroke:#b39ddb,color:#1a0a3e;
+  classDef helper fill:#fff6e5,stroke:#e0a800,color:#1a0a3e;
+  class O orch;
+  class est,deck,wt,api,dm out;
+  class sm,m2p helper;

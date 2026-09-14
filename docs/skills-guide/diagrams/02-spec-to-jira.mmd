@@ -1,0 +1,20 @@
+flowchart LR
+  spec[/"spec/&lt;name&gt;/<br/>requirements · design · tasks"/]
+
+  spec --> A
+  A["spec-to-stories"] -->|"graph.yaml<br/>+ mini-specs"| B["decomposition-to-jira"]
+  B -->|"jira-plan.json"| C["jira-tree"]
+  C -->|"editable md mirror<br/>(reviewed · enriched)"| D["jira-push"]
+  D -->|"live epic · stories ·<br/>sub-tasks · blocks-links"| E["decomposition-diagrams"]
+  E -. "attach + embed PNGs" .-> F(["jira-image-embed"])
+
+  D --> J[("Jira Cloud")]
+  E --> J
+  F --> J
+
+  classDef core fill:#eaf4fc,stroke:#5dade2,stroke-width:1.5px,color:#1a0a3e;
+  classDef helper fill:#fff6e5,stroke:#e0a800,color:#1a0a3e;
+  classDef sink fill:#1a0a3e,stroke:#1a0a3e,color:#ffffff;
+  class A,B,C,D,E core;
+  class F helper;
+  class J sink;
