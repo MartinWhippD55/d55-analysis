@@ -64,6 +64,7 @@ Sensitive/machine-generated output is kept local via `.gitignore`.
 - **Extend the window past 90 days** using the org CloudTrail + Athena already set up in `logarchive` (`503561448641`); pin the malware-landing date.
 - **Check S3 data events** for object-level exfil from the DMS output buckets (only visible if data events are captured).
 - **Confirm / enable GuardDuty** org-wide and re-verify the "no detector" result isn't a read-role permission artifact.
+- **Extend `audit-aws.ps1` with ACM issuance-abuse events** — add `ImportCertificate`, `RequestCertificate`, `ExportCertificate` (and ACM Private CA issuance, e.g. `IssueCertificate`) to the high-signal event list so the audit surfaces any certificate abuse by the compromised identity in the window. Complements the read-only imported-cert inventory (`sweep-acm-imported.ps1`): the inventory finds certs whose private key originated outside AWS; the CloudTrail signal catches issuance/export abuse for managed certs whose keys ACM never exposes.
 
 ## Open questions
 
