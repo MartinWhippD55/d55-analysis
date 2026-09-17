@@ -149,6 +149,20 @@
 
   .src { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
 
+  /* Acronym tooltips */
+  .tip { border-bottom: 1px dotted var(--brand-2); cursor: help; }
+  .tip:focus { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+  #tooltip {
+    position: fixed; z-index: 100; max-width: 280px;
+    background: var(--brand); color: #fff;
+    padding: 9px 12px; border-radius: 8px;
+    font-size: 12.5px; line-height: 1.45; font-weight: 400;
+    box-shadow: 0 8px 24px rgba(26,10,62,0.28);
+    opacity: 0; visibility: hidden; transition: opacity .12s ease;
+    pointer-events: none;
+  }
+  #tooltip.show { opacity: 1; visibility: visible; }
+
   /* Steps */
   .step { display: grid; grid-template-columns: 40px 1fr; gap: 0 16px; align-items: start; margin-bottom: 14px; }
   .step .num {
@@ -187,9 +201,15 @@
 <nav class="tabs">
   <div class="wrap">
     <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="meeting">Meeting Prep</button>
     <button class="tab-btn" data-tab="tech">Tech &amp; Areas (ELI5)</button>
+    <button class="tab-btn" data-tab="powerplatform">Power Platform</button>
+    <button class="tab-btn" data-tab="copilotstudio">Copilot Studio</button>
+    <button class="tab-btn" data-tab="purview">Purview</button>
+    <button class="tab-btn" data-tab="governance">Governance</button>
     <button class="tab-btn" data-tab="roadmap">Upskilling Roadmap</button>
     <button class="tab-btn" data-tab="cmap">CMAP &amp; Integration</button>
+    <button class="tab-btn" data-tab="access">Access &amp; Onboarding</button>
     <button class="tab-btn" data-tab="steps">Steps</button>
     <button class="tab-btn" data-tab="questions">Open Questions &amp; Homework</button>
   </div>
@@ -268,6 +288,176 @@
         <li><strong>CMAP &amp; Integration</strong> — what CMAP is, its integration surface, and options for wiring agents to it.</li>
         <li><strong>Open Questions &amp; Homework</strong> — what to confirm with Rhys / Contollo / Semanti, and our prep tasks.</li>
       </ul>
+    </div>
+  </section>
+
+  <!-- ================= MEETING PREP ================= -->
+  <section class="panel" id="meeting">
+    <h2 class="section">Meeting Prep</h2>
+    <p class="lead">Prep for the intro/discovery call Jonathan has booked with Stefan (Contollo). This is an
+      onboarding and discovery session, not a deep technical dive — the goal is to understand their landscape,
+      current AI usage, and what we need to get started. Each agenda item below has <em>what we bring</em>,
+      <em>what to ask</em>, and <em>what to listen for</em>.</p>
+
+    <div class="card">
+      <h3>The meeting</h3>
+      <dl class="kv">
+        <dt>What</dt><dd>Intro &amp; discovery catch-up (Jonathan &times; Stefan).</dd>
+        <dt>Their side</dt><dd><strong>Stefan</strong> (Contollo) + colleagues.</dd>
+        <dt>Our side</dt><dd>Jonathan, plus <strong>Martin</strong> — D55 Principal AI Lead on the project — and team.</dd>
+        <dt>Format</dt><dd>Discovery / onboarding — mostly listening and confirming, agree next steps at the end.</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h3>Three things to walk away with</h3>
+      <ul>
+        <li><strong>The CMAP API/MCP answer</strong> — does it expose a REST API and/or MCP server, and what auth/scopes? This gates the whole build.</li>
+        <li><strong>Our onboarding path</strong> — how and when D55 gets access (tenant, CMAP), and via what mechanism.</li>
+        <li><strong>Confirmed first scope</strong> — that the CMAP agents are our first pickup, and agreed immediate next steps.</li>
+      </ul>
+      <div class="todo">Lead the CMAP API/MCP question early — everything downstream depends on it, and it may need someone from their side to follow up after the call.</div>
+    </div>
+
+    <p class="lead" style="margin-top:22px;">Agenda (as proposed by Jonathan)</p>
+
+    <div class="acc open">
+      <button class="acc-head">1 &middot; Introductions <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <h4>What we bring</h4>
+        <ul>
+          <li>A one-line D55 positioning: strong on agentic tooling (Claude, GitHub Copilot, skills/tools, MCP), deliberately ramping on Azure &amp; MAF.</li>
+          <li>Martin as Principal AI Lead — the technical point of contact.</li>
+        </ul>
+        <h4>What to ask</h4>
+        <ul>
+          <li>Who's who on Contollo's side, and who owns IT, data, and AI decisions day-to-day.</li>
+          <li>Who we'll work with after the MSP transition.</li>
+        </ul>
+        <h4>What to listen for</h4>
+        <ul>
+          <li>Decision-makers vs implementers; where the appetite and the caution sit.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">2 &middot; Overview of Contollo IT landscape <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Mostly listening.</strong> We already have a baseline from the Semanti report —
+          confirm and update it rather than asking from scratch (shows we've done our homework).</div>
+        <h4>What we already believe (confirm)</h4>
+        <ul>
+          <li>Single (EU) Microsoft 365 tenancy; integration debt from five acquired firms.</li>
+          <li>Core systems: <strong>CMAP</strong> (PSA/timesheets), <strong>Business Central</strong>, HR, LMS.</li>
+          <li>Incumbent MSP being replaced; a hybrid in-house IT Systems Manager planned.</li>
+        </ul>
+        <h4>What to ask</h4>
+        <ul>
+          <li>Where does CMAP sit in the estate, and what data flows in/out of it today?</li>
+          <li>Any data residency / region constraints beyond "EU"?</li>
+          <li>Status of the MSP transition and tenant-migration remediation.</li>
+        </ul>
+        <h4>What to listen for</h4>
+        <ul>
+          <li>Anything that's changed since the report; where the "plumbing" pain actually is.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">3 &middot; Current AI usage &amp; governance <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <h4>What we bring</h4>
+        <ul>
+          <li>Awareness that governance items are pending (acceptable-use policy, approved-tools register, Copilot guardrails) and that shadow-AI is a flagged risk.</li>
+          <li>A view that governance is the foundation for the agent work, not a blocker to it — Purview/DLP as the enabling tools.</li>
+        </ul>
+        <h4>What to ask</h4>
+        <ul>
+          <li>Is there an acceptable-use policy or approved-tools register today, or is it greenfield?</li>
+          <li>Is Microsoft Purview enabled? Any sensitivity labels / DLP in use?</li>
+          <li>How is client-confidential data (drawings, cost data, PII) handled with AI tools currently?</li>
+        </ul>
+        <h4>What to listen for</h4>
+        <ul>
+          <li>Sensitivity around client confidentiality and GDPR — pitch with their constraints first.</li>
+          <li>Signs of shadow-AI use we can help bring into a governed path.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">4 &middot; Current AI setup (Copilot, Claude, ChatGPT, etc.) <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <h4>What we bring</h4>
+        <ul>
+          <li>Genuine depth with Claude and Copilot — we can talk practically about what works and where.</li>
+          <li>The report's note that they're on Team-tier AI licensing today, with Enterprise adding provisioning.</li>
+        </ul>
+        <h4>What to ask</h4>
+        <ul>
+          <li>Which tools are in active use, by whom, and which are officially sanctioned?</li>
+          <li>Which Microsoft 365 Copilot tier / licences are in place (Team vs Enterprise)?</li>
+          <li>Any constraints on third-party/SaaS AI tools, and any preference for native Claude vs Copilot?</li>
+        </ul>
+        <h4>What to listen for</h4>
+        <ul>
+          <li>Where a governed gateway or model choice needs verifying before licences are committed.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">5 &middot; D55 onboarding requirements <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>Our asks.</strong> This is where we state what we need to get moving — frame it
+          as lightweight and security-aware.</div>
+        <h4>What to ask for</h4>
+        <ul>
+          <li><strong>CMAP:</strong> does it expose a documented REST API and/or MCP server? What auth (API key / OAuth), rate limits, and write scopes? <em>(Our critical-path question.)</em></li>
+          <li><strong>Azure/tenant access:</strong> how does D55 get in — Entra guest + PIM roles? Which subscriptions?</li>
+          <li><strong>Microsoft Graph scopes</strong> and the app-registration / admin-consent process.</li>
+          <li>Any security/onboarding checks (background, NDAs, device requirements) we should start now.</li>
+        </ul>
+        <h4>What we bring</h4>
+        <ul>
+          <li>We can make early progress independently on our own free-account sandbox (Step 1) — so learning isn't blocked while access is arranged.</li>
+        </ul>
+        <h4>What to listen for</h4>
+        <ul>
+          <li>Lead times on access — these often set the real project timeline.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">6 &middot; Agree next steps <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <h4>What we bring</h4>
+        <ul>
+          <li>Our Steps tab as the input: confirm CMAP-agents-first, and propose the thin analyst-agent spike as the first proof point.</li>
+          <li>Willingness to start on our sandbox immediately (no dependency on their access).</li>
+        </ul>
+        <h4>What to agree</h4>
+        <ul>
+          <li>Confirmation that the CMAP agents are the first pickup.</li>
+          <li>Owner + timeline for the CMAP API/MCP answer and access requests.</li>
+          <li>A follow-up (technical deep-dive on CMAP once the API picture is clear).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">7 &middot; AOB <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <h4>Possible items</h4>
+        <ul>
+          <li>Can the session be recorded / notes shared? Who owns follow-up actions?</li>
+          <li>Preferred comms channel between D55 and Contollo (Teams?).</li>
+          <li>Any Semanti hand-over material or SOW we should get sight of.</li>
+        </ul>
+      </div>
     </div>
   </section>
 
@@ -455,6 +645,269 @@
         </ul>
         <div class="todo">Does CMAP expose a public REST API and/or an MCP server? What auth (API key / OAuth), rate limits, and write scopes? This is the single biggest unknown for the agent work.</div>
       </div>
+    </div>
+  </section>
+
+  <!-- ================= POWER PLATFORM ================= -->
+  <section class="panel" id="powerplatform">
+    <h2 class="section">Power Platform</h2>
+    <p class="lead">Microsoft's low-code application platform — the umbrella that Copilot Studio sits inside.
+      Worth understanding because Contollo's Microsoft tenancy makes it the default low-code route, and it's
+      one half of the "how do we build the CMAP agents" decision.</p>
+
+    <div class="card">
+      <h3>What it is</h3>
+      <p>A family of low-code tools that share a common foundation: the <strong>Dataverse</strong> data store,
+        hundreds of <strong>connectors</strong> to other systems, and central governance via the
+        <strong>Power Platform admin center</strong>.</p>
+      <div class="pillars">
+        <div class="pillar"><strong>Power Apps</strong>Low-code apps &amp; forms.</div>
+        <div class="pillar"><strong>Power Automate</strong>Workflows &amp; RPA.</div>
+        <div class="pillar"><strong>Power BI</strong>Dashboards &amp; analytics.</div>
+        <div class="pillar"><strong>Power Pages</strong>External websites.</div>
+        <div class="pillar"><strong>Copilot Studio</strong>Build copilots / agents.</div>
+        <div class="pillar"><strong>Dataverse + connectors</strong>Shared data &amp; integration layer.</div>
+      </div>
+      <div class="eli5"><strong>Analogy:</strong> Power Platform is like the Office suite; Copilot Studio is one
+        app within it (the one for building agents), the way Word is one app in Office.</div>
+    </div>
+
+    <div class="card">
+      <h3>Why it matters here</h3>
+      <ul>
+        <li>Contollo already runs on Microsoft 365, so Power Platform is available with little friction — the natural low-code option.</li>
+        <li>Its connectors reach Business Central, SQL, and (via CMap's own connectors) some CMAP data — a possible fast path for the analyst agent.</li>
+        <li>It's where any Copilot Studio agent would live, and it brings its own governance layer (see below).</li>
+      </ul>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Governance built into Power Platform <span><span class="tag ms">governance</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> Power Platform governs <em>who can build what, and what it may
+          connect to</em> — separately from the data-compliance controls Purview adds.</div>
+        <h4>Key controls</h4>
+        <ul>
+          <li><strong>Managed environments</strong> &amp; environment isolation — separate dev/test/prod, contain blast radius.</li>
+          <li><strong>DLP policies</strong> — restrict which connectors an app/agent can combine (e.g. block business data + public connectors together).</li>
+          <li><strong>Admin center</strong> — tenant-wide visibility, sharing limits, capacity, and audit trails.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/power-platform/admin/">Power Platform admin docs</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/power-platform/admin/wp-data-loss-prevention">Power Platform DLP policies</a></li>
+        </ul>
+        <div class="todo">Does Contollo use managed environments / DLP policies today, or is Power Platform wide open? Who administers it after the MSP transition?</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Low-code vs pro-code — the fork for the CMAP agents</h3>
+      <p>Power Platform (via Copilot Studio) is the <strong>low-code</strong> route; <strong>MAF on Azure AI
+        Foundry</strong> is the <strong>pro-code</strong> route. They can coexist, but the choice shapes tooling,
+        skills, and governance.</p>
+      <div class="bridge"><strong>Our lean:</strong> given D55's developer strength and the depth of the CMAP
+        integration, MAF (pro-code) is our working assumption — but Contollo's mention of "Copilot agent
+        workflows" hints they may be picturing Copilot Studio. Worth aligning explicitly.</div>
+    </div>
+  </section>
+
+  <!-- ================= COPILOT STUDIO ================= -->
+  <section class="panel" id="copilotstudio">
+    <h2 class="section">Copilot Studio</h2>
+    <p class="lead">The low-code product for building copilots and agents inside Power Platform (formerly Power
+      Virtual Agents). Relevant because it's the most likely thing Contollo means by "Copilot agents", and it's
+      the main alternative to building the CMAP agents in MAF.</p>
+
+    <div class="card">
+      <h3>What it is</h3>
+      <p>A maker-focused environment for building conversational agents without writing much code. You define the
+        agent's <strong>instructions/topics</strong>, give it <strong>knowledge sources</strong> (SharePoint,
+        websites, files), and wire up <strong>actions</strong> it performs via <strong>Power Automate flows and
+        connectors</strong>. Agents publish to channels like <strong>Teams</strong>, a website, or as extensions
+        of <strong>Microsoft 365 Copilot</strong>.</p>
+    </div>
+
+    <div class="card">
+      <h3>Copilot Studio vs MAF</h3>
+      <div class="grid2">
+        <div>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px;">Copilot Studio (low-code)</h4>
+          <ul>
+            <li>Fast to stand up simple conversational agents.</li>
+            <li>Maker / citizen-developer friendly; less code.</li>
+            <li>Governed via Power Platform + Purview.</li>
+            <li>Best when the agent is mostly Q&amp;A + a few connector actions.</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px;">MAF (pro-code)</h4>
+          <ul>
+            <li>Full control in .NET/Python; complex multi-agent workflows.</li>
+            <li>Fits deep custom integration (e.g. a rich CMAP API).</li>
+            <li>Governed via Azure + Entra + Purview (DSPM for AI).</li>
+            <li>Best when logic/integration outgrows low-code.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="bridge"><strong>Rule of thumb:</strong> start in Copilot Studio if the need is a guided
+        Q&amp;A/assistant over existing content; reach for MAF when the agents need bespoke orchestration and tight
+        API/MCP integration — which the CMAP "doing/analyst" split leans towards.</div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Governance &amp; publishing <span><span class="tag ms">governance</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <h4>Governed by two layers</h4>
+        <ul>
+          <li><strong>Power Platform</strong> — environments, connector DLP, admin-center controls over who builds/publishes.</li>
+          <li><strong>Microsoft Purview</strong> — DSPM for AI, sensitivity labels/DLP on data, and audit over agent interactions.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/">Copilot Studio docs</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance">Copilot Studio security &amp; governance</a></li>
+        </ul>
+        <div class="todo">Do they already build in Copilot Studio? Any published agents today? This tells us whether the CMAP work extends existing agents or is greenfield.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PURVIEW ================= -->
+  <section class="panel" id="purview">
+    <h2 class="section">Microsoft Purview</h2>
+    <p class="lead">Microsoft's data governance, security, and compliance suite — and the tool that addresses the
+      shadow-AI and governance gaps the Semanti report flags. It answers "what sensitive data do we have, who can
+      touch it, and can we prove it?" across the AI stack.</p>
+
+    <div class="card">
+      <h3>Two big jobs</h3>
+      <div class="grid2">
+        <div>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px;">Data governance</h4>
+          <ul><li>Catalog, classify, and map where data lives and how it flows.</li></ul>
+        </div>
+        <div>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px;">Data protection &amp; compliance</h4>
+          <ul>
+            <li>Sensitivity labels &amp; DLP</li>
+            <li>Retention / data lifecycle</li>
+            <li>Audit, eDiscovery, Communication Compliance</li>
+            <li>Insider Risk Management</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc open">
+      <button class="acc-head">Purview for AI — DSPM for AI <span><span class="tag ms">AI governance</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> DSPM for AI (Data Security Posture Management for AI) is a single
+          place to see and secure how AI is used across the org — what data it touches, and where the risks are.</div>
+        <h4>What it covers</h4>
+        <ul>
+          <li>Microsoft 365 Copilot, agents built in <strong>Copilot Studio</strong>, agents in <strong>Azure AI Foundry</strong>, and apps using third-party LLMs.</li>
+          <li>Recommendations, reports, and data assessments to find unprotected data and act on it.</li>
+          <li>Audit of AI/agent interactions for compliance.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/purview/ai-microsoft-purview">Purview protections for Copilot &amp; generative AI</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/purview/ai-copilot-studio">Purview for Copilot Studio</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why it matters here</h3>
+      <ul>
+        <li>Directly addresses the report's top governance risk: <strong>shadow-AI data leakage</strong> and the pending acceptable-use / approved-tools work.</li>
+        <li>Client-confidential drawings, cost data, and PII need labelling / DLP before agents process them at scale.</li>
+        <li>Whether the CMAP agents run in Copilot Studio or MAF/Foundry, Purview's DSPM for AI gives one compliance view over them.</li>
+      </ul>
+      <div class="todo">Is Purview licensed &amp; enabled today? The AI capabilities typically need higher-tier licensing (e.g. M365 E5 or Purview add-ons) — the report notes Team-tier today, so confirm before relying on it.</div>
+    </div>
+  </section>
+
+  <!-- ================= GOVERNANCE ================= -->
+  <section class="panel" id="governance">
+    <h2 class="section">Governance</h2>
+    <p class="lead">How the agent work stays safe, compliant, and auditable. The key idea: governance comes in
+      layers, and <em>which</em> controls apply depends on <em>where</em> the agents are built. This is our chance
+      to turn the report's "pending governance" into a strength.</p>
+
+    <div class="card">
+      <h3>Governance by platform</h3>
+      <p>Two build routes, two (overlapping) control sets:</p>
+      <div class="grid2">
+        <div>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px;">Copilot Studio (Power Platform)</h4>
+          <ul>
+            <li>Power Platform: managed environments, connector DLP, admin center.</li>
+            <li>Purview: DSPM for AI, labels/DLP, audit.</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px;">MAF on Azure AI Foundry</h4>
+          <ul>
+            <li>Azure + Entra: RBAC, PIM, Key Vault, private networking.</li>
+            <li>Foundry: an identity per agent, OpenTelemetry tracing, evaluations.</li>
+            <li>Purview: DSPM for AI over Foundry agents.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="bridge"><strong>Takeaway for the meeting:</strong> confirm the build platform early — it decides
+        which governance controls are in play. Purview spans both; the Power Platform controls only apply to
+        Copilot Studio.</div>
+    </div>
+
+    <div class="acc open">
+      <button class="acc-head">The control checklist <span><span class="tag skill">controls</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <h4>Policy &amp; people</h4>
+        <ul>
+          <li>Acceptable-use policy + approved-tools register (report flags both as pending).</li>
+          <li>Human-in-the-loop review gates on any agent that writes or advises.</li>
+        </ul>
+        <h4>Data</h4>
+        <ul>
+          <li>Sensitivity labels + DLP (Purview) on client-confidential data and PII.</li>
+          <li>Data residency: keep processing in the EU tenancy; verify model regions.</li>
+          <li>Retention decisions on AI tooling (disable, or document risk acceptance).</li>
+        </ul>
+        <h4>Identity &amp; secrets</h4>
+        <ul>
+          <li>Least-privilege via Entra roles + PIM; per-agent identities.</li>
+          <li>Secrets (API keys, CMAP credentials) in Key Vault, never in code.</li>
+        </ul>
+        <h4>Visibility</h4>
+        <ul>
+          <li>Audit + tracing (Purview DSPM for AI, Foundry OpenTelemetry) so every run is explainable.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Governance &harr; risk (from the Semanti report)</h3>
+      <ul>
+        <li><strong>Shadow-AI leakage (Risk H):</strong> acceptable-use policy, approved-tools register, governed gateway, DLP.</li>
+        <li><strong>Liability / PI exposure (Risk G):</strong> human-in-the-loop gates, documented verification standards, approved-tools register.</li>
+      </ul>
+      <div class="bridge"><strong>Positioning:</strong> lead with governance as the enabler for the agent work,
+        not a blocker — and build on what they have rather than implying their setup is poor.</div>
+      <div class="todo">Confirm current state: any acceptable-use policy, approved-tools register, DLP, or labels today? Purview licensing? These set how much we build vs adopt.</div>
+    </div>
+
+    <div class="card">
+      <h3>Further reading — DefensX</h3>
+      <p>Browser-layer AI security / secure-browser platform (positioned for MSPs) that governs shadow-AI at the
+        point of use: it inspects prompts before they reach external LLMs, blocks sensitive-data exfiltration,
+        controls which AI tools are allowed, and can stop "model-improvement" opt-ins. Potentially complements
+        Purview DLP by covering the browser tab where staff actually paste data.</p>
+      <ul>
+        <li><a href="https://www.defensx.com/">defensx.com</a> — read up and assess fit for Contollo's shadow-AI problem.</li>
+      </ul>
+      <div class="todo">Evaluate DefensX as a browser-native shadow-AI control, vs / alongside Purview + Power Platform DLP. Note it's a third-party SaaS — check its data handling and where prompt records are stored.</div>
     </div>
   </section>
 
@@ -653,6 +1106,110 @@
         </div>
       </div>
       <div class="todo">Which specific CMAP objects/actions do the agents need? Start a concrete list (read: projects, timesheets, resourcing; write: ?) to test against the API.</div>
+    </div>
+  </section>
+
+  <!-- ================= ACCESS & ONBOARDING ================= -->
+  <section class="panel" id="access">
+    <h2 class="section">Access &amp; Onboarding</h2>
+    <p class="lead">How Stefan should grant D55 access to Contollo's environment. Because D55 is a separate
+      company, the clean approach splits into two tracks — Azure resources vs the Microsoft 365 / Power Platform
+      side — since they're governed differently. The goal is to ask <strong>once</strong>, at the right scope,
+      and avoid a drip-feed of permission requests.</p>
+
+    <div class="card">
+      <h3>Two worlds, two mechanisms</h3>
+      <p>Contollo's estate has two parts that are secured in different ways, so there's no single switch that
+        grants everything:</p>
+      <ul>
+        <li><strong>Azure resources</strong> (Foundry, Key Vault, Container Apps, storage, monitoring) — governed by Azure Resource Manager (ARM) + Entra roles.</li>
+        <li><strong>Microsoft 365 / Power Platform / Purview / Graph</strong> — governed by Entra, M365, and Power Platform admin, not ARM.</li>
+      </ul>
+      <div class="eli5"><strong>Why it matters:</strong> the best cross-company tool for the first (Azure Lighthouse)
+        does not reach the second — so we deliberately plan both, rather than discovering the gap mid-build.</div>
+    </div>
+
+    <div class="acc open">
+      <button class="acc-head">Track 1 — Azure resources: use Azure Lighthouse <span><span class="tag ms">Azure</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> Azure Lighthouse (delegated resource management) is purpose-built
+          for a service provider in one tenant managing a customer's Azure resources. Contollo delegates a defined
+          scope to D55's tenant <em>once</em>, and we work using our own D55 identities — no per-person guest
+          accounts to manage, no directory-switching.</div>
+        <h4>How it's set up</h4>
+        <ul>
+          <li>Stefan deploys a small ARM template (or a Managed Services Marketplace offer) once to delegate the scope.</li>
+          <li>Delegate a <strong>dedicated subscription or resource group</strong> for the engagement — bounds the blast radius.</li>
+          <li>Grant a considered bundle of built-in RBAC roles to a D55 security group at that scope (see the consolidated ask).</li>
+          <li>Use <strong>PIM</strong> for anything elevated or occasional — just-in-time, not standing admin.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/azure/lighthouse/overview">Azure Lighthouse overview</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/azure/lighthouse/concepts/tenants-users-roles">Lighthouse tenants, users &amp; roles</a></li>
+        </ul>
+        <div class="todo">Lighthouse covers <strong>Azure (ARM) resources only</strong> — it does not reach M365, Power Platform, Purview or Graph. Those are Track 2.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Track 2 — M365 / Power Platform / Graph / Purview <span><span class="tag ms">M365</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> These live in Entra/M365, not ARM, so Lighthouse can't project into
+          them. Access here is via guest accounts and an app identity.</div>
+        <h4>How it's set up</h4>
+        <ul>
+          <li><strong>B2B guest accounts</strong> (Entra External ID) for named D55 people, added to a <strong>security group</strong> — assign roles/licences to the group so adding/removing team members needs no new request.</li>
+          <li><strong>An app registration (or managed identity) for the agents</strong>, with <strong>admin-consented Graph application permissions</strong> granted once — so the CMAP agents authenticate as an app with tightly-scoped permissions, not as a person.</li>
+          <li><strong>Power Platform / Copilot Studio:</strong> a dedicated environment + environment role, if that route is chosen.</li>
+          <li><strong>Power BI:</strong> a workspace role. <strong>Purview:</strong> likely read/assess only — their security team owns it.</li>
+        </ul>
+        <div class="todo">The agent's app-registration scopes depend on the confirmed first build (which mailboxes/sites it reads). Keep them minimal and expand only if needed.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Tactics to minimise repeat requests</h3>
+      <ul>
+        <li><strong>Grant at the right scope</strong> — one subscription/resource group, not per-resource; new resources inherit access.</li>
+        <li><strong>Assign to a group, not individuals</strong> — D55 manages its own team membership without going back to Stefan.</li>
+        <li><strong>Bundle the roles up front</strong> — ask once for a considered set rather than discovering gaps one at a time.</li>
+        <li><strong>PIM for the rare elevated action</strong> — avoids requesting standing high privilege.</li>
+        <li><strong>Access packages (entitlement management)</strong> — optionally wrap the bundle with an expiry + periodic review so onboarding future D55 people is self-service within pre-approved bounds.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>The consolidated "access ask" for Stefan</h3>
+      <p>Framed to be least-privilege and time-boxed — a security-minded client will appreciate that:</p>
+      <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px;">Azure (via Lighthouse)</h4>
+      <ul>
+        <li>A <strong>dedicated dev/test subscription or resource group</strong> for the D55 engagement.</li>
+        <li>Delegation of that scope to D55's tenant, granting a D55 security group:</li>
+        <li style="list-style:none; margin-left:8px;">— <strong>Contributor</strong> on the engagement resource group (create/manage Foundry, Container Apps, storage).</li>
+        <li style="list-style:none; margin-left:8px;">— <strong>Azure AI Developer</strong> (Foundry / AI resources and model deployments).</li>
+        <li style="list-style:none; margin-left:8px;">— <strong>Key Vault Secrets Officer</strong> (manage the CMAP/API secrets) — or Secrets User if read-only.</li>
+        <li style="list-style:none; margin-left:8px;">— <strong>Monitoring Contributor / Reader</strong> (observability, tracing).</li>
+        <li style="list-style:none; margin-left:8px;">— Role-assignment / higher privileges as <strong>PIM-eligible only</strong>, not standing.</li>
+      </ul>
+      <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px;">Microsoft 365 / Power Platform</h4>
+      <ul>
+        <li><strong>B2B guest accounts</strong> for named D55 users, in a security group, with <strong>MFA / Conditional Access</strong> enforced.</li>
+        <li><strong>An app registration</strong> for the agents, with admin consent for the minimal Graph scopes the first build needs.</li>
+        <li>A <strong>Power Platform environment</strong> and/or <strong>Power BI workspace</strong> role only if those routes are chosen.</li>
+      </ul>
+      <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px;">Separately</h4>
+      <ul>
+        <li><strong>CMAP access</strong> per its own auth (API key / OAuth) — the critical-path item, tracked in the CMAP tab.</li>
+      </ul>
+      <div class="todo">Scope the initial grant to the confirmed first build (analyst agent on Foundry, reading CMAP, maybe a little Graph), but bundle the adjacent roles so we're not back within a week. Flag one possible follow-up once MAF vs Copilot Studio is confirmed — better than pretending it's zero.</div>
+    </div>
+
+    <div class="card" style="border-color:var(--todo-border); background:var(--todo-bg);">
+      <h3 style="color:#92400e;">Positioning note</h3>
+      <p style="color:#92400e; margin:0;">Lead with the security-aware framing: dedicated scope, least-privilege
+        roles, group-based access, PIM for elevation, MFA on guests, and time-boxed with reviews. It reassures a
+        security-minded client and doubles as evidence we practise the governance we'll be recommending.</p>
     </div>
   </section>
 
@@ -858,6 +1415,111 @@
       head.parentElement.classList.toggle('open');
     });
   });
+
+  // Acronym tooltips (whole document)
+  (function () {
+    const glossary = {
+      MAF: "Microsoft Agent Framework — Microsoft's open-source SDK/runtime for building AI agents; our target framework.",
+      MCP: "Model Context Protocol — an open standard for exposing tools and data to AI agents.",
+      CMAP: "Contollo's professional-services automation platform — CRM, timesheets, job costing, project accounting.",
+      PSA: "Professional Services Automation — software that runs a services firm's projects, time and billing.",
+      MSP: "Managed Service Provider — an outsourced IT operations company.",
+      DLP: "Data Loss Prevention — policies that stop sensitive data leaking or being misused.",
+      PII: "Personally Identifiable Information — data that identifies an individual.",
+      GDPR: "General Data Protection Regulation — EU data-protection law.",
+      PIM: "Privileged Identity Management — Entra feature for just-in-time, time-limited admin access.",
+      API: "Application Programming Interface — a defined way for software to talk to software.",
+      REST: "Representational State Transfer — the common style of web API over HTTP.",
+      OAuth: "Open Authorization — a token-based standard for granting apps scoped access.",
+      SOW: "Statement of Work — the document defining project scope, deliverables and terms.",
+      AOB: "Any Other Business — open items at the end of an agenda.",
+      NDA: "Non-Disclosure Agreement — a confidentiality contract.",
+      LMS: "Learning Management System — software for training and course delivery.",
+      SaaS: "Software as a Service — cloud-hosted software accessed over the web.",
+      EU: "European Union — relevant here for data-residency requirements.",
+      DSPM: "Data Security Posture Management — Purview's central view for securing and monitoring AI and data use.",
+      RBAC: "Role-Based Access Control — granting permissions via roles rather than to individuals.",
+      SDK: "Software Development Kit — libraries and tools for building on a platform.",
+      RPA: "Robotic Process Automation — software bots that automate repetitive UI tasks.",
+      SQL: "Structured Query Language — the standard language for relational databases.",
+      SSO: "Single Sign-On — one set of credentials across multiple applications.",
+      BIM: "Building Information Modelling — a 3D, model-based process for designing and managing buildings.",
+      AEC: "Architecture, Engineering & Construction — the built-environment sector.",
+      CRM: "Customer Relationship Management — software for managing sales and client relationships.",
+      MEP: "Mechanical, Electrical & Public-health engineering — one of Contollo's service lines.",
+      OTel: "OpenTelemetry — an open standard for collecting traces, metrics and logs.",
+      PI: "Professional Indemnity — insurance covering professional negligence claims.",
+      HR: "Human Resources.",
+      ARM: "Azure Resource Manager — the control plane that deploys and governs Azure resources.",
+      B2B: "Business-to-Business — Entra External ID guest access for users from another organisation.",
+      MFA: "Multi-Factor Authentication — requiring a second factor beyond a password to sign in."
+    };
+    const root = document.querySelector('main');
+    if (!root) return;
+    const keys = Object.keys(glossary).sort((a, b) => b.length - a.length);
+    const pattern = '\\b(' + keys.join('|') + ')(s)?\\b';
+    const testRe = new RegExp(pattern);
+    const skip = new Set(['A', 'BUTTON', 'SCRIPT', 'STYLE', 'CODE']);
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        let p = node.parentElement;
+        while (p && p !== root) {
+          if (skip.has(p.tagName) || p.classList.contains('tip')) return NodeFilter.FILTER_REJECT;
+          p = p.parentElement;
+        }
+        return testRe.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+
+    const targets = [];
+    let node;
+    while (node = walker.nextNode()) targets.push(node);
+
+    const re = new RegExp(pattern, 'g');
+    targets.forEach(textNode => {
+      const text = textNode.nodeValue;
+      const frag = document.createDocumentFragment();
+      let last = 0, m;
+      re.lastIndex = 0;
+      while (m = re.exec(text)) {
+        if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const span = document.createElement('span');
+        span.className = 'tip';
+        span.tabIndex = 0;
+        span.setAttribute('data-tip', glossary[m[1]]);
+        span.textContent = m[0];
+        frag.appendChild(span);
+        last = m.index + m[0].length;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      textNode.parentNode.replaceChild(frag, textNode);
+    });
+
+    const tip = document.createElement('div');
+    tip.id = 'tooltip';
+    document.body.appendChild(tip);
+
+    function show(el) {
+      tip.textContent = el.getAttribute('data-tip');
+      tip.classList.add('show');
+      const r = el.getBoundingClientRect();
+      const tr = tip.getBoundingClientRect();
+      let top = r.top - tr.height - 8;
+      if (top < 8) top = r.bottom + 8;
+      let left = r.left + r.width / 2 - tr.width / 2;
+      left = Math.max(8, Math.min(left, window.innerWidth - tr.width - 8));
+      tip.style.top = top + 'px';
+      tip.style.left = left + 'px';
+    }
+    function hide() { tip.classList.remove('show'); }
+
+    root.addEventListener('mouseover', e => { if (e.target.classList.contains('tip')) show(e.target); });
+    root.addEventListener('mouseout', e => { if (e.target.classList.contains('tip')) hide(); });
+    root.addEventListener('focusin', e => { if (e.target.classList.contains('tip')) show(e.target); });
+    root.addEventListener('focusout', e => { if (e.target.classList.contains('tip')) hide(); });
+  })();
 </script>
 
 </body>
