@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contollo — Azure, MAF &amp; CMAP Prep</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --ink: #23232f;
+    --brand: #1a0a3e;
+    --brand-2: #4b2fa8;
+    --accent: #7c5cff;
+    --muted: #6b6b7b;
+    --line: #e5e2ef;
+    --bg: #f6f5fb;
+    --card: #ffffff;
+    --ok: #1c7c54;
+    --warn: #b45309;
+    --todo-bg: #fff7ed;
+    --todo-border: #fdba74;
+    --az: #0a6fb5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header.page {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+    color: #fff;
+    padding: 36px 0 30px;
+    margin-bottom: 0;
+  }
+  header.page .wrap { padding-bottom: 0; }
+  header.page .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.8;
+  }
+  header.page h1 { font-size: 30px; font-weight: 700; margin: 6px 0 8px; }
+  header.page p.sub { opacity: 0.9; font-weight: 300; max-width: 720px; }
+
+  /* Tabs */
+  .tabs {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--brand);
+    display: flex; flex-wrap: wrap; gap: 2px;
+    padding: 0 20px;
+    box-shadow: 0 2px 10px rgba(26,10,62,0.25);
+  }
+  .tabs .wrap { display: flex; flex-wrap: wrap; gap: 4px; padding: 0; }
+  .tab-btn {
+    appearance: none; border: 0; background: transparent;
+    color: rgba(255,255,255,0.7);
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    padding: 14px 18px; cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color .15s, border-color .15s;
+  }
+  .tab-btn:hover { color: #fff; }
+  .tab-btn.active { color: #fff; border-bottom-color: var(--accent); }
+
+  .panel { display: none; padding-top: 28px; }
+  .panel.active { display: block; }
+
+  h2.section { font-size: 22px; color: var(--brand); margin: 4px 0 4px; }
+  p.lead { color: var(--muted); margin-bottom: 18px; max-width: 740px; }
+
+  /* Cards */
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 20px 22px; margin-bottom: 16px;
+  }
+  .card h3 { color: var(--brand); font-size: 17px; margin-bottom: 8px; }
+  .card ul { margin: 6px 0 6px 20px; }
+  .card li { margin-bottom: 4px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .kv { display: grid; grid-template-columns: 140px 1fr; gap: 6px 14px; }
+  .kv dt { font-weight: 600; color: var(--brand); }
+  .kv dd { color: var(--ink); }
+
+  /* Accordion */
+  .acc { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: var(--card); }
+  .acc-head {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; text-align: left; appearance: none; border: 0; background: transparent;
+    font-family: inherit; font-size: 16px; font-weight: 600; color: var(--brand);
+    padding: 16px 20px; cursor: pointer;
+  }
+  .acc-head:hover { background: #faf9ff; }
+  .acc-head .chev { transition: transform .2s; color: var(--accent); font-size: 18px; }
+  .acc.open .acc-head .chev { transform: rotate(90deg); }
+  .acc-body { display: none; padding: 0 20px 18px; border-top: 1px solid var(--line); }
+  .acc.open .acc-body { display: block; }
+  .acc-body h4 { color: var(--brand-2); font-size: 13px; text-transform: uppercase; letter-spacing: 0.6px; margin: 14px 0 4px; }
+  .acc-body ul { margin: 4px 0 4px 20px; }
+  .acc-body li { margin-bottom: 4px; }
+  .acc-body a { color: var(--brand-2); }
+
+  .eli5 { background: #f3f0ff; border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; }
+  .bridge { background: #ecfdf5; border-left: 3px solid var(--ok); padding: 10px 14px; border-radius: 0 8px 8px 0; margin-top: 10px; font-size: 14px; }
+  .bridge strong { color: var(--ok); }
+
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+  .tag.stack { background: #ede9fe; color: var(--brand-2); }
+  .tag.ms { background: #e0f2fe; color: var(--az); }
+  .tag.skill { background: #dcfce7; color: #15803d; }
+  .tag.cmap { background: #fff3e0; color: #b45309; }
+
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  @media (max-width: 720px) { .pillars { grid-template-columns: 1fr; } }
+  .pillar { background: #faf9ff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+  .pillar strong { color: var(--brand); display: block; margin-bottom: 2px; }
+
+  .todo {
+    background: var(--todo-bg); border: 1px dashed var(--todo-border);
+    border-radius: 8px; padding: 8px 12px; margin-top: 10px;
+    font-size: 13.5px; color: #92400e;
+  }
+  .todo::before { content: "\1F50D  To investigate: "; font-weight: 700; }
+
+  .q { padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .q:last-child { border-bottom: 0; }
+  .q .why { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* Phase timeline */
+  .phase { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; background: var(--card); padding: 16px 20px; margin-bottom: 14px; }
+  .phase h3 { color: var(--brand); font-size: 16px; margin-bottom: 2px; }
+  .phase .when { font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--brand-2); font-weight: 600; }
+  .phase ul { margin: 8px 0 4px 20px; }
+  .phase li { margin-bottom: 4px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { font-size: 12px; background: #f1eefc; color: var(--brand-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; }
+
+  .src { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+
+  /* Steps */
+  .step { display: grid; grid-template-columns: 40px 1fr; gap: 0 16px; align-items: start; margin-bottom: 14px; }
+  .step .num {
+    grid-row: 1 / span 2;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step .body { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; }
+  .step .body h3 { color: var(--brand); font-size: 16px; margin-bottom: 4px; }
+  .step .body p { margin: 0; }
+  .step .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .step .meta span { font-size: 12px; border-radius: 999px; padding: 3px 10px; border: 1px solid var(--line); }
+  .step .owner { background: #f1eefc; color: var(--brand-2); }
+  .step .gate { background: var(--todo-bg); color: #92400e; border-color: var(--todo-border); }
+  .step .out { background: #ecfdf5; color: #15803d; }
+  .steps-groups { margin-top: 6px; }
+  .steps-groups h3.grouphdr { color: var(--brand-2); margin: 22px 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.6px; }
+
+  footer.page { color: var(--muted); font-size: 13px; text-align: center; padding-top: 30px; }
+</style>
+</head>
+<body>
+
+<header class="page">
+  <div class="wrap">
+    <div class="eyebrow">D55 &times; Contollo &middot; Engagement Prep</div>
+    <h1>Contollo — Azure, MAF &amp; CMAP Get-Up-To-Speed</h1>
+    <p class="sub">Working notes to get the D55 team engagement-ready. Plain-English primers on the
+      Microsoft/Azure stack we'll be working in, a roadmap for learning Azure and the Microsoft Agent
+      Framework, and background on CMAP and how we might integrate agentic workflows with it. This is a
+      living document — sections marked <em>to investigate</em> are where we still need to dig in.</p>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="tech">Tech &amp; Areas (ELI5)</button>
+    <button class="tab-btn" data-tab="roadmap">Upskilling Roadmap</button>
+    <button class="tab-btn" data-tab="cmap">CMAP &amp; Integration</button>
+    <button class="tab-btn" data-tab="steps">Steps</button>
+    <button class="tab-btn" data-tab="questions">Open Questions &amp; Homework</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= OVERVIEW ================= -->
+  <section class="panel active" id="overview">
+    <h2 class="section">Overview</h2>
+    <p class="lead">Who the client is, what's already been scoped, where we're starting from, and what
+      this document is for.</p>
+
+    <div class="card">
+      <h3>The engagement</h3>
+      <dl class="kv">
+        <dt>Client</dt><dd><strong>Contollo Group</strong> — a UK built-environment consultancy group.</dd>
+        <dt>Their environment</dt><dd>Microsoft/Azure. Consolidated onto a single (EU) Microsoft 365 tenancy.</dd>
+        <dt>Their intent</dt><dd>Build agentic workflows in <strong>MAF</strong> (Microsoft Agent Framework).</dd>
+        <dt>Key system</dt><dd><strong>CMAP</strong> — their PSA / CRM-style platform (timesheets, job costing, project accounting).</dd>
+        <dt>Scoping</dt><dd>Work has been scoped by a third-party consultancy (<strong>Semanti Labs</strong>) in an AI Readiness Assessment for the investor.</dd>
+        <dt>Our team (D55)</dt><dd>Strong on agentic tooling (Claude, GitHub Copilot, skills/tools, MCP); light on Azure &amp; MAF.</dd>
+        <dt>Rhys's ask</dt><dd>A roadmap to get up to speed on Azure &amp; MAF, plus background on CMAP and how we integrate with it.</dd>
+      </dl>
+      <div class="todo">Working assumption: D55 picks up the <strong>CMAP agents</strong> first — the roadmap and steps are built around that. Still worth confirming with Rhys, along with who owns the relationship day-to-day.</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>The client — Contollo <span class="tag cmap">built environment</span></h3>
+        <p>A group formed in <strong>October 2023</strong>, backed by <strong>NorthEdge Capital</strong>, that
+          rolled up five consultancies in ~13 months (Abacus, TACE, MBA Consulting Engineers, ESP, KAM).</p>
+        <ul>
+          <li>~<strong>230 professionals</strong> across ~19 offices (incl. Frankfurt); ~<strong>&pound;35m</strong> turnover.</li>
+          <li>Three service lines: <strong>project management</strong>, <strong>cost management</strong> (quantity surveying), and <strong>MEP engineering</strong>.</li>
+          <li>Blue-chip / public clients: Amazon, IKEA, DHL, NHS, Nationwide, Legal &amp; General.</li>
+          <li>Core systems named: <strong>CMAP</strong> (PSA/timesheets), <strong>Business Central</strong>, HR, LMS.</li>
+        </ul>
+        <p class="src">Source: Semanti AI Readiness Assessment (draft), rephrased. Content rephrased for compliance.</p>
+      </div>
+
+      <div class="card">
+        <h3>The scoping doc — Semanti AI Readiness Assessment</h3>
+        <p>Prepared by <strong>Semanti Labs</strong> for <strong>NorthEdge Capital</strong> (the investor),
+          assessing Contollo's AI maturity. Headline score: <strong>2.8 / 5</strong> — "high-potential,
+          early-maturity".</p>
+        <ul>
+          <li>Central risk framed as <strong>fee compression</strong> as AI automates the production layer.</li>
+          <li>Validated use-case pipeline includes a <strong>CMAP "doing" agent</strong> (updates) and
+            <strong>"analyst" agent</strong> (insight), "subject to API/MCP support".</li>
+          <li>Also: a finance "monthly flash" in <strong>Microsoft Fabric + Power BI</strong> over Business
+            Central, and a "second-brain" estimating pilot.</li>
+          <li>Governance items pending: acceptable-use policy, approved-tools register, Copilot guardrails.</li>
+        </ul>
+        <div class="todo">The PDF is investor-facing strategy, not a technical scope. We need the actual delivery scope/SOW for the CMAP + MAF work behind it.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Where we're starting from — and why that's a good position</h3>
+      <p>D55 hasn't worked deeply in Azure or MAF, but the team already thinks in the right primitives:
+        <strong>agents, tools/functions, prompts, and MCP</strong> from building with Claude and Copilot.
+        MAF is built on exactly these ideas (its docs list "chat clients, tools, MCP integrations, context
+        providers, middleware, and multi-step workflows"). So this is largely a <em>translation</em> job —
+        mapping concepts we know onto Microsoft's SDK, runtime, and cloud — rather than learning agentic AI
+        from scratch.</p>
+      <div class="bridge"><strong>Bridge:</strong> "skills &amp; tools" in Claude/Copilot &#8594; <strong>tools/functions</strong> in MAF;
+        MCP servers we already write &#8594; <strong>MCP clients</strong> in MAF; multi-step prompt chains &#8594; MAF <strong>workflows</strong> (graph orchestration).</div>
+    </div>
+
+    <div class="card">
+      <h3>How to use this doc</h3>
+      <ul>
+        <li><strong>Tech &amp; Areas (ELI5)</strong> — plain-English primers on each technology, why it matters here, and links.</li>
+        <li><strong>Upskilling Roadmap</strong> — a phased plan to get engagement-ready, leaning on what we already know.</li>
+        <li><strong>CMAP &amp; Integration</strong> — what CMAP is, its integration surface, and options for wiring agents to it.</li>
+        <li><strong>Open Questions &amp; Homework</strong> — what to confirm with Rhys / Contollo / Semanti, and our prep tasks.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= TECH & AREAS ================= -->
+  <section class="panel" id="tech">
+    <h2 class="section">Tech &amp; Areas — ELI5</h2>
+    <p class="lead">Plain-English overview of each technology, why it matters for Contollo, and links for
+      further reading. Green "bridge" notes connect the new thing to something the team already knows.
+      Expand a section to read more.</p>
+
+    <h3 style="color:var(--brand-2); margin:18px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">What we're skilling up on</h3>
+
+    <div class="acc">
+      <button class="acc-head">Microsoft Azure <span><span class="tag ms">cloud</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> Azure is Microsoft's cloud — the equivalent of AWS. It's where
+          you rent compute, storage, databases, networking, and identity instead of running your own servers.
+          You organise everything under a <em>tenant</em> (the company's identity boundary), <em>subscriptions</em>
+          (billing/isolation), and <em>resource groups</em> (folders for related resources). Identity is handled
+          by <strong>Microsoft Entra ID</strong> (formerly Azure AD).</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>Contollo runs on Microsoft/Azure, so everything we deploy — agents, data, dashboards — lands here.</li>
+          <li>Their single Microsoft 365 tenancy and Entra ID are the backbone; our agent identities and permissions live in Entra.</li>
+          <li>Cost, region (EU data residency), and networking choices all flow from Azure fundamentals.</li>
+        </ul>
+        <div class="bridge"><strong>Bridge:</strong> If you know AWS, most concepts map 1:1 — accounts&#8594;subscriptions,
+          IAM&#8594;Entra ID, S3&#8594;Blob Storage, Lambda&#8594;Functions, ECS/Fargate&#8594;Container Apps.</div>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/">Azure Cloud Adoption Framework</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/credentials/certifications/azure-fundamentals/">AZ-900 Azure Fundamentals</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/entra/fundamentals/">Microsoft Entra ID fundamentals</a></li>
+        </ul>
+        <div class="todo">Which subscriptions/regions does Contollo use? Who administers the tenant today (the MSP being replaced)? What access will D55 get, and how (Entra guest, PIM roles)?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Microsoft Agent Framework (MAF) <span><span class="tag ms">agents</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> MAF is Microsoft's open-source SDK + runtime for building AI
+          agents and multi-agent workflows, in <strong>.NET and Python</strong>. It unifies Microsoft's two
+          earlier frameworks — <strong>Semantic Kernel</strong> and <strong>AutoGen</strong> — into one supported
+          platform. You get a clean programming model: chat clients (talk to a model), <em>tools</em> (functions
+          the agent can call), <em>MCP integrations</em> (plug in external tools), context providers (memory),
+          middleware (intercept steps), and <em>workflows</em> (graph-based orchestration of several agents/steps).</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>This is the framework Contollo wants their agentic workflows written in — including the CMAP "doing" and "analyst" agents.</li>
+          <li>MAF hit <strong>1.0 GA on 2 April 2026</strong>, so it's production-ready but still young — expect docs and patterns to keep moving.</li>
+          <li>It's the thing our team most needs hands-on reps with; conceptually it's close to what we already build.</li>
+        </ul>
+        <div class="bridge"><strong>Bridge:</strong> A MAF <em>tool</em> is the same idea as a Claude/Copilot skill or tool;
+          MAF speaks <strong>MCP</strong>, so MCP servers we've already written can be reused as agent tools with little change.</div>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview">Agent Framework overview (Microsoft Learn)</a></li>
+          <li><a href="https://devblogs.microsoft.com/foundry/introducing-microsoft-agent-framework-the-open-source-engine-for-agentic-ai-apps">Introducing MAF (dev blog)</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/agent-framework/migration-guide/from-autogen/">If you know AutoGen/SK: migration guide</a></li>
+        </ul>
+        <div class="todo">.NET or Python for Contollo's agents? (Team's agentic experience likely leans Python/TS.) Which MAF version/patterns does the scoped work assume?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Microsoft Foundry / Azure AI Foundry <span><span class="tag ms">platform</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> Foundry is the Azure home for AI. The <strong>model catalog</strong>
+          lets you pick a model; the <strong>Foundry Agent Service</strong> is a managed runtime that hosts and
+          scales agents for you — each agent session runs in an isolated sandbox with its own Entra identity and
+          built-in tracing. Think of MAF as <em>how you write</em> the agent, and Foundry as <em>where you run,
+          govern, and observe</em> it. The portal lives at <a href="https://ai.azure.com">ai.azure.com</a>.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>It's the natural place to deploy MAF agents on Azure with identity, observability, and scaling handled.</li>
+          <li>Agents can be published into <strong>Microsoft Teams</strong> and <strong>M365 Copilot</strong> — where Contollo's staff already work.</li>
+          <li>Built-in <strong>OpenTelemetry tracing</strong> and evaluations help with the governance the Semanti report says is pending.</li>
+        </ul>
+        <div class="bridge"><strong>Bridge:</strong> Foundry Agent Service is "bring your own framework + model" and is built on
+          the OpenAI Responses API — the same agentic wire protocol many of us already build against.</div>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/azure/ai-foundry/what-is-foundry">What is Microsoft Foundry?</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/azure/foundry/agents/overview">Foundry Agent Service overview</a></li>
+        </ul>
+        <div class="todo">Is Foundry Agent Service in-scope, or do they want agents self-hosted (e.g. Container Apps / App Service)? Data residency for the model calls (EU-only)?</div>
+      </div>
+    </div>
+
+    <h3 style="color:var(--brand-2); margin:26px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">The Microsoft data &amp; governance layer</h3>
+
+    <div class="acc">
+      <button class="acc-head">Microsoft Purview <span><span class="tag ms">governance</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> Purview is Microsoft's data governance, security, and compliance
+          suite. It does two big things: <strong>data governance</strong> (catalog, classify, and map where data
+          lives and flows) and <strong>data protection/compliance</strong> (sensitivity labels, DLP to stop data
+          leaking, retention, insider-risk and audit). It's how you answer "what sensitive data do we have, who
+          can touch it, and can we prove it?"</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>The Semanti report flags <strong>shadow-AI data leakage</strong> and pending governance as a top risk — Purview is the tool that addresses it.</li>
+          <li>Client-confidential drawings, cost data, and PII need labelling/DLP before agents process them at scale.</li>
+          <li>Directly supports the "acceptable-use + approved-tools + Copilot guardrails" work the report says is outstanding.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/purview/purview">Microsoft Purview overview</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/purview/ai-microsoft-purview">Purview for AI / Copilot governance</a></li>
+        </ul>
+        <div class="todo">Is Purview licensed/enabled in their tenant today? Are sensitivity labels and DLP already in use, or greenfield? This shapes what agents are allowed to read.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Power BI &amp; Microsoft Fabric <span><span class="tag ms">data / BI</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> <strong>Power BI</strong> is Microsoft's dashboarding/reporting
+          tool — connect data, build visuals, share reports. <strong>Microsoft Fabric</strong> is the broader data
+          platform underneath it (a "one-stop" for data engineering, warehousing, and a shared storage layer called
+          <em>OneLake</em>). Power BI is now part of Fabric. Together they're how Microsoft shops turn raw data into
+          governed reporting.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>The Semanti report names <strong>Fabric + Power BI</strong> explicitly for the finance "monthly flash" over Business Central.</li>
+          <li>The "analyst" CMAP agent and any cost-intelligence products likely surface through Power BI, or feed from Fabric.</li>
+          <li>Fabric/OneLake is a candidate home for the "unified group data asset" the report treats as the strategic prize.</li>
+        </ul>
+        <div class="bridge"><strong>Bridge:</strong> An "analyst agent" can call Power BI / Fabric as a tool (query a dataset,
+          return a figure) rather than re-implementing analytics — good separation of concerns.</div>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/power-bi/fundamentals/power-bi-overview">Power BI overview</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/fabric/fundamentals/microsoft-fabric-overview">Microsoft Fabric overview</a></li>
+        </ul>
+        <div class="todo">Do they use Fabric already, or just Power BI? Is Business Central data flowing anywhere today? Where would a unified data asset live?</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Microsoft Modern Work (M365) <span><span class="tag ms">M365</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> "Modern Work" is Microsoft's umbrella for the workplace suite —
+          Microsoft 365 (Teams, Outlook, SharePoint, Word/Excel/PowerPoint), <strong>Microsoft 365 Copilot</strong>,
+          and the <strong>Microsoft Graph API</strong> that lets code read/write across all of it (mail, files,
+          calendars, chats) with permissions. It's the day-to-day environment Contollo's people live in.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>The report's plan is to process email/documents <strong>in-situ via the Graph API</strong> inside the EU tenancy — a Modern Work integration, not a data export.</li>
+          <li>Agents that read customer emails, file to SharePoint, or post to Teams all go through Graph + Copilot extensibility.</li>
+          <li>Publishing MAF/Foundry agents into Teams / M365 Copilot puts them where staff already work.</li>
+        </ul>
+        <div class="bridge"><strong>Bridge:</strong> Graph is "just an API with OAuth scopes" — familiar territory; the new part is
+          Entra app registrations, delegated vs application permissions, and admin consent.</div>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/graph/overview">Microsoft Graph overview</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/">M365 Copilot extensibility</a></li>
+        </ul>
+        <div class="todo">Which Graph scopes will we be granted, and what's the app-registration/consent process in their tenant? Any Copilot licences (Team vs Enterprise tier) already in place?</div>
+      </div>
+    </div>
+
+    <h3 style="color:var(--brand-2); margin:26px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">The client's system</h3>
+
+    <div class="acc">
+      <button class="acc-head">CMAP <span><span class="tag cmap">PSA / CRM</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <div class="eli5"><strong>ELI5:</strong> CMAP (CMap Software) is a professional-services automation (PSA)
+          platform built for firms like consultancies and architects — it combines <strong>CRM</strong>, job
+          costing, <strong>timesheets &amp; expenses</strong>, resourcing/HR, task management, project accounting,
+          and reporting in one place. For Contollo it's the system of record for people's time and project
+          commercials.</div>
+        <h4>Why it matters here</h4>
+        <ul>
+          <li>The Semanti report's first "run the business" agents target CMAP directly: a <strong>"doing" agent</strong> for updates and an <strong>"analyst" agent</strong> for insight.</li>
+          <li>That's flagged "subject to API/MCP support" — so CMAP's integration surface is a gating question for the whole build (see the CMAP tab).</li>
+          <li>CMAP already ships connectors to Business Central, Power BI, Teams, and more — some integration may not need custom code.</li>
+        </ul>
+        <h4>Further reading</h4>
+        <ul>
+          <li><a href="https://www.cmap.io/en-gb/integrations">CMap integrations catalogue</a></li>
+          <li><a href="https://support.cmaphq.com/hc/en-gb">CMap Help Center</a></li>
+        </ul>
+        <div class="todo">Does CMAP expose a public REST API and/or an MCP server? What auth (API key / OAuth), rate limits, and write scopes? This is the single biggest unknown for the agent work.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ROADMAP ================= -->
+  <section class="panel" id="roadmap">
+    <h2 class="section">Upskilling Roadmap</h2>
+    <p class="lead">A phased plan to get the team engagement-ready. It deliberately starts from what we
+      already know (agentic tooling, MCP) and layers the Microsoft-specific pieces on top. Timings are
+      indicative — tighten them once the delivery scope is confirmed.</p>
+
+    <div class="card">
+      <h3>Guiding principle — learn by building the thing we'll ship</h3>
+      <p>Rather than a pure course grind, anchor the learning on a <strong>thin end-to-end spike</strong>:
+        a minimal CMAP "analyst" agent in MAF, deployed on Azure, reading a little real (or mock) CMAP data.
+        Each phase below adds one layer to that spike, so by the end we've both learned the stack and produced
+        a credible proof point to show Contollo.</p>
+      <div class="chips">
+        <span class="chip">We already know: agents</span>
+        <span class="chip">tools / functions</span>
+        <span class="chip">prompting</span>
+        <span class="chip">MCP</span>
+        <span class="chip">We're adding: Azure</span>
+        <span class="chip">MAF SDK</span>
+        <span class="chip">Foundry</span>
+        <span class="chip">Graph / Purview / Power BI</span>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="when">Phase 0 &middot; Foundations (week 1)</div>
+      <h3>Get comfortable in Azure</h3>
+      <ul>
+        <li>Azure mental model: tenant, subscriptions, resource groups, regions (EU data residency matters here).</li>
+        <li>Identity: Microsoft Entra ID, app registrations, service principals, delegated vs application permissions.</li>
+        <li>Stand up a personal/sandbox subscription; deploy something trivial (a Function or Container App) via the portal <em>and</em> the CLI.</li>
+        <li>Target <strong>AZ-900</strong> level understanding (don't need the cert, need the concepts).</li>
+      </ul>
+      <div class="chips"><span class="chip">az CLI</span><span class="chip">Entra ID</span><span class="chip">AZ-900 concepts</span></div>
+    </div>
+
+    <div class="phase">
+      <div class="when">Phase 1 &middot; MAF hands-on (weeks 1&ndash;2)</div>
+      <h3>Build a first agent in the Microsoft Agent Framework</h3>
+      <ul>
+        <li>Install the MAF SDK (pick .NET or Python to match the scoped work); build a single agent with one tool.</li>
+        <li>Map our mental model across: skill/tool &#8594; MAF tool; MCP server &#8594; MAF MCP client; prompt chain &#8594; MAF workflow.</li>
+        <li>Reuse an existing MCP server we've written as a MAF tool — proves the bridge quickly.</li>
+        <li>Add a second agent and a simple <strong>workflow</strong> (graph orchestration) — e.g. "doing" agent + "analyst" agent handoff.</li>
+      </ul>
+      <div class="chips"><span class="chip">MAF SDK</span><span class="chip">tools</span><span class="chip">MCP</span><span class="chip">workflows</span></div>
+    </div>
+
+    <div class="phase">
+      <div class="when">Phase 2 &middot; Run it on Azure (weeks 2&ndash;3)</div>
+      <h3>Deploy &amp; observe with Foundry</h3>
+      <ul>
+        <li>Explore Foundry portal (ai.azure.com): model catalog, Agent Service, tracing.</li>
+        <li>Deploy the spike agent to <strong>Foundry Agent Service</strong> (or a self-hosted Container App) with an Entra identity.</li>
+        <li>Turn on OpenTelemetry tracing; look at a run end-to-end — this is also our observability story.</li>
+        <li>Compare model options for EU residency and cost; confirm what's allowed before committing.</li>
+      </ul>
+      <div class="chips"><span class="chip">Foundry Agent Service</span><span class="chip">Container Apps</span><span class="chip">OTel tracing</span></div>
+    </div>
+
+    <div class="phase">
+      <div class="when">Phase 3 &middot; Integrate &amp; govern (weeks 3&ndash;5)</div>
+      <h3>Wire to CMAP + the data/governance layer</h3>
+      <ul>
+        <li>Prove CMAP access (API or connector) with a read-only "analyst" query; then a guarded "doing" write.</li>
+        <li>Add a Microsoft Graph tool (read a customer email / file to SharePoint) using scoped permissions.</li>
+        <li>Surface an insight through <strong>Power BI / Fabric</strong> rather than re-building analytics in the agent.</li>
+        <li>Apply the governance basics: sensitivity labels / DLP awareness (Purview), secrets in Key Vault, human-in-the-loop on writes.</li>
+      </ul>
+      <div class="chips"><span class="chip">CMAP API/MCP</span><span class="chip">Graph</span><span class="chip">Power BI</span><span class="chip">Purview</span><span class="chip">Key Vault</span></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Recommended resources</h3>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/training/paths/microsoft-azure-fundamentals-describe-cloud-concepts/">MS Learn: Azure Fundamentals path</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/agent-framework/">MS Learn: Agent Framework docs &amp; tutorials</a></li>
+          <li><a href="https://github.com/microsoft/agent-framework">MAF GitHub (samples)</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/azure/ai-foundry/">MS Learn: Foundry docs</a></li>
+          <li><a href="https://learn.microsoft.com/en-us/graph/">Microsoft Graph docs</a></li>
+        </ul>
+        <div class="todo">Does D55 have MS Learn / credentialing budget? Worth deciding if anyone targets AI-102 / AZ-204 for depth.</div>
+      </div>
+      <div class="card">
+        <h3>Definition of "engagement-ready"</h3>
+        <ul>
+          <li>Comfortable navigating Azure + Entra and deploying a small workload.</li>
+          <li>Built and deployed a two-agent MAF workflow with a tool and an MCP integration.</li>
+          <li>Demonstrated a CMAP read (and ideally a guarded write) from an agent.</li>
+          <li>Can talk credibly about governance (Purview, DLP, secrets, human-in-the-loop) with Contollo.</li>
+          <li>A runnable spike + short write-up we can show the client.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CMAP & INTEGRATION ================= -->
+  <section class="panel" id="cmap">
+    <h2 class="section">CMAP &amp; Integration</h2>
+    <p class="lead">What CMAP is, its published integration surface, and the realistic options for connecting
+      agentic workflows to it. The Semanti report gates the CMAP agents on "API/MCP support", so nailing this
+      down early is our highest-value bit of discovery.</p>
+
+    <div class="card">
+      <h3>What CMAP does</h3>
+      <p>CMap Software is a <strong>professional-services automation (PSA)</strong> platform aimed at consultancies
+        and AEC (architecture/engineering/construction) firms. It bundles the front-to-back commercial workflow
+        into one system, which is why it's Contollo's system of record for time and project commercials.</p>
+      <div class="pillars">
+        <div class="pillar"><strong>CRM &amp; pipeline</strong>Leads, opportunities, clients.</div>
+        <div class="pillar"><strong>Job costing</strong>Project budgets &amp; cost tracking.</div>
+        <div class="pillar"><strong>Timesheets &amp; expenses</strong>The daily data staff enter.</div>
+        <div class="pillar"><strong>Resourcing &amp; HR</strong>Who's on what, utilisation.</div>
+        <div class="pillar"><strong>Project accounting</strong>Invoicing, WIP, revenue.</div>
+        <div class="pillar"><strong>Reporting &amp; dashboards</strong>The insight layer.</div>
+      </div>
+      <p class="src">Source: CMap product/features pages, rephrased. Content rephrased for compliance.</p>
+    </div>
+
+    <div class="card">
+      <h3>Published integration surface <span class="tag cmap">30+ tools</span></h3>
+      <p>CMap advertises 30+ pre-built integrations across these categories. Several are directly relevant to
+        Contollo's Microsoft estate and mean some data movement may not need custom code:</p>
+      <div class="grid2">
+        <div>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px;">Microsoft</h4>
+          <ul>
+            <li>Business Central (Dynamics), Dynamics GP</li>
+            <li>Teams, Outlook, Word, Excel, PowerPoint, Access</li>
+            <li>MS SQL Server, Single Sign-On (SSO), Microsoft 365</li>
+          </ul>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px; margin:10px 0 4px;">BI tools</h4>
+          <ul><li>Power BI, Tableau, Yellowfin</li></ul>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px; margin:10px 0 4px;">CRM</h4>
+          <ul><li>HubSpot, Salesforce</li></ul>
+        </div>
+        <div>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px;">Accounting</h4>
+          <ul><li>Xero, QuickBooks, Sage, AccountsIQ, NetSuite</li></ul>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px; margin:10px 0 4px;">AEC docs &amp; assets</h4>
+          <ul><li>Newforma, OpenAsset, CMap Documents, CMap Portfolios</li></ul>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px; margin:10px 0 4px;">BIM</h4>
+          <ul><li>AutoCAD, Revit</li></ul>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px; margin:10px 0 4px;">HR</h4>
+          <ul><li>BambooHR, HiBob, BreatheHR, Personio, Rippling</li></ul>
+        </div>
+      </div>
+      <p class="src">Source: <a href="https://www.cmap.io/en-gb/integrations">cmap.io/en-gb/integrations</a>, retrieved for this doc. These are productised connectors — not necessarily a general-purpose developer API.</p>
+      <div class="todo">The catalogue shows <em>connectors</em>, not an open API. Confirm separately whether CMap offers a documented REST API and/or an MCP server for custom read/write — that's what the agents need.</div>
+    </div>
+
+    <div class="card">
+      <h3>How we might integrate agentic workflows</h3>
+      <p>Four broad routes, roughly in order of directness. The right mix depends on what CMap's API actually
+        allows and what data we're allowed to touch.</p>
+      <ul>
+        <li><strong>1. Direct CMAP API (ideal for agents).</strong> If CMap exposes a documented REST API, the
+          "analyst" agent reads (projects, timesheets, utilisation) and the "doing" agent writes (updates,
+          entries) via tools that wrap those endpoints. Cleanest fit for MAF.</li>
+        <li><strong>2. CMAP MCP server.</strong> If CMap (or we) can expose an MCP server over the API, it plugs
+          straight into MAF as a tool set — and lines up exactly with the report's "API/MCP support" wording and
+          our existing MCP experience.</li>
+        <li><strong>3. Via the Microsoft layer.</strong> Where CMap already syncs to <strong>Business Central</strong>,
+          <strong>Power BI</strong>, or <strong>SQL Server</strong>, the analyst agent can read from those instead
+          of CMap directly — often the fastest path to insight without write access.</li>
+        <li><strong>4. Native connectors for plumbing.</strong> Use CMap's built-in connectors for bulk/scheduled
+          data movement (e.g. into Power BI/Fabric) and reserve agent calls for the interactive/decision parts.</li>
+      </ul>
+      <div class="bridge"><strong>Bridge:</strong> Routes 1 and 2 are exactly the kind of "wrap an API as tools / stand up an
+        MCP server" work D55 already does well — the new part is the Azure hosting and Contollo's data governance around it.</div>
+    </div>
+
+    <div class="card">
+      <h3>The "doing" + "analyst" split (from the report)</h3>
+      <div class="grid2">
+        <div>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px;">Analyst agent (read)</h4>
+          <ul>
+            <li>Answers "how's this project / my utilisation / this month tracking?"</li>
+            <li>Read-only — lower risk, natural first build.</li>
+            <li>Can lean on Power BI / Business Central data if direct CMAP read is limited.</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="color:var(--brand-2); font-size:13px; text-transform:uppercase; letter-spacing:0.6px;">Doing agent (write)</h4>
+          <ul>
+            <li>Performs updates — timesheet nudges, status/entry updates.</li>
+            <li>Needs write scopes + <strong>human-in-the-loop</strong> confirmation.</li>
+            <li>Higher risk; sequence it after the analyst agent proves the API.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="todo">Which specific CMAP objects/actions do the agents need? Start a concrete list (read: projects, timesheets, resourcing; write: ?) to test against the API.</div>
+    </div>
+  </section>
+
+  <!-- ================= STEPS ================= -->
+  <section class="panel" id="steps">
+    <h2 class="section">Steps</h2>
+    <p class="lead">The concrete, ordered path from today to a credible first delivery. Where the Roadmap tab
+      is <em>how we learn</em> the stack, this is <em>what we do</em> — sequenced, with an owner, a gate
+      (what must be true to start), and an outcome for each step. Adjust owners/dates once scope is confirmed.</p>
+
+    <div class="steps-groups">
+      <h3 class="grouphdr">Now — unblock &amp; set up (this week)</h3>
+
+      <div class="step">
+        <div class="num">1</div>
+        <div class="body">
+          <h3>Create a D55 Azure free account ($200 credit)</h3>
+          <p>Start here. Use <a href="https://azure.microsoft.com/en-us/pricing/purchase-options/azure-account">Try Azure for free</a>
+            to stand up our own exploration sandbox, independent of Contollo's tenant: <strong>$200 of credit for the
+            first 30 days</strong> plus a limited set of services free for 12 months. It needs a card (a temporary
+            ~$1 authorisation) but won't charge it while the spending limit is on.</p>
+          <p style="margin-top:8px;">Bonus — this is the genuine hard cost cap we discussed: a credit-based
+            subscription has a <strong>spending limit</strong> that disables services once the $200 is used or the
+            30 days pass, rather than billing on. Ideal for risk-free exploration. Note the credit doesn't roll over.</p>
+          <div class="meta"><span class="owner">Owner: each learner</span><span class="gate">Gate: none — do this now</span><span class="out">Outcome: D55 sandbox with hard-capped spend</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">2</div>
+        <div class="body">
+          <h3>Confirm scope &amp; tool names with Rhys</h3>
+          <p>Working assumption: <strong>D55 picks up the CMAP agents first</strong>. Confirm that with Rhys,
+            plus the tool names ("FusionAI Foundry" = Microsoft Foundry, "Perview" = Purview), and decide
+            <strong>.NET vs Python</strong> for MAF so everyone installs the same SDK.</p>
+          <div class="meta"><span class="owner">Owner: Rhys + lead</span><span class="gate">Gate: none — in parallel</span><span class="out">Outcome: confirmed CMAP-first scope &amp; language</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">3</div>
+        <div class="body">
+          <h3>Request access — Azure tenant &amp; CMAP</h3>
+          <p>Ask Contollo IT for a sandbox Azure subscription (or Entra guest + PIM roles) and for CMAP API
+            details: is there a documented REST API and/or MCP server, what auth, rate limits, and write scopes.</p>
+          <div class="meta"><span class="owner">Owner: lead + Contollo IT</span><span class="gate">Gate: step 1</span><span class="out">Outcome: access requested, API answer pending</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">4</div>
+        <div class="body">
+          <h3>Stand up a sandbox &amp; ship "hello agent"</h3>
+          <p>On the free account (step 1), deploy a trivial workload and a single MAF agent with one tool
+            (Roadmap Phases 0&ndash;1). Reuse one of our existing MCP servers as a MAF tool to prove the bridge.
+            This runs on our own sandbox, so it isn't blocked waiting on Contollo access.</p>
+          <div class="meta"><span class="owner">Owner: whole team</span><span class="gate">Gate: step 1 (free account)</span><span class="out">Outcome: running MAF agent</span></div>
+        </div>
+      </div>
+
+      <h3 class="grouphdr">Next — prove the pattern (weeks 2&ndash;4)</h3>
+
+      <div class="step">
+        <div class="num">5</div>
+        <div class="body">
+          <h3>Draft the CMAP object/action list</h3>
+          <p>Write the concrete list the agents need — read (projects, timesheets, resourcing, utilisation)
+            and write (status/entry updates) — so we can test it the moment API access lands.</p>
+          <div class="meta"><span class="owner">Owner: lead</span><span class="gate">Gate: step 1</span><span class="out">Outcome: testable integration checklist</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">6</div>
+        <div class="body">
+          <h3>Build the thin end-to-end spike</h3>
+          <p>A minimal <strong>analyst</strong> agent: read a little CMAP data (or the Power BI / Business
+            Central mirror if direct read is limited), reason, return an answer. Deploy to Foundry Agent
+            Service with tracing on (Roadmap Phase 2).</p>
+          <div class="meta"><span class="owner">Owner: whole team</span><span class="gate">Gate: steps 4 &amp; 5 + some CMAP read path</span><span class="out">Outcome: demoable analyst agent</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">7</div>
+        <div class="body">
+          <h3>Add governance &amp; the "doing" agent</h3>
+          <p>Layer in secrets (Key Vault), sensitivity/DLP awareness (Purview), and a human-in-the-loop
+            confirmation, then add a guarded <strong>doing</strong> agent that performs one safe write.</p>
+          <div class="meta"><span class="owner">Owner: whole team</span><span class="gate">Gate: step 6 + CMAP write scopes</span><span class="out">Outcome: guarded write demonstrated</span></div>
+        </div>
+      </div>
+
+      <h3 class="grouphdr">Then — package &amp; align (week 4+)</h3>
+
+      <div class="step">
+        <div class="num">8</div>
+        <div class="body">
+          <h3>Write up &amp; review with Contollo</h3>
+          <p>Short write-up of the spike (what it does, the integration approach, the governance model) plus
+            open decisions. Review with Rhys and Contollo to confirm the delivery approach before scaling.</p>
+          <div class="meta"><span class="owner">Owner: lead</span><span class="gate">Gate: steps 6&ndash;7</span><span class="out">Outcome: agreed delivery approach</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--todo-border); background:var(--todo-bg); margin-top:18px;">
+      <h3 style="color:#92400e;">Critical path</h3>
+      <p style="color:#92400e; margin:0;">The <strong>CMAP API/MCP answer (step 3)</strong> is the long pole —
+        everything from step 6 onward depends on it. Chase it first. Meanwhile the free-account sandbox (step 1)
+        lets us make progress on steps 4&ndash;5 without waiting, and a fallback read path (Power BI / Business
+        Central mirror) keeps the spike unblocked if the direct CMAP API is limited or slow to arrive.</p>
+    </div>
+  </section>
+
+  <!-- ================= QUESTIONS & HOMEWORK ================= -->
+  <section class="panel" id="questions">
+    <h2 class="section">Open Questions &amp; Homework</h2>
+    <p class="lead">What we still need to confirm, grouped by who can answer it, plus the prep we can start
+      now without waiting.</p>
+
+    <div class="acc open">
+      <button class="acc-head">For Rhys / internal <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">Exactly which Semanti-scoped work is D55 picking up — the CMAP agents, the finance flash, the estimating "second brain", or the platform foundations?
+          <span class="why">Sets the whole scope and which parts of this roadmap to prioritise.</span></div>
+        <div class="q">Confirm the tool names: is "FusionAI Foundry" = Azure AI Foundry / Microsoft Foundry, and "Perview" = Microsoft Purview?
+          <span class="why">Want the primers pointing at the right products before we share this.</span></div>
+        <div class="q">.NET or Python for the MAF agents?
+          <span class="why">Decides which SDK the team installs and practises with in Phase 1.</span></div>
+        <div class="q">Is there a delivery SOW / statement of work behind the Semanti report we should read?
+          <span class="why">The PDF is investor strategy, not a technical spec.</span></div>
+        <div class="q">Learning budget — MS Learn, sandbox Azure subscription, any certs (AI-102 / AZ-204)?
+          <span class="why">Affects how the team ramps and whether we get a safe place to build the spike.</span></div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">For Contollo / their IT <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">Does CMAP expose a documented REST API and/or MCP server? What auth, rate limits, and write scopes?
+          <span class="why">The single biggest gate on the CMAP agent build.</span></div>
+        <div class="q">What access will D55 get to the Azure tenant / subscriptions, and via what mechanism (Entra guest, PIM)?
+          <span class="why">We can't build on Azure without a landing spot and identity.</span></div>
+        <div class="q">EU-only data residency for model calls and stored data — hard requirement?
+          <span class="why">Constrains model + region choices in Foundry.</span></div>
+        <div class="q">Is Purview enabled? Are sensitivity labels / DLP already in use, or greenfield?
+          <span class="why">Determines what agents may read and how much governance we build vs adopt.</span></div>
+        <div class="q">Which Microsoft 365 Copilot tier and licences are in place (Team vs Enterprise)?
+          <span class="why">Report notes Team-tier today; affects Graph/Copilot options.</span></div>
+        <div class="q">Status of the MSP transition and tenant-migration remediation?
+          <span class="why">The report flags this as in-flight; it affects who we coordinate with and tenant stability.</span></div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Our homework — start now <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <div class="q">Skim the MAF overview + a "hello agent" tutorial so we can talk fluently in Microsoft's terms.
+          <span class="why">Fast confidence; maps directly to what we already know.</span></div>
+        <div class="q">Stand up a sandbox Azure subscription and deploy a trivial workload (Phase 0/1).
+          <span class="why">Removes the "never touched Azure" friction before real work starts.</span></div>
+        <div class="q">Prototype a MAF tool that wraps one of our existing MCP servers.
+          <span class="why">Proves the bridge and de-risks the integration approach cheaply.</span></div>
+        <div class="q">Draft a concrete CMAP object/action list the agents will need (read + write).
+          <span class="why">Turns the API question into something testable the moment we get access.</span></div>
+        <div class="q">Sketch the thin end-to-end spike (analyst agent &#8594; mock CMAP data &#8594; Foundry &#8594; simple output).
+          <span class="why">Gives the roadmap a build to hang each phase on.</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--todo-border); background:var(--todo-bg);">
+      <h3 style="color:#92400e;">Positioning note</h3>
+      <p style="color:#92400e; margin:0;">We're strong where it counts — agentic design, tools, and MCP — and the
+        Microsoft stack is mostly new <em>packaging</em> around ideas we know. Lead with that confidence, but be
+        honest that Azure/MAF hosting and Contollo's governance are the areas we're deliberately ramping on.
+        The thin spike is how we prove both to ourselves and to the client.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="page">
+  <div class="wrap">Living prep document &middot; Contollo &middot; D55 engagement &middot; last updated on save</div>
+</footer>
+
+<script>
+  // Tabs
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabButtons.forEach(b => b.classList.toggle('active', b === btn));
+      panels.forEach(p => p.classList.toggle('active', p.id === target));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Accordions
+  document.querySelectorAll('.acc-head').forEach(head => {
+    head.addEventListener('click', () => {
+      head.parentElement.classList.toggle('open');
+    });
+  });
+</script>
+
+</body>
+</html>

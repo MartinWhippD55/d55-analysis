@@ -122,6 +122,17 @@
   .pillar { background: #faf9ff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
   .pillar strong { color: var(--brand); display: block; margin-bottom: 2px; }
 
+  ul.check { list-style: none; margin-left: 0 !important; }
+  ul.check li { position: relative; padding-left: 28px; margin-bottom: 8px; }
+  ul.check li::before {
+    content: "☐"; position: absolute; left: 0; top: -1px;
+    color: var(--accent); font-size: 18px; font-weight: 700;
+  }
+  .size { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-right: 6px; }
+  .size.driver { background: #e0e7ff; color: #3730a3; }
+  .risk { background: #fef2f2; border-left: 3px solid #ef4444; padding: 8px 12px; border-radius: 0 8px 8px 0; margin-top: 10px; font-size: 13.5px; color: #7f1d1d; }
+  .risk::before { content: "⚠ If we can't see this: "; font-weight: 700; }
+
   .todo {
     background: var(--todo-bg); border: 1px dashed var(--todo-border);
     border-radius: 8px; padding: 8px 12px; margin-top: 10px;
@@ -151,6 +162,7 @@
 <nav class="tabs">
   <div class="wrap">
     <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="estimate">Estimate Readiness</button>
     <button class="tab-btn" data-tab="tech">Tech &amp; Areas (ELI5)</button>
     <button class="tab-btn" data-tab="awssec">AWS Posture</button>
     <button class="tab-btn" data-tab="ahead">Questions — Ahead</button>
@@ -226,6 +238,152 @@
           auto-scaling &amp; HA, secure secret/config management, disposable infra via IaC, CI/CD pipelines, and AWS spend controls/alerting.</li>
         <li><strong>Log Storage Architecture</strong> — AWS-first log &amp; metric storage; evaluate alternatives only for clear benefit.</li>
         <li><strong>Documentation</strong> — supporting docs for the above + onboarding/setup docs for new engineers.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= ESTIMATE READINESS ================= -->
+  <section class="panel" id="estimate">
+    <h2 class="section">Estimate Readiness</h2>
+    <p class="lead">Rhys's core question: <strong>"What do we need to see on the walkthrough in order to give
+      them an estimate?"</strong> This tab answers exactly that — the artifacts and answers we need to walk away
+      with to scope each deliverable, the things that make each one bigger or smaller, and the risk if we leave
+      without them.</p>
+
+    <div class="card">
+      <h3>How to think about the estimate</h3>
+      <p>An estimate is only as good as our understanding of <strong>scope</strong>, <strong>complexity</strong>,
+        and <strong>unknowns</strong>. The walkthrough exists to shrink the unknowns enough that we can put a
+        credible range (with stated assumptions) against each deliverable. We're not trying to leave with a
+        number — we're trying to leave able to <em>produce</em> one.</p>
+      <ul>
+        <li><strong>Estimate in ranges, not points</strong> — e.g. t-shirt sizes or low/high day bands, each tied to explicit assumptions.</li>
+        <li><strong>Every "to investigate" that stays open becomes an assumption</strong> — and a risk line in the estimate.</li>
+        <li><strong>Separate "get to a working v1" from "the full build"</strong> — lets us give a smaller, faster first number.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>The must-see checklist</h3>
+      <p>If we get through the walkthrough with these captured, we can estimate. Prioritise them if time runs short.</p>
+      <ul class="check">
+        <li><strong>The code &amp; a live run</strong> — see the repo(s) and watch a real agent run end to end, so we understand the LangGraph shape and where to instrument.</li>
+        <li><strong>Current AWS account picture</strong> — single vs multi-account, what's already deployed, and how (console-clicked vs IaC).</li>
+        <li><strong>What exists vs. greenfield</strong> — any current logging, metrics, "central DB", CI/CD, IaC, secrets handling. We estimate the <em>gap</em>, not the whole thing.</li>
+        <li><strong>Data residency &amp; sensitivity ruling</strong> — the one answer that decides LangSmith vs AWS-only, which swings the observability estimate the most.</li>
+        <li><strong>Scale &amp; volume</strong> — runs/day now and projected; drives DB, hosting, and storage sizing.</li>
+        <li><strong>Environments needed</strong> — how many, and whether prod already exists.</li>
+        <li><strong>Who owns it after handover</strong> — their team's skills shape tooling choices and the docs effort.</li>
+        <li><strong>Definition of "done" for v1</strong> — what does good look like to them for the first useful delivery.</li>
+      </ul>
+    </div>
+
+    <h3 style="color:var(--brand-2); margin:22px 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">What we need per deliverable</h3>
+
+    <div class="acc open">
+      <button class="acc-head">1 · Agent Run Observability <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <h4>What we need to see</h4>
+        <ul>
+          <li>The LangGraph structure — how many graphs/agents, nodes, and tools; what a run looks like start to finish.</li>
+          <li>Any telemetry that exists today (logging, callbacks, LangSmith already wired?).</li>
+          <li>The metrics they actually care about (cost, latency, success rate, tool errors, human-in-loop).</li>
+          <li>Where a run starts/ends, and whether runs are sync/interactive or long-running/background.</li>
+        </ul>
+        <h4>Sizing drivers</h4>
+        <p>
+          <span class="size driver">bigger</span> many distinct graphs/agents to instrument · custom metrics · a bespoke dashboard UI · must be AWS-only (build the pipeline vs. use LangSmith SaaS).<br>
+          <span class="size driver">smaller</span> one or few graphs · standard metrics · LangSmith acceptable · reuse an existing dashboard tool (Grafana/QuickSight).
+        </p>
+        <div class="risk">We can't judge instrumentation effort or the LangSmith-vs-AWS split — the single biggest swing in the whole estimate.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">2 · Hosting Recommendation <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <h4>What we need to see</h4>
+        <ul>
+          <li>Current hosting/deployment (if any) and how the app is packaged (containers? serverless-friendly?).</li>
+          <li>Existing AWS footprint, accounts, Organization/landing-zone conventions.</li>
+          <li>Current CI/CD and IaC (Terraform / CDK / none) and the team's comfort with them.</li>
+          <li>Number of environments required and whether prod already exists.</li>
+          <li>HA / auto-scaling expectations and any uptime obligations.</li>
+        </ul>
+        <h4>Sizing drivers</h4>
+        <p>
+          <span class="size driver">bigger</span> greenfield AWS setup · full multi-account landing zone · SvelteKit needing a server runtime · strict HA/multi-AZ · no existing IaC to build on.<br>
+          <span class="size driver">smaller</span> existing accounts &amp; IaC to extend · static front-end (S3+CloudFront) · simple container on Fargate · few environments.
+        </p>
+        <div class="risk">We can't tell if we're extending a setup or building from zero — could be a several-fold difference in effort.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">3 · Log &amp; Metric Storage Architecture <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <h4>What we need to see</h4>
+        <ul>
+          <li>Volume of logs/metrics and expected growth.</li>
+          <li>Retention requirements (compliance-driven?) and query needs (dashboards vs ad-hoc vs alerting).</li>
+          <li>Sensitivity/classification of log contents (PII, client pentest findings).</li>
+          <li>Whether a "central DB" already exists to build on.</li>
+        </ul>
+        <h4>Sizing drivers</h4>
+        <p>
+          <span class="size driver">bigger</span> high volume · long/compliance retention with tiering · search-heavy needs (OpenSearch) · sensitive data needing extra controls (Macie, encryption, access).<br>
+          <span class="size driver">smaller</span> modest volume · simple retention · a managed store like CloudWatch or S3+Athena suffices.
+        </p>
+        <div class="risk">We can't size the store or the storage cost, and can't confirm the data-residency/sensitivity constraints that shape the design.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">4 · Documentation <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <h4>What we need to see</h4>
+        <ul>
+          <li>State of existing docs and the repo's readability/complexity.</li>
+          <li>What trips up new engineers today (the real onboarding pain).</li>
+          <li>Who the audience is and the depth expected.</li>
+        </ul>
+        <h4>Sizing drivers</h4>
+        <p>
+          <span class="size driver">bigger</span> little/no existing docs · complex, undocumented setup · multiple audiences.<br>
+          <span class="size driver">smaller</span> decent docs to extend · straightforward setup · docs generated alongside the infra/CI work.
+        </p>
+        <div class="risk">Docs effort is usually proportional to what we build — hard to size until the other three are scoped.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Cross-cutting · AWS security posture <span class="chev">&#8250;</span></button>
+      <div class="acc-body">
+        <p>The security-posture work (see the AWS Posture tab) can be scoped as a distinct line — an assessment plus
+          a prioritised set of quick wins. To estimate it we need to know how much of the baseline already exists.</p>
+        <h4>What we need to see</h4>
+        <ul>
+          <li>Account structure and whether Control Tower / an Organization is in place.</li>
+          <li>What's already on: CloudTrail, GuardDuty, Security Hub, Config, Identity Center.</li>
+          <li>Any existing Security Hub / benchmark score to use as a baseline.</li>
+        </ul>
+        <h4>Sizing drivers</h4>
+        <p>
+          <span class="size driver">bigger</span> single account with manual access · nothing enabled · remediation of existing findings expected.<br>
+          <span class="size driver">smaller</span> most baseline services already on · assessment-and-recommend only, they implement.
+        </p>
+        <div class="risk">We can't tell whether this is "enable a few services" or "stand up the whole foundation" — and whether it's advise-only or implement.</div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--todo-border); background:var(--todo-bg);">
+      <h3 style="color:#92400e;">Bottom line for Rhys</h3>
+      <p style="color:#92400e; margin:0 0 8px;">To estimate, we need to leave the walkthrough able to answer, per deliverable:
+        <strong>what exists already, how big is it (scale/volume/environments), how sensitive is the data, and who owns it after us.</strong>
+        The two answers that move the number most:</p>
+      <ul style="color:#92400e; margin:0 0 0 20px;">
+        <li><strong>Data residency ruling</strong> — LangSmith SaaS vs AWS-only observability.</li>
+        <li><strong>Greenfield vs. extending</strong> — are we building the AWS foundation, or adding to theirs?</li>
       </ul>
     </div>
   </section>
