@@ -176,9 +176,9 @@
         <dt>Question</dt><dd>Did the (possibly compromised) <strong>Rhys</strong> identity do anything anomalous in the Bryt AWS accounts in the audit window?</dd>
         <dt>Primary lens</dt><dd>CloudTrail activity attributed to Rhys' principal (IAM user or SSO role-session).</dd>
         <dt>Secondary lens</dt><dd>High-signal <em>persistence / evasion / exfil / compute-abuse</em> events by <strong>any</strong> actor — a stolen session may have created a new identity to hide behind.</dd>
-        <dt>Window</dt><dd>Last <strong>30 days</strong> by default. <span class="todo">Extend once the malware-landing date is known.</span></dd>
+        <dt>Window</dt><dd>Re-run <strong>17 Sep 2026</strong> extended to <strong>~50 days</strong> (since 29 Jul 2026) to cover 30 Jul onward; the original run was 30 days. <span class="todo">Extend further once the malware-landing date is confirmed.</span></dd>
         <dt>Approach</dt><dd>Strictly <strong>read-only</strong> API calls. Nothing is modified.</dd>
-        <dt>Status</dt><dd><span class="tag ok">Complete</span> 12/12 accounts swept 16 Sep 2026; no anomalous activity found. See Findings.</dd>
+        <dt>Status</dt><dd><span class="tag ok">Complete</span> 12/12 accounts swept; the latest 17 Sep 2026 extended run found <strong>no evidence of compromise</strong>, but surfaced three pre-window items to confirm. See Findings.</dd>
       </dl>
       <div class="crit"><strong>Mindset carried over from the incident doc:</strong> assume everything the identity could
         reach is in scope. A clean CloudTrail is reassuring but not exonerating — data-event exfil and off-scope regions
@@ -253,10 +253,11 @@
       <p>The read-only collector <code>audit-aws.ps1</code> loops each profile and region, pulls the checks below,
         tabulates them, and writes a flagged <code>00-SUMMARY.txt</code> plus per-account output folders.</p>
       <pre class="cmd"><code>powershell -ExecutionPolicy Bypass -File .\audit-aws.ps1 `
-    -Profiles bryt-main,bryt-phidex,bryt-sagemaker,bryt-dev `
-    -Identity rhys `
-    -Days 30 `
-    -MgmtProfile bryt-management</code></pre>
+    -Profiles bryt-inv-audit,bryt-inv-sage,bryt-inv-portal2,bryt-inv-phidex,bryt-inv-dev,`
+              bryt-inv-logarchive,bryt-inv-logging,bryt-inv-prod,bryt-inv-sagemaker,`
+              bryt-inv-test,bryt-inv-uat,bryt-inv-users `
+    -Identities rhys.jacob@d55.co.uk,rhys.jacob+unified-engineer@d55.co.uk,&hellip; `
+    -Days 50</code></pre>
       <div class="bridge"><strong>Read-only by construction:</strong> the script calls only
         <code>sts:GetCallerIdentity</code>, <code>cloudtrail:LookupEvents</code>, <code>iam:Get*/List*/GenerateCredentialReport</code>,
         <code>guardduty:List*/Get*</code>, and <code>ec2:Describe*</code>. It modifies nothing.</div>
@@ -350,17 +351,21 @@
   <!-- ================= FINDINGS ================= -->
   <section class="panel" id="findings">
     <h2 class="section">Findings</h2>
-    <p class="lead">Results of the 16 Sep 2026 sweep of all 12 accounts for activity by the Rhys identity over the
-      preceding 30 days.</p>
+    <p class="lead">Results of the sweep of all 12 accounts for activity by the Rhys identity. Updated after the
+      <strong>17 Sep 2026</strong> extended run (~50 days, since 29 Jul) that superseded the original 30-day run of 16 Sep.</p>
 
-    <div class="card" style="border-color:var(--ok);">
-      <h3>Headline <span class="tag ok">No anomalous activity found</span></h3>
-      <p>Across all 12 accounts, <strong>every</strong> action attributed to the Rhys identity traces to a single UK
-        residential IP (<code>86.183.104.170</code>) plus AWS's own service ranges. There were <strong>no</strong>
-        persistence events (no <code>CreateUser</code>/<code>CreateAccessKey</code>/<code>CreateLoginProfile</code>),
-        <strong>no</strong> log-tampering/evasion (<code>StopLogging</code>/<code>DeleteTrail</code>),
-        <strong>no</strong> new IAM users or access keys, and <strong>no</strong> GuardDuty findings in window. The
-        only mutating actions seen are all consistent with the team's own incident response (see below).</p>
+    <div class="card" style="border-color:var(--todo-border);">
+      <h3>Headline <span class="tag med">No evidence of compromise &mdash; items to confirm</span></h3>
+      <p>Across all 12 accounts, the activity attributed to the Rhys identity is still overwhelmingly read-only and
+        traces to the UK residential IP <code>86.183.104.170</code> plus AWS's own service ranges. There is
+        <strong>no</strong> log-tampering/evasion (<code>StopLogging</code>/<code>DeleteTrail</code>) and
+        <strong>no</strong> GuardDuty findings in window.</p>
+      <p style="margin-top:8px;">Extending the window to 30 Jul brought the 30 Jul&ndash;17 Aug period into view and surfaced a
+        few items the 30-day run could not see. None point to the compromise, but each should be confirmed:
+        two <code>AuthorizeSecurityGroupIngress</code> calls by Rhys on 3 Aug from a <em>second</em> same-range BT IP
+        (<code>86.183.207.201</code>); a new IAM user + long-lived access key (<code>siem-cisco-umbrella-reader</code>) in
+        logarchive; and a <code>CreateUser</code> by a colleague (<code>jabez.souttar</code>) in sage. Details in the
+        <em>Extended-window items</em> card below.</p>
       <div class="bridge"><strong>Read this correctly:</strong> a clean management-event trail is reassuring but not a
         full exoneration &mdash; it does not cover S3 object-level reads or anything older than 90 days. See Limitations
         and Next Steps for how to close those gaps via the org trail + Athena that already exist.</div>
@@ -369,12 +374,13 @@
     <div class="card">
       <h3>Run summary</h3>
       <dl class="kv">
-        <dt>Run date</dt><dd>16 Sep 2026, 21:25 (local)</dd>
-        <dt>Window</dt><dd>Last 30 days (since 2026-08-17T19:58Z)</dd>
-        <dt>Identity</dt><dd>7 SSO variants of <code>rhys.jacob</code>; only <code>rhys.jacob@d55.co.uk</code> appeared in CloudTrail (Identity Center normalises the session name &mdash; the <code>+persona</code> logins produced no distinct events)</dd>
+        <dt>Latest run</dt><dd><strong>17 Sep 2026</strong> &mdash; extended window</dd>
+        <dt>Window</dt><dd>~50 days (since 2026-07-29T15:22Z), to cover the requested 30 Jul 2026 onward. Supersedes the original 30-day run of 16 Sep 2026 (since 2026-08-17)</dd>
+        <dt>Identity</dt><dd>Same 7 SSO variants of <code>rhys.jacob</code>; only <code>rhys.jacob@d55.co.uk</code> appeared in CloudTrail (Identity Center normalises the session name &mdash; the <code>+persona</code> logins produced no distinct events)</dd>
         <dt>Profiles scanned</dt><dd>All 12 <code>bryt-inv-*</code> (read-only) profiles</dd>
         <dt>Regions</dt><dd><code>eu-west-1</code>, <code>eu-west-2</code>, <code>us-east-1</code></dd>
-        <dt>Flags raised</dt><dd><strong>1</strong> &mdash; a benign EC2 start/stop (phidex jump box, IR remediation)</dd>
+        <dt>Flags raised</dt><dd><strong>5</strong> (vs 1 in the 30-day run) &mdash; 1 benign EC2 (phidex jump box) plus 4 events in the 30 Jul&ndash;17 Aug window newly in view; none conclusively malicious, three need confirmation (see below)</dd>
+        <dt>Output</dt><dd><code>aws-audit-20260917-162238\</code></dd>
       </dl>
     </div>
 
@@ -385,7 +391,7 @@
         <tr><td>audit</td><td><code>597088050142</code></td><td>~34</td><td><span class="tag ok">Clean</span> CloudShell / cost</td></tr>
         <tr><td>sage</td><td><code>548046216771</code></td><td>~300</td><td><span class="tag ok">Clean</span> CloudTrail investigation</td></tr>
         <tr><td>portal2</td><td><code>922022259560</code></td><td>~200</td><td><span class="tag ok">Clean</span> read-only VPN/VPC describes</td></tr>
-        <tr><td>phidex</td><td><code>313047251060</code></td><td>~400</td><td><span class="tag med">Clean*</span> read-only + IR remediation (jump-box start/stop, <code>SendCommand</code>)</td></tr>
+        <tr><td>phidex</td><td><code>313047251060</code></td><td>~400</td><td><span class="tag med">Clean*</span> read-only + IR remediation (jump-box start/stop, <code>SendCommand</code>); extended window adds 2&times; <code>AuthorizeSecurityGroupIngress</code> on 3 Aug (confirm)</td></tr>
         <tr><td>dev</td><td><code>783535217689</code></td><td>~35</td><td><span class="tag ok">Clean</span></td></tr>
         <tr><td>logarchive</td><td><code>503561448641</code></td><td>~210</td><td><span class="tag ok">Clean</span> Athena queries over central CloudTrail logs</td></tr>
         <tr><td>logging</td><td><code>569981240471</code></td><td>~19</td><td><span class="tag ok">Clean</span></td></tr>
@@ -395,14 +401,14 @@
         <tr><td>uat</td><td><code>562148325844</code></td><td>~106</td><td><span class="tag ok">Clean</span></td></tr>
         <tr><td>users (Identity Center)</td><td><code>425713683394</code></td><td>~280</td><td><span class="tag med">Clean*</span> read-only + IR containment (MFA/user/group review, <code>UpdatePassword</code>, session mgmt)</td></tr>
       </table>
-      <p style="margin-top:10px; font-size:13.5px; color:var(--muted);">* &ldquo;Clean*&rdquo; = mutating actions were present but all attributable to Rhys' own IP during the incident response window (15&ndash;16 Sep). Confirm they were intended (see below).</p>
+      <p style="margin-top:10px; font-size:13.5px; color:var(--muted);">* &ldquo;Clean*&rdquo; = mutating actions were present but attributable to Rhys' own IP during the incident-response window (15&ndash;16 Sep). Confirm they were intended (see below). Event counts are from the 30-day baseline; the extended window's additional items &mdash; including by-<em>other</em>-actor events in logarchive and sage &mdash; are listed in the next card.</p>
     </div>
 
     <div class="card">
       <h3>Activity pattern</h3>
       <ul>
-        <li><strong>Single human source IP:</strong> <code>86.183.104.170</code> (UK, BT consumer range) accounts for the overwhelming majority of events in every account. All other IPs resolve to AWS's own eu-west-1 (Dublin) / eu-west-2 (London) ranges and service principals (<code>glue</code>, <code>datazone</code>, <code>athena</code>, <code>fas.s3</code>) &mdash; i.e. console / CloudShell relay and managed-service calls.</li>
-        <li><strong>Timing:</strong> two clusters &mdash; <strong>11 Sep</strong> (normal-looking data-science / catalog work in prod &amp; sagemaker) and <strong>15&ndash;16 Sep</strong> (intensive investigation + remediation).</li>
+        <li><strong>Human source IPs:</strong> <code>86.183.104.170</code> (UK, BT consumer range) accounts for the overwhelming majority of events. The extended window adds a <strong>second</strong> BT-range address, <code>86.183.207.201</code>, on 3 Aug (the security-group change below) &mdash; consistent with a dynamic residential IP but now to be confirmed alongside the first. All other IPs resolve to AWS's own eu-west-1 (Dublin) / eu-west-2 (London) ranges and service principals (<code>glue</code>, <code>datazone</code>, <code>athena</code>, <code>fas.s3</code>).</li>
+        <li><strong>Timing:</strong> three clusters &mdash; <strong>3 Aug</strong> (two SG-ingress changes, phidex), <strong>11 Sep</strong> (normal-looking data-science / catalog work in prod &amp; sagemaker) and <strong>15&ndash;16 Sep</strong> (intensive investigation + remediation).</li>
         <li><strong>Nature:</strong> almost entirely read-only (<code>Describe*</code>/<code>Get*</code>/<code>List*</code>/<code>LookupEvents</code>). The investigation itself is visible: <code>LookupEvents</code>, <code>DescribeTrails</code>, <code>GetEventSelectors</code>, and Athena querying the central CloudTrail logs in the log-archive account.</li>
       </ul>
     </div>
@@ -414,6 +420,18 @@
         <tr><th>Account</th><th>Action(s)</th><th>Most likely explanation</th></tr>
         <tr><td>phidex</td><td><code>StopInstances</code>, <code>SendCommand</code> (SSM) on jump box <code>i-02c6933b6f9b07d8c</code></td><td>SSM admin-password rotation on the jump box (Key Tracker row 1).</td></tr>
         <tr><td>users (Identity Center)</td><td><code>UpdatePassword</code>, <code>DeleteSession</code>/<code>BatchDeleteSession</code></td><td>Password reset + session revocation (containment).</td></tr>
+      </table>
+    </div>
+
+    <div class="card" style="border-color:var(--todo-border); background:var(--todo-bg);">
+      <h3 style="color:#92400e;">Extended-window items (30 Jul &ndash; 17 Aug) to confirm</h3>
+      <p style="color:#92400e;">Newly in view after extending the window to 30 Jul. None are conclusively malicious &mdash; each
+        has a plausible legitimate explanation &mdash; but they predate the original 30-day window and warrant a quick check.</p>
+      <table class="find">
+        <tr><th>Account</th><th>Actor</th><th>Action</th><th>Detail / most likely explanation</th></tr>
+        <tr><td>phidex</td><td><code>rhys.jacob@d55.co.uk</code></td><td>2&times; <code>AuthorizeSecurityGroupIngress</code> (3 Aug)</td><td>From <code>86.183.207.201</code> &mdash; a <em>second</em> BT-range IP, not the <code>86.183.104.170</code> the clean verdict rests on. Confirm the IP is Rhys and what ingress/port was opened to which security group.</td></tr>
+        <tr><td>logarchive</td><td>service account</td><td><code>CreateUser</code> + <code>CreateAccessKey</code> (17 Aug)</td><td>IAM user <code>siem-cisco-umbrella-reader</code>; static key <code>AKIA&hellip;ZVZTM3</code> (active, last used 3 Sep, S3 in eu-west-2). Looks like a Cisco Umbrella / SIEM log-reader integration &mdash; confirm provenance and fold the long-lived key into the rotation list.</td></tr>
+        <tr><td>sage</td><td><code>jabez.souttar@d55.co.uk</code></td><td>2&times; <code>CreateUser</code> (30 Jul, 15 Sep)</td><td>15 Sep via <code>controltower.amazonaws.com</code> (automated provisioning, benign); 30 Jul from <code>89.243.75.22</code> (human) &mdash; confirm this was intended.</td></tr>
       </table>
     </div>
 
@@ -452,8 +470,9 @@
     <div class="card" style="border-color:var(--ok);">
       <h3>Done <span class="tag ok">Sweep complete</span></h3>
       <ul>
-        <li>All 12 <code>bryt-inv-*</code> accounts swept over the last 30 days; results in <code>aws-audit-20260916-205851\</code> and the Findings tab.</li>
-        <li>Outcome: no anomalous activity; 1 benign flag (phidex jump box). See Findings.</li>
+        <li>All 12 <code>bryt-inv-*</code> accounts swept over the last 30 days (16 Sep); results in <code>aws-audit-20260916-205851\</code>.</li>
+        <li><strong>Extended re-run 17 Sep</strong> over ~50 days (since 29 Jul) to cover 30 Jul onward; results in <code>aws-audit-20260917-162238\</code> and folded into the Findings tab.</li>
+        <li>Outcome: no evidence of compromise; the extended window surfaced 3 pre-window items to confirm (see Findings).</li>
       </ul>
     </div>
 
@@ -462,7 +481,10 @@
       <ul>
         <li><strong>Confirm <code>86.183.104.170</code> is Rhys' IP.</strong> The whole &ldquo;clean&rdquo; verdict rests on this being his known home/office address (it is the dominant IP even in his pre-incident 11 Sep activity, so almost certainly his &mdash; but verify).</li>
         <li><strong>Confirm the IR mutations</strong> (phidex <code>StopInstances</code>/<code>SendCommand</code>; Identity Center <code>UpdatePassword</code>/session deletes) were you/the team.</li>
-        <li><strong>Extend the window past 90 days</strong> using the org CloudTrail + Athena already set up in the log-archive account (<code>503561448641</code>) &mdash; this also covers the true malware-landing date once known.</li>
+        <li><strong>Confirm <code>86.183.207.201</code></strong> (the 3 Aug security-group change on phidex) is also Rhys, and review what ingress/port was opened to which security group.</li>
+        <li><strong>Confirm the <code>siem-cisco-umbrella-reader</code> IAM user + access key</strong> in logarchive (created 17 Aug) is an intended SIEM integration, and add its long-lived key to the rotation worklist.</li>
+        <li><strong>Confirm <code>jabez.souttar</code>'s 30 Jul <code>CreateUser</code></strong> in sage was intended.</li>
+        <li><strong>Extend the window further, past 90 days</strong> using the org CloudTrail + Athena already set up in the log-archive account (<code>503561448641</code>) &mdash; the current run reaches back to 29 Jul; the true malware-landing date (once known) may be earlier.</li>
         <li><strong>Check S3 data events</strong> for exfil from the DMS output buckets &mdash; only visible if data events are captured on a trail; query via that same Athena setup.</li>
         <li><strong>Confirm / enable GuardDuty</strong> org-wide (tracked hardening item) and re-verify the &ldquo;no detector&rdquo; result isn't a read-role permission artifact.</li>
       </ul>
@@ -471,9 +493,12 @@
     <div class="card" style="border-color:var(--todo-border); background:var(--todo-bg);">
       <h3 style="color:#92400e;">Open questions</h3>
       <ul style="color:#92400e;">
-        <li>Is <code>86.183.104.170</code> Rhys' known IP?</li>
+        <li>Are <strong>both</strong> <code>86.183.104.170</code> and <code>86.183.207.201</code> Rhys' known IPs?</li>
         <li>Were the 15&ndash;16 Sep mutating actions all intended incident response?</li>
-        <li>Confirmed malware-landing date, to set the true (likely &gt;30 day) window?</li>
+        <li>Was the 3 Aug security-group change (phidex) intended, and what did it open?</li>
+        <li>Is <code>siem-cisco-umbrella-reader</code> (logarchive, 17 Aug) an intended SIEM integration?</li>
+        <li>Was <code>jabez.souttar</code>'s 30 Jul <code>CreateUser</code> (sage) intended?</li>
+        <li>Confirmed malware-landing date, to set the true (possibly &gt;50 day) window?</li>
         <li>Are S3 data events captured anywhere, for object-level exfil coverage?</li>
       </ul>
     </div>
