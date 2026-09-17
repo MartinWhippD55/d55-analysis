@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bryt — Security Incident &amp; Hardening</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --ink: #23232f;
+    --brand: #1a0a3e;
+    --brand-2: #4b2fa8;
+    --accent: #7c5cff;
+    --muted: #6b6b7b;
+    --line: #e5e2ef;
+    --bg: #f6f5fb;
+    --card: #ffffff;
+    --ok: #1c7c54;
+    --warn: #b45309;
+    --danger: #b91c1c;
+    --todo-bg: #fff7ed;
+    --todo-border: #fdba74;
+    --crit-bg: #fef2f2;
+    --crit-border: #fca5a5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header.page {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+    color: #fff;
+    padding: 36px 0 30px;
+    margin-bottom: 0;
+  }
+  header.page .wrap { padding-bottom: 0; }
+  header.page .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.8;
+  }
+  header.page h1 { font-size: 30px; font-weight: 700; margin: 6px 0 8px; }
+  header.page p.sub { opacity: 0.9; font-weight: 300; max-width: 720px; }
+
+  /* Tabs */
+  .tabs {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--brand);
+    display: flex; flex-wrap: wrap; gap: 2px;
+    padding: 0 20px;
+    box-shadow: 0 2px 10px rgba(26,10,62,0.25);
+  }
+  .tabs .wrap { display: flex; flex-wrap: wrap; gap: 4px; padding: 0; }
+  .tab-btn {
+    appearance: none; border: 0; background: transparent;
+    color: rgba(255,255,255,0.7);
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    padding: 14px 18px; cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color .15s, border-color .15s;
+  }
+  .tab-btn:hover { color: #fff; }
+  .tab-btn.active { color: #fff; border-bottom-color: var(--accent); }
+
+  .panel { display: none; padding-top: 28px; }
+  .panel.active { display: block; }
+
+  h2.section { font-size: 22px; color: var(--brand); margin: 4px 0 4px; }
+  p.lead { color: var(--muted); margin-bottom: 18px; max-width: 740px; }
+
+  /* Cards */
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 20px 22px; margin-bottom: 16px;
+  }
+  .card h3 { color: var(--brand); font-size: 17px; margin-bottom: 8px; }
+  .card ul { margin: 6px 0 6px 20px; }
+  .card li { margin-bottom: 4px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .kv { display: grid; grid-template-columns: 150px 1fr; gap: 6px 14px; }
+  .kv dt { font-weight: 600; color: var(--brand); }
+  .kv dd { color: var(--ink); }
+
+  /* Accordion */
+  .acc { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: var(--card); }
+  .acc-head {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; text-align: left; appearance: none; border: 0; background: transparent;
+    font-family: inherit; font-size: 16px; font-weight: 600; color: var(--brand);
+    padding: 16px 20px; cursor: pointer;
+  }
+  .acc-head:hover { background: #faf9ff; }
+  .acc-head .chev { transition: transform .2s; color: var(--accent); font-size: 18px; }
+  .acc.open .acc-head .chev { transform: rotate(90deg); }
+  .acc-body { display: none; padding: 0 20px 18px; border-top: 1px solid var(--line); }
+  .acc.open .acc-body { display: block; }
+  .acc-body h4 { color: var(--brand-2); font-size: 13px; text-transform: uppercase; letter-spacing: 0.6px; margin: 14px 0 4px; }
+  .acc-body ul { margin: 4px 0 4px 20px; }
+  .acc-body li { margin-bottom: 4px; }
+  .acc-body a { color: var(--brand-2); }
+
+  .eli5 { background: #f3f0ff; border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; }
+  .bridge { background: #ecfdf5; border-left: 3px solid var(--ok); padding: 10px 14px; border-radius: 0 8px 8px 0; margin-top: 10px; font-size: 14px; }
+  .bridge strong { color: var(--ok); }
+
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+  .tag.crit { background: #fee2e2; color: var(--danger); }
+  .tag.high { background: #ffedd5; color: var(--warn); }
+  .tag.med { background: #fef9c3; color: #854d0e; }
+  .tag.ok { background: #dcfce7; color: #15803d; }
+  .tag.repo { background: #ede9fe; color: var(--brand-2); }
+
+  .todo {
+    background: var(--todo-bg); border: 1px dashed var(--todo-border);
+    border-radius: 8px; padding: 8px 12px; margin-top: 10px;
+    font-size: 13.5px; color: #92400e;
+  }
+  .todo::before { content: "\1F50D  To confirm: "; font-weight: 700; }
+
+  .crit {
+    background: var(--crit-bg); border-left: 3px solid var(--danger);
+    padding: 10px 14px; border-radius: 0 8px 8px 0; margin-top: 10px; font-size: 14px;
+  }
+  .crit strong { color: var(--danger); }
+
+  /* Steps */
+  .step { display: grid; grid-template-columns: 40px 1fr; gap: 0 16px; align-items: start; margin-bottom: 14px; }
+  .step .num {
+    grid-row: 1 / span 2;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step .body { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; }
+  .step .body h3 { color: var(--brand); font-size: 16px; margin-bottom: 4px; }
+  .step .body p { margin: 0; }
+
+  /* Findings table */
+  table.find { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 14px; }
+  table.find th, table.find td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.find th { color: var(--brand); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  table.find code { background: #f1eefc; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { font-size: 12px; background: #f1eefc; color: var(--brand-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; }
+
+  footer.page { color: var(--muted); font-size: 13px; text-align: center; padding-top: 30px; }
+
+  /* TODO checklist */
+  .todo-item { display: flex; gap: 12px; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; transition: background .15s, border-color .15s; }
+  .todo-item input[type="checkbox"] { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--accent); cursor: pointer; flex: 0 0 auto; }
+  .todo-item .ti-body { flex: 1; }
+  .todo-item .ti-title { font-weight: 600; color: var(--brand); font-size: 15.5px; }
+  .todo-item .ti-note { color: var(--muted); font-size: 13.5px; margin-top: 3px; }
+  .todo-item.done { background: #f2fbf6; border-color: #bbe7cf; }
+  .todo-item.done .ti-title { color: var(--ok); text-decoration: line-through; text-decoration-color: rgba(28,124,84,0.5); }
+  .progress-line { font-size: 13px; color: var(--muted); margin: 4px 0 16px; }
+  .progress-bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin-top: 6px; }
+  .progress-bar > span { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+</style>
+</head>
+<body>
+
+<header class="page">
+  <div class="wrap">
+    <div class="eyebrow">D55 &times; Bryt &middot; Security Incident &amp; Hardening</div>
+    <h1>Compromised Endpoint &amp; Repo Review — Response &amp; Hardening</h1>
+    <p class="sub">Working notes from the investigation into the compromise of a developer machine and
+      the credential chain on it, the secrets we found in repo history, the response steps in flight, and
+      the best-practice controls to stop this recurring. A living document — sections marked
+      <em>to confirm</em> are where we still need input.</p>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="todo">TODO</button>
+    <button class="tab-btn" data-tab="vector">Initial Access</button>
+    <button class="tab-btn" data-tab="findings">Findings</button>
+    <button class="tab-btn" data-tab="keytracker">Key Tracker</button>
+    <button class="tab-btn" data-tab="response">Response Plan</button>
+    <button class="tab-btn" data-tab="hardening">Hardening</button>
+    <button class="tab-btn" data-tab="identity">Identity Center</button>
+    <button class="tab-btn" data-tab="detection">Detection &amp; Monitoring</button>
+    <button class="tab-btn" data-tab="next">Next Steps</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= OVERVIEW ================= -->
+  <section class="panel active" id="overview">
+    <h2 class="section">Overview</h2>
+    <p class="lead">What happened, how far it reaches, and how to read the rest of this document.</p>
+
+    <div class="card">
+      <h3>The incident</h3>
+      <dl class="kv">
+        <dt>Initial access</dt><dd>Social-engineering lure — a fake "consultancy" gave Rhys a <strong>malicious repo to clone</strong>; malware executed on local setup/run. See the <em>Initial Access</em> tab.</dd>
+        <dt>Trigger</dt><dd>Malware then ran on <strong>Rhys' machine</strong> for some time, undetected.</dd>
+        <dt>Entry / theft</dt><dd>A token was harvested from the <strong>credential chain on the machine</strong> (local credential stores), then used against GitHub.</dd>
+        <dt>Impact seen</dt><dd>History on <strong>at least two repos</strong> is believed to have been rewritten to inject malware.</dd>
+        <dt>Compromised asset</dt><dd>Reframed from "a GitHub account" to <strong>the endpoint and the whole credential chain</strong> it held.</dd>
+        <dt>Repos reviewed</dt><dd><span class="tag repo">BrytDataEngineering</span><span class="tag repo">BrytAdminPortal</span></dd>
+        <dt>Status</dt><dd>Containment &amp; investigation in progress; rotation and hardening being scoped.</dd>
+      </dl>
+      <div class="crit"><strong>Mindset shift:</strong> because a persistent endpoint compromise had the credential
+        chain, assume <em>everything that identity could reach or authenticate to is compromised</em> — not just the
+        single token we traced. Rotate on that basis.</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>What the credential chain likely exposed</h3>
+        <ul>
+          <li>Git credentials (Credential Manager store, cached PATs)</li>
+          <li>SSH private keys in <code>~/.ssh/</code></li>
+          <li>Cloud creds — <code>~/.aws/credentials</code>, SSO cache tokens</li>
+          <li>OS credential stores (Windows Credential Manager / DPAPI)</li>
+          <li>Browser-saved passwords &amp; <strong>session cookies</strong> (bypass MFA)</li>
+          <li><code>.env</code>, <code>.npmrc</code>, <code>kubeconfig</code>, registry creds</li>
+        </ul>
+        <div class="todo">Rough date the malware landed — this scopes the whole audit window.</div>
+      </div>
+
+      <div class="card">
+        <h3>Two distinct problems</h3>
+        <p>The findings split into two threads, and they need <em>different</em> controls:</p>
+        <ul>
+          <li><strong>Account / history-rewrite &amp; malware injection</strong> — an impersonation and tamper problem.</li>
+          <li><strong>Secrets committed to git history</strong> — AWS keys, a GitHub PAT, hardcoded passwords sitting in old commits.</li>
+        </ul>
+        <div class="bridge"><strong>Note:</strong> commit signing helps the first thread; it does <em>nothing</em> for the
+          second. Secret scanning + short-lived creds address the second.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>How to use this doc</h3>
+      <ul>
+        <li><strong>Findings</strong> — the concrete secrets and history issues we confirmed in the repos.</li>
+        <li><strong>Response Plan</strong> — containment, rotation, and threat-hunting steps, in order.</li>
+        <li><strong>Hardening</strong> — best-practice controls grouped by the gaps this incident exposed.</li>
+        <li><strong>Identity Center</strong> — the least-privilege model for AWS SSO access &amp; deploys.</li>
+        <li><strong>Next Steps</strong> — owned actions and open questions.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= TODO ================= -->
+  <section class="panel" id="todo">
+    <h2 class="section">TODO — Hardening Actions</h2>
+    <p class="lead">Tracked hardening actions from the incident review. Tick items as they're completed — progress is
+      saved in your browser. Notes flag the key questions/implications to resolve for each.</p>
+
+    <div class="progress-line" id="todo-progress">0 of 8 done
+      <div class="progress-bar"><span id="todo-bar"></span></div>
+    </div>
+
+    <label class="todo-item" for="td1">
+      <input type="checkbox" id="td1">
+      <span class="ti-body">
+        <span class="ti-title">Reduce session time to 6 hrs</span>
+        <span class="ti-note">Set Identity Center permission-set session duration to 6h (shorter for privileged sets). Limits how long a stolen session token stays valid.</span>
+      </span>
+    </label>
+
+    <label class="todo-item" for="td2">
+      <input type="checkbox" id="td2">
+      <span class="ti-body">
+        <span class="ti-title">Remove Administrator access</span>
+        <span class="ti-note">Move developers to a read-only daily default + <code>Deployer</code> (assume <code>cdk-*</code> roles). Retire standing admin. See Identity Center tab.</span>
+      </span>
+    </label>
+
+    <label class="todo-item" for="td3">
+      <input type="checkbox" id="td3">
+      <span class="ti-body">
+        <span class="ti-title">PIM / Privileged Access / JIT elevation <span class="tag repo">Owner: Jabez</span></span>
+        <span class="ti-note">Stand up just-in-time elevation (request → approve → time-boxed → auto-expire) + a separate audited break-glass path.
+          <strong>Jabez investigating AWS TEAM</strong> (Temporary Elevated Access Management) — open-source solution on IAM Identity Center.
+          Docs: <a href="https://aws-samples.github.io/iam-identity-center-team/">aws-samples.github.io/iam-identity-center-team</a> ·
+          repo: <a href="https://github.com/aws-samples/iam-identity-center-team">github.com/aws-samples/iam-identity-center-team</a>.
+          (Note: the originally-shared Marketplace/EDR link was unrelated to TEAM.)</span>
+      </span>
+    </label>
+
+    <label class="todo-item" for="td4">
+      <input type="checkbox" id="td4">
+      <span class="ti-body">
+        <span class="ti-title">Rotate EC2 key pairs — how &amp; implications</span>
+        <span class="ti-note">Deleting the key-pair record does <strong>not</strong> rotate access on running instances — must update <code>authorized_keys</code> or replace instances. Prefer moving to SSM Session Manager (keyless). Implication: assume old private keys compromised; check reuse outside EC2. See earlier discussion.</span>
+      </span>
+    </label>
+
+    <label class="todo-item" for="td5">
+      <input type="checkbox" id="td5">
+      <span class="ti-body">
+        <span class="ti-title">Signed commits</span>
+        <span class="ti-note">Enforce org-wide via organization rulesets ("Require signed commits"). Roll out SSH signing to the team first, then set enforcement Active. Mind bots (bypass list) &amp; rebase merges.</span>
+      </span>
+    </label>
+
+    <label class="todo-item" for="td6">
+      <input type="checkbox" id="td6">
+      <span class="ti-body">
+        <span class="ti-title">GuardDuty every account — cost?</span>
+        <span class="ti-note">Enable across all accounts + regions via the delegated admin / Organizations auto-enable. Cost is usage-based (CloudTrail events, VPC Flow/DNS logs, plus optional protection plans); confirm the estimate from a trial or Cost Explorer before fleet-wide rollout.</span>
+      </span>
+    </label>
+
+    <label class="todo-item" for="td7">
+      <input type="checkbox" id="td7">
+      <span class="ti-body">
+        <span class="ti-title">SCPs — restrict to Ireland, London + us-east-1</span>
+        <span class="ti-note">Region-deny SCP allowing only <code>eu-west-1</code> (Ireland), <code>eu-west-2</code> (London) and <code>us-east-1</code>. Note: keep <code>us-east-1</code> allowed — some global services (IAM, CloudFront, Route 53, some STS) anchor there. Use the <code>aws:RequestedRegion</code> condition with a global-service <code>NotAction</code> allowlist.</span>
+      </span>
+    </label>
+
+    <label class="todo-item" for="td8">
+      <input type="checkbox" id="td8">
+      <span class="ti-body">
+        <span class="ti-title">Investigate EDR for developer endpoints</span>
+        <span class="ti-note">Evaluate an EDR solution with behavioural detection for the dev fleet — the endpoint blind spot that let this run undetected. Assess: coverage (Win/macOS), behavioural alerts on credential-store access &amp; beaconing, managed-vs-self-run, alert routing to a watched channel, and cost. The lightweight <code>check-windows.ps1</code> sweep is triage, not a substitute for continuous EDR.</span>
+      </span>
+    </label>
+  </section>
+
+  <!-- ================= INITIAL ACCESS ================= -->
+  <section class="panel" id="vector">
+    <h2 class="section">Initial Access — Malicious Repo / Untrusted Code</h2>
+    <p class="lead">How the attacker got in: a social-engineering + malicious-code supply attack, not a GitHub or
+      infrastructure weakness. The lure exploited the one thing developers do reflexively — clone and run unfamiliar
+      code on their main machine.</p>
+
+    <div class="card">
+      <h3>What happened</h3>
+      <dl class="kv">
+        <dt>Lure</dt><dd>Rhys was contacted by a "company" offering <strong>consultancy work</strong>.</dd>
+        <dt>Payload delivery</dt><dd>They supplied a <strong>repository to clone</strong>.</dd>
+        <dt>Execution</dt><dd>Malware installed when the project was set up / run locally, then harvested the credential chain.</dd>
+      </dl>
+      <div class="crit"><strong>Known campaign pattern:</strong> fake recruiters / consultancy offers / "coding
+        challenges" / "review our repo" handing developers a booby-trapped project is an active, well-documented
+        attack. Developers are the specific target. Brief the team on this — blamelessly — as a concrete example.</div>
+    </div>
+
+    <div class="card">
+      <h3>The technical clarification that shapes the fix</h3>
+      <p>A plain <code>git clone</code> <strong>does not execute hooks from the remote</strong> — <code>.git/hooks/</code>
+        is created fresh locally, so committed hook files aren't copied in or run. The malware almost certainly fired
+        when the repo was <em>used</em> after cloning. Realistic triggers:</p>
+      <ul>
+        <li><strong><code>npm</code>/<code>yarn</code>/<code>pip install</code></strong> running <code>preinstall</code>/<code>postinstall</code> lifecycle scripts — by far the most common.</li>
+        <li><strong>Opening in an IDE</strong> that auto-runs tasks, extensions, or a devcontainer.</li>
+        <li><strong>Building / running</strong> it (<code>make</code>, a run script, "just run this to see it work").</li>
+        <li>A <strong><code>.gitattributes</code> clean/smudge filter</strong> or configured <code>core.hooksPath</code> (needs a config/setup step, usually paired with "run our setup script").</li>
+      </ul>
+      <div class="bridge"><strong>So the fix isn't "block git hooks"</strong> — it's <em>never let untrusted code execute
+        in an environment that holds your credentials</em>. Regardless of the exact trigger, the controls below apply.</div>
+    </div>
+
+    <h3 style="color:var(--brand-2); margin:22px 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">Layered prevention</h3>
+
+    <div class="acc open">
+      <button class="acc-head">1 &middot; Process — treat "clone &amp; run our repo" as hostile <span><span class="tag high">highest leverage</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li>Written policy: <strong>unsolicited external code is never cloned or run on a work machine</strong>. Full stop.</li>
+          <li><strong>Independently verify</strong> the company/contact before any engagement — real domain, real people, out-of-band confirmation. These lures use plausible but fake companies.</li>
+          <li><strong>Named awareness training</strong> on this exact scenario: fake recruiters/consultancy, coding challenges, "review my PR".</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">2 &middot; Isolation — run untrusted code in a disposable, credential-free sandbox <span><span class="tag high">technical core</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <p>Even if malicious code runs, it should find nothing worth stealing and no way out.</p>
+        <ul>
+          <li><strong>Throwaway VM / ephemeral cloud sandbox</strong> (or locked-down container/devcontainer) with <strong>no credential chain</strong>: no <code>~/.aws</code>, no SSH keys, no logged-in sessions, no browser profiles, no PATs.</li>
+          <li><strong>Restrict network egress</strong> so malware can't phone home or exfiltrate.</li>
+          <li>Destroy it after. Never evaluate unknown repos on the machine that holds your keys.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">3 &middot; Neutralize the auto-execution triggers <span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li><strong>Disable install scripts by default</strong>: npm <code>ignore-scripts=true</code> globally / <code>npm install --ignore-scripts</code>; consider pnpm's explicit build-script allowlist.</li>
+          <li><strong>IDE Workspace Trust</strong> (VS Code &amp; equivalents) so opening a folder doesn't auto-run tasks/extensions — don't disable it "for convenience".</li>
+          <li><strong>Inspect before executing</strong>: read <code>package.json</code> scripts, look for obfuscated/base64 blobs and suspicious <code>postinstall</code>/setup steps.</li>
+          <li>For deliberate clones of untrusted repos: avoid <code>--recurse-submodules</code>, and don't run any "setup" script they provide.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">4 &middot; No standing credentials on dev machines <span><span class="tag ok">also contains blast radius</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li>If the machine holds <strong>no long-lived keys/PATs at rest</strong> — only short-lived, on-demand creds — the malware has little or nothing to harvest.</li>
+          <li>Same control as the Identity Center / short-lived-creds work; it doubles as prevention-of-spread <em>and</em> containment.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">5 &middot; EDR + egress detection to catch execution <span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li>Behavioral EDR should flag "install script spawns a shell that reads credential stores and beacons out".</li>
+          <li>Egress filtering/monitoring on dev machines catches the phone-home. See the Detection &amp; Monitoring tab.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--accent);">
+      <h3>Safe-evaluation checklist — when someone hands you a repo</h3>
+      <table class="find">
+        <tr><th>#</th><th>Before you touch it</th></tr>
+        <tr><td>1</td><td>Verify the requester independently (domain, people, out-of-band). Unsolicited? Default to <strong>no</strong>.</td></tr>
+        <tr><td>2</td><td>Clone <strong>only</strong> into a disposable VM/sandbox with <strong>zero</strong> credentials and restricted egress.</td></tr>
+        <tr><td>3</td><td>Do <strong>not</strong> run install/build/setup. Read <code>package.json</code> scripts + look for obfuscated code first.</td></tr>
+        <tr><td>4</td><td>Install with <code>--ignore-scripts</code>; open with Workspace Trust off / untrusted.</td></tr>
+        <tr><td>5</td><td>If anything must run, keep it in the sandbox, watch egress, and destroy the environment after.</td></tr>
+        <tr><td>6</td><td>Never bring the repo onto your primary machine or one holding keys/sessions.</td></tr>
+      </table>
+      <div class="bridge"><strong>One-line version:</strong> the attack works because developers run untrusted code on
+        trusted machines. Sandbox the code <em>or</em> strip the machine of credentials — either half breaks it; do both.</div>
+    </div>
+  </section>
+
+  <!-- ================= FINDINGS ================= -->
+  <section class="panel" id="findings">
+    <h2 class="section">Findings</h2>
+    <p class="lead">Confirmed from local <code>git</code> history review. Secret values are masked here; full
+      values are in the repo history and must be treated as compromised regardless of masking.</p>
+
+    <div class="card">
+      <h3>Confirmed secrets in history</h3>
+      <table class="find">
+        <tr><th>What</th><th>Where</th><th>Detail</th><th>Severity</th></tr>
+        <tr>
+          <td>AWS access key (long-lived IAM)</td>
+          <td><code>BrytAdminPortal</code> · <code>apis/auth/src/auth-command.ts</code></td>
+          <td>Literal <code>AKIA4TNB…</code> + secret key. Added 2020-06-17, removed from tip 2020-06-24
+            (<em>"remove access key"</em>) — still in history &amp; compiled <code>.js</code> blobs.</td>
+          <td><span class="tag crit">Critical</span></td>
+        </tr>
+        <tr>
+          <td>GitHub PAT</td>
+          <td><code>BrytAdminPortal</code> · <code>cd/branch-stack.yml</code>, <code>cd/branch-dual-env-stack.yml</code>, <code>auth/pipeline.yml</code></td>
+          <td><code>ghp_…</code> token present across CI/CD YAML history (files since removed from tree).</td>
+          <td><span class="tag crit">Critical</span></td>
+        </tr>
+        <tr>
+          <td>Hardcoded password literal</td>
+          <td><code>BrytAdminPortal</code> · <code>cognito-user-migration/index.ts</code></td>
+          <td>Debug literal (e.g. <code>P@ss…</code> masked) assigned as temp/`Password` where a generated value belonged.</td>
+          <td><span class="tag high">High</span></td>
+        </tr>
+        <tr>
+          <td>Password-handling review</td>
+          <td><code>BrytAdminPortal</code> · <code>UserEmailCommand.ts</code></td>
+          <td>Tip version clean; earlier commits carried temporary-password strings. Verify full history.</td>
+          <td><span class="tag med">Medium</span></td>
+        </tr>
+      </table>
+      <div class="todo">Run a consolidated repo-wide scan (<code>gitleaks</code>/<code>trufflehog</code> over all history) to produce one authoritative "rotate these" list rather than file-by-file.</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Good news — DMS configs <span class="tag ok">clean</span></h3>
+        <p><code>BrytDataEngineering</code> · <code>cdk/lib/resources/dms/</code> (<code>dms.ts</code>,
+          <code>centrestage.ts</code>, <code>phidex.ts</code>) hold <strong>no</strong> hardcoded passwords. Credentials
+          are referenced via <strong>AWS Secrets Manager</strong> (ARN + access role); DMS fetches them at runtime.</p>
+        <p>History check: even the earliest commits never embedded literal passwords — values always came from
+          Secrets Manager via <code>secretValueFromJson</code>.</p>
+      </div>
+      <div class="card">
+        <h3>Caveat — the old <code>unsafeUnwrap()</code> pattern</h3>
+        <p>Pre-<em>"Switch to secrets manager for credentials"</em> (Sep 2024), the code used
+          <code>.unsafeUnwrap()</code>, which resolves the secret to <strong>plaintext at synth time</strong>. That
+          value could have leaked into synthesized CloudFormation templates (<code>cdk.out</code>), deployed stack
+          properties, or CI logs from that era.</p>
+        <div class="todo">Whether <code>cdk.out</code> / synthesized templates were ever committed or retained in CI artifacts.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= KEY TRACKER ================= -->
+  <section class="panel" id="keytracker">
+    <h2 class="section">Exposed Key Tracker</h2>
+    <p class="lead">Authoritative list of the <code>.pem</code> files confirmed in the exfiltrated/shared set
+      (source: <code>pem.xlsx</code>), with remediation status per key. This is the reference the scope decisions
+      point back to. Keys <em>not</em> on this list (e.g. <code>SK-Phidex-Key pair</code>, <code>MyTestKey</code>)
+      were not exposed.</p>
+
+    <div class="card">
+      <h3>Confirmed exposed keys</h3>
+      <table class="find">
+        <tr><th>#</th><th>Key (.pem)</th><th>Account</th><th>Maps to</th><th>Status</th></tr>
+        <tr><td>1</td><td><code>Phidex-jump-box-key</code></td><td>313047251060 (phidex)</td><td><code>i-02c6933b6f9b07d8c</code></td><td><span class="tag ok">Remediated</span> admin password rotated via SSM</td></tr>
+        <tr><td>2</td><td><code>Phidex-Logic-Monitor-Key-Pair</code></td><td>313047251060 (phidex)</td><td><code>i-0f8b4fa0ffc26594b</code></td><td><span class="tag ok">Remediated</span> admin password rotated via SSM</td></tr>
+        <tr><td>3</td><td><code>BrytEc2KeyPair</code></td><td>Bryt</td><td>—</td><td><span class="tag ok">No action</span> no longer in service</td></tr>
+        <tr><td>4</td><td><code>OnGenBuildServer</code></td><td>—</td><td>—</td><td><span class="tag ok">No action</span> no longer in service</td></tr>
+        <tr><td>5</td><td><code>OnGenUatBastian</code></td><td>—</td><td>—</td><td><span class="tag ok">No action</span> no longer in service</td></tr>
+        <tr><td>6</td><td><code>PowerBIKeypair</code></td><td>624909705724 (sagemaker)</td><td>PowerBIWindows</td><td><span class="tag med">Deferred</span> "not exposed by pem" (custom AMI — key can't retrieve password). See parking lot.</td></tr>
+        <tr><td>7</td><td><code>powerbi-instance-keypair</code></td><td>922850913962 (d55-sagemaker-demo)</td><td><code>i-09e98731f48786236</code> (eu-west-1)</td><td><span class="tag ok">Remediated</span> forensic AMI <code>ami-04a35c6e85f46852f</code> taken (quarantine-tagged), instance terminated, key deleted</td></tr>
+        <tr><td>8</td><td><code>dataquality</code></td><td>783535217689 (dev)</td><td>No instances</td><td><span class="tag ok">Remediated</span> orphaned key-pair record deleted</td></tr>
+        <tr><td>9</td><td><code>pagemaker-account</code></td><td>?</td><td>?</td><td><span class="tag high">Outstanding</span> not yet located (likely sagemaker acct)</td></tr>
+        <tr><td>10</td><td><code>sagemakerDemo</code></td><td>?</td><td>?</td><td><span class="tag high">Outstanding</span> not yet located (likely sagemaker acct)</td></tr>
+        <tr><td>11</td><td><code>AWS_SSO_for_Custom SAML 2.0 application_certificate</code></td><td>Identity Center</td><td>Custom SAML app</td><td><span class="tag ok">Closed — low risk</span> public cert only, no private key. Cannot forge assertions; published in SAML metadata anyway.</td></tr>
+      </table>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Outstanding — next actions</h3>
+        <ul>
+          <li><s>Locate <code>powerbi-instance-keypair</code></s> — done: found in acct <code>922850913962</code>, preserved as AMI + terminated + key deleted.</li>
+          <li>Locate <code>pagemaker-account</code>, <code>sagemakerDemo</code> — not in <code>922850913962</code> (no key pairs in eu-west-2 / us-east-1 there). Sweep other D55 accounts / off-scope regions for instances/key pairs matching these names.</li>
+          <li>For each found: if attached to a live instance → rotate admin password (Windows) / swap authorized_keys (Linux) via SSM, then delete the key record. If orphaned → delete the record. If disposable → forensic-AMI + terminate (as done for <code>powerbi-instance-keypair</code>).</li>
+          <li>Note: acct <code>922850913962</code> is home to the <code>PowerBIWindows</code> AMI lineage (<code>ami-09da980cbd629ff73</code>, <code>Ireland-power-bi</code>) — ties to the deferred custom-AMI shared-password hardening item.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>SAML certificate — resolved</h3>
+        <p>Row 11 inspected: file contains only <code>-----BEGIN CERTIFICATE-----</code> (public X.509), <strong>no private key</strong>. This is the Identity Center IdP signing cert's public half — meant to be shared and already in the app's SAML metadata.</p>
+        <ul>
+          <li><strong>No forged-assertion risk</strong> (that needs the private key, which never leaves Identity Center).</li>
+          <li>Optional hygiene only: rotate the app's signing cert; identify the app by matching thumbprint/serial in Identity Center.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="todo">Pin down accounts for rows 7, 9, 10; confirm whether the "no longer in service" keys (3–5) have any lingering AMIs/launch templates referencing them.</div>
+  </section>
+
+  <!-- ================= RESPONSE ================= -->
+  <section class="panel" id="response">
+    <h2 class="section">Response Plan</h2>
+    <p class="lead">In order. Contain first, investigate second, remediate third — don't clean repos before the
+      identity is contained, or the attacker re-compromises during cleanup.</p>
+
+    <div class="step"><div class="num">1</div><div class="body">
+      <h3>Isolate the machine — don't wipe yet</h3>
+      <p>Pull it off the network. Preserve for forensics (disk image / memory capture) if possible — the malware's
+        start date scopes everything else. Stop using it; don't authenticate to anything from it.</p>
+    </div></div>
+    <div class="step"><div class="num">2</div><div class="body">
+      <h3>Contain the identity everywhere</h3>
+      <p>Rhys is a compromised <em>identity</em>, not just a GitHub login. From a clean machine: reset password;
+        revoke all GitHub PATs / SSH keys / OAuth apps / sessions; reset 2FA. Revoke <strong>SSO/IdP sessions</strong>
+        (session cookies survive password resets). Deactivate AWS keys and invalidate active STS sessions.</p>
+    </div></div>
+    <div class="step"><div class="num">3</div><div class="body">
+      <h3>Rotate everything in the blast radius</h3>
+      <p>Not just the traced token: all AWS keys/roles reachable (incl. <code>AKIA4TNB…</code>), the <code>ghp_…</code>
+        PAT, SSH keys, npm/PyPI/registry tokens, CI secrets, <code>.env</code> values, and DB creds. Rotate the
+        underlying Secrets Manager secrets (centrestage / phidex) too.</p>
+    </div></div>
+    <div class="step"><div class="num">4</div><div class="body">
+      <h3>Hunt — build the attacker timeline</h3>
+      <p>GitHub org <strong>audit log</strong> (pushes, force-pushes, new tokens, member/permission/webhook changes).
+        AWS <strong>CloudTrail</strong> (key usage, new IAM users/keys, unusual regions, data access). IdP sign-in
+        logs (impossible-travel, new devices). Correlate against the malware start date.</p>
+    </div></div>
+    <div class="step"><div class="num">5</div><div class="body">
+      <h3>Find persistence &amp; lateral movement</h3>
+      <p>Look for planted backdoors: new IAM users/keys/roles, new GitHub org members / deploy keys / machine users /
+        Apps, new <code>authorized_keys</code> on reachable servers, new OAuth grants or mail-forwarding rules.</p>
+    </div></div>
+    <div class="step"><div class="num">6</div><div class="body">
+      <h3>Recover clean repo history</h3>
+      <p>From a verified-clean local clone (pre-compromise reflog), <code>reset --hard &lt;known-good-sha&gt;</code>,
+        preserve malicious commits as evidence first, then <code>push --force-with-lease</code> per affected branch/tag.
+        Temporarily allow force-push, re-lock immediately after.</p>
+    </div></div>
+    <div class="step"><div class="num">7</div><div class="body">
+      <h3>Rebuild the endpoint</h3>
+      <p>Flatten and reinstall from known-good media once forensics is done. Restore data selectively (scanned).
+        Issue fresh credentials to Rhys on the rebuilt machine — never reuse the old ones.</p>
+    </div></div>
+  </section>
+
+  <!-- ================= HARDENING ================= -->
+  <section class="panel" id="hardening">
+    <h2 class="section">Hardening — Best Practice</h2>
+    <p class="lead">Grouped by the gaps this incident exposed. The three highest-impact for <em>this</em> incident:
+      secret scanning + push protection, short-lived credentials over long-lived keys/PATs, and EDR on the endpoint.</p>
+
+    <div class="acc open">
+      <button class="acc-head">Secrets management <span><span class="tag high">top priority</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li><strong>No plaintext secrets in code, ever</strong> — use a secrets manager (Secrets Manager / SSM), as the DMS code already does well.</li>
+          <li><strong>Secret scanning + push protection</strong> — GitHub Advanced Security, or <code>gitleaks</code>/<code>trufflehog</code> in pre-commit hooks <em>and</em> CI. This is what would have caught every secret we found.</li>
+          <li>Prefer <strong>short-lived, auto-rotated</strong> credentials over long-lived keys/PATs.</li>
+          <li><strong>Purge historical leaks</strong> (<code>git filter-repo</code>/BFG) — but remember scrubbing is not remediation; rotation is.</li>
+        </ul>
+        <div class="bridge"><strong>Why here:</strong> the AWS key, PAT, and password literals were all committable because nothing scanned content on the way in.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Identity &amp; access <span><span class="tag high">top priority</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li>Enforce <strong>SSO + phishing-resistant MFA</strong> (passkeys / hardware keys) org-wide.</li>
+          <li><strong>Least privilege</strong> everywhere; scope IAM roles/tokens tightly (see Identity Center tab).</li>
+          <li>Drop long-lived AWS keys for <strong>SSO / short-lived STS roles</strong>; use <strong>OIDC</strong> for CI instead of stored cloud keys.</li>
+          <li>Fine-grained, <strong>expiring PATs</strong> (or GitHub Apps) instead of classic long-lived tokens.</li>
+        </ul>
+        <div class="bridge"><strong>Why here:</strong> standing admin + long-lived creds on the endpoint gave a stolen token full, lasting reach.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Repository protections <span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li><strong>Branch protection</strong>: block force-pushes, require PR review + status checks on protected branches.</li>
+          <li><strong>Require signed commits</strong> + protected tags — addresses the impersonation/tamper vector.</li>
+          <li><strong>CODEOWNERS</strong>-gated reviews; restrict who can change CI/CD workflows.</li>
+        </ul>
+        <div class="bridge"><strong>Why here:</strong> history was rewritten &amp; force-pushed; these controls block or expose exactly that.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Endpoint security <span><span class="tag high">top priority</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li><strong>EDR</strong> on all developer machines with alerting.</li>
+          <li>Full-disk encryption, <strong>encrypted SSH keys</strong>, patched OS/tooling.</li>
+          <li>Don't store long-lived creds on disk; use OS keychain + <strong>short-lived tokens</strong>.</li>
+        </ul>
+        <div class="bridge"><strong>Why here:</strong> the root cause was a persistent, undetected endpoint compromise harvesting the credential chain.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">CI/CD &amp; supply chain <span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li><strong>OIDC federation</strong> for deployments — no stored cloud creds in CI.</li>
+          <li>Pin dependencies, use lockfiles, review install hooks; scan dependencies (Dependabot / audit).</li>
+          <li>Isolate &amp; least-privilege CI runners; scope CI secrets per-environment.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">Detection &amp; response <span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li>Centralize &amp; monitor audit logs (GitHub audit log, CloudTrail, IdP sign-ins) with anomaly alerts.</li>
+          <li>Maintain <strong>offline / immutable backups</strong>, including repo mirrors.</li>
+          <li>Written <strong>incident-response runbook</strong>; rehearse credential rotation.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= IDENTITY CENTER ================= -->
+  <section class="panel" id="identity">
+    <h2 class="section">AWS Identity Center — Least-Privilege Model</h2>
+    <p class="lead">Moving devs off standing <em>Administrator</em> for convenience to <strong>read-only daily
+      access + assume-role for deploys</strong>. This is the accepted pattern and directly shrinks the blast radius
+      a stolen session can cause.</p>
+
+    <div class="card">
+      <h3>The core model</h3>
+      <ul>
+        <li><strong>Permission sets mapped to groups</strong>, not individuals — put people in IdP groups, assign permission sets to groups.</li>
+        <li><strong>Read-only as the daily default</strong> — most devs only need to look; a compromised read-only session can't mutate anything.</li>
+        <li><strong>Deploys go through CI/CD, not humans</strong> — pipeline authenticates via OIDC, humans review/approve. Most devs never need local deploy rights.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Where CDK roles fit — the key insight</h3>
+      <p><code>cdk bootstrap</code> creates roles in each account. The heavy IAM privilege lives in the
+        <strong>CloudFormation execution role</strong>, which only CloudFormation uses — not the human.</p>
+      <ul>
+        <li><code>cdk-hnb659fds-deploy-role-*</code> — CDK assumes this to orchestrate.</li>
+        <li><code>cdk-hnb659fds-cfn-exec-role-*</code> — <strong>CloudFormation</strong> assumes this to create resources (the real power).</li>
+        <li><code>cdk-hnb659fds-file/image-publishing-role-*</code> — asset uploads to S3/ECR.</li>
+        <li><code>cdk-hnb659fds-lookup-role-*</code> — read-only context lookups.</li>
+      </ul>
+      <p>So a "deployer" permission set only needs <code>sts:AssumeRole</code> on the <code>cdk-*</code> roles:</p>
+      <pre style="background:#1a0a3e;color:#e5e2ef;padding:14px 16px;border-radius:8px;overflow:auto;font-size:13px;"><code>{
+  "Effect": "Allow",
+  "Action": "sts:AssumeRole",
+  "Resource": "arn:aws:iam::*:role/cdk-hnb659fds-*"
+}</code></pre>
+      <div class="todo">Tighten the <code>cfn-exec-role</code> policy at bootstrap via <code>--cloudformation-execution-policies</code> rather than leaving the default <code>AdministratorAccess</code>.</div>
+    </div>
+
+    <div class="card">
+      <h3>Recommended permission-set layout</h3>
+      <table class="find">
+        <tr><th>Permission set</th><th>Who</th><th>Grants</th></tr>
+        <tr><td><code>ReadOnly</code></td><td>All devs, daily</td><td><code>ReadOnlyAccess</code>; console + CLI read.</td></tr>
+        <tr><td><code>Deployer</code></td><td>Devs deploying to dev/uat</td><td><code>sts:AssumeRole</code> on <code>cdk-*</code> only.</td></tr>
+        <tr><td><code>PowerUser</code> (scoped)</td><td>Specific needs</td><td>Scoped write, no IAM.</td></tr>
+        <tr><td><code>BreakGlassAdmin</code></td><td>1–2 people, emergencies</td><td>Admin, alarmed + audited.</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Guardrails to layer on</h3>
+      <ul>
+        <li><strong>Just-in-time elevation</strong> — grant deploy/admin on request for a limited window, not standing.</li>
+        <li><strong>Short session durations</strong> on privileged sets (e.g. 1h) so stolen tokens expire fast.</li>
+        <li><strong>Require MFA</strong> in Identity Center, ideally phishing-resistant.</li>
+        <li><strong>Environment separation</strong> — prod deploy pipeline-only; devs get <code>Deployer</code> in dev/uat, not prod.</li>
+        <li><strong>SCPs</strong> as an org backstop — deny disabling CloudTrail/GuardDuty, deny unused regions.</li>
+      </ul>
+      <div class="bridge"><strong>Impact on this incident:</strong> under this model a stolen dev session is read-only —
+        it can't create IAM users, spin up resources, or tamper with infra. The privileged path needs an explicit,
+        short-lived, audited assume-role the malware's harvested standing token wouldn't hold.</div>
+    </div>
+  </section>
+
+  <!-- ================= DETECTION ================= -->
+  <section class="panel" id="detection">
+    <h2 class="section">Detection &amp; Monitoring</h2>
+    <p class="lead">The most damning fact of this incident is that it ran <em>"for some time"</em> undetected —
+      the compromise wasn't stealthy, it was unwatched. The goal isn't one magic alert; it's <strong>layered
+      detection across the attack chain</strong> so it's caught at <em>some</em> stage even if the first is missed.</p>
+
+    <div class="crit"><strong>Framing:</strong> this attack was loud at several stages — credential-store access,
+      force-push, likely new IAM keys, possibly data pulls. Detection failed because nothing was listening at any of
+      them. The metric to drive down is <strong>MTTD (mean time to detect)</strong>: from "some time" to "hours".</div>
+
+    <h3 style="color:var(--brand-2); margin:22px 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">Signals by layer of the attack chain</h3>
+
+    <div class="acc open">
+      <button class="acc-head">1 &middot; Endpoint — initial access &amp; credential harvesting <span><span class="tag high">blind spot</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <p>Where it started, and where there was zero visibility.</p>
+        <ul>
+          <li><strong>EDR with behavioral detection</strong> (not just signature AV) — alert on a process reading
+            <code>~/.aws/credentials</code>, the Git credential store, <code>~/.ssh</code>, or browser cookie DBs.</li>
+          <li>Unusual <strong>persistence</strong> — new scheduled tasks / services / registry run-keys.</li>
+          <li>Beaconing / anomalous outbound network patterns.</li>
+          <li><strong>Endpoint honeytoken</strong> — a decoy <code>AKIA…</code> in <code>~/.aws/credentials</code> or a
+            fake <code>.env</code>. Any <em>use</em> = high-fidelity "creds compromised" alert.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">2 &middot; Identity / SSO — stolen token used <span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li><strong>Impossible-travel / new-ASN / new-device</strong> sign-in alerts from the IdP.</li>
+          <li>Alert on <strong>new MFA method registered</strong>, MFA reset, or auth from residential-proxy / hosting-provider IPs.</li>
+          <li><strong>Watch session usage, not just logins</strong> — stolen session cookies bypass MFA, so a session token appearing from a new geography is the tell.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">3 &middot; GitHub — history rewrite &amp; injection <span><span class="tag high">directly relevant</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li><strong>Stream the org audit log</strong> to a SIEM; alert on <strong>force-push to protected/default branches</strong>, pushes with history rewrites/deletions.</li>
+          <li>Alert on <strong>new PAT or SSH key created</strong>, new OAuth/App authorization, member/permission changes, webhook changes.</li>
+          <li><strong>Secret scanning + push protection alerts</strong> routed to a <em>watched</em> channel — this is what would have flagged the <code>AKIA</code>/<code>ghp_</code> secrets years ago (private repos need GHAS).</li>
+          <li>Alert on <strong>CI/CD workflow file changes</strong> (<code>.github/workflows</code>, deploy YAML) and on commits that lose signatures once signing is required.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">4 &middot; AWS — credential use, data access &amp; persistence <span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li><strong>GuardDuty</strong> — detects credential exfil/use anomalies, e.g.
+            <code>UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration</code>, anomalous API calls, use from new regions, recon patterns.</li>
+          <li><strong>CloudTrail alerting</strong> on high-signal events: <code>CreateUser</code>, <code>CreateAccessKey</code>,
+            <code>AttachUserPolicy</code>, <code>CreateLoginProfile</code> (persistence); <code>StopLogging</code> /
+            <code>DeleteTrail</code> (evasion); IAM changes outside the pipeline.</li>
+          <li><strong>Data-exfil detection</strong> — GuardDuty S3 protection; alert on unusual bulk <code>GetObject</code>
+            from the DMS output buckets or access from unfamiliar principals.</li>
+          <li><strong>AWS honeytoken IAM key</strong> — a deliberately-planted, unused key; any use = alarm.</li>
+          <li><strong>Billing anomaly alerts</strong> — blunt but effective backstop for cryptomining / abuse.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="color:var(--brand-2); margin:26px 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:0.6px;">Force-multipliers</h3>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Honeytokens / canaries <span class="tag ok">highest ROI</span></h3>
+        <p>Plant fake credentials across endpoints, repos, S3 buckets, and Secrets Manager. They flip the economics —
+          an attacker can't tell real from fake, and a single trigger is unambiguous.</p>
+        <ul>
+          <li>Free: <a href="https://canarytokens.org">canarytokens.org</a>; managed: Thinkst Canary.</li>
+          <li>The single highest-value detection for the exact "stolen creds get used" moment.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Centralize &amp; correlate (SIEM / log lake)</h3>
+        <p>Individual signals are noisy; the power is correlation. "EDR alert + GitHub force-push + CloudTrail
+          <code>CreateAccessKey</code> in the same window" is a near-certain incident.</p>
+        <ul>
+          <li>Feed GitHub audit log, CloudTrail, GuardDuty, and IdP logs into one place.</li>
+          <li><strong>Alert on the rare/irreversible</strong>, not the routine — force-push to <code>main</code>, new IAM key, MFA reset, CloudTrail disabled.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The bits people skip</h3>
+      <ul>
+        <li><strong>Log retention &gt; dwell time</strong> — if you keep 90 days and malware sat for six months, both detection <em>and</em> investigation fail. Retain audit/CloudTrail long enough to see the start.</li>
+        <li><strong>Route alerts to somewhere staffed</strong> — an alert nobody reads isn't detection. Define who triages and an SLA.</li>
+        <li><strong>Track MTTD</strong> and run purple-team tests — drop a canary, force-push to a test protected branch, confirm alerts actually fire.</li>
+        <li><strong>Baseline "normal"</strong> — normal regions, deploy identities, working hours — so anomalies mean something.</li>
+      </ul>
+    </div>
+
+    <div class="card" style="border-color:var(--accent);">
+      <h3>Start here — biggest bang for effort</h3>
+      <table class="find">
+        <tr><th>#</th><th>Action</th><th>Why</th></tr>
+        <tr><td>1</td><td><strong>Honeytokens</strong> — endpoint, repos, S3</td><td>Days to deploy; catches the exact "stolen creds used" moment.</td></tr>
+        <tr><td>2</td><td><strong>GuardDuty on</strong> across all accounts</td><td>Managed, low-effort; covers cred-use + data exfil.</td></tr>
+        <tr><td>3</td><td><strong>Stream GitHub audit log</strong> + secret scanning / push protection</td><td>Alert on force-push &amp; new-token events to a watched channel.</td></tr>
+        <tr><td>4</td><td><strong>EDR</strong> with behavioral alerting on dev fleet</td><td>Closes the endpoint blind spot that started this.</td></tr>
+        <tr><td>5</td><td><strong>Centralize</strong> the above + correlation rules</td><td>Turns individual signals into high-confidence incidents.</td></tr>
+      </table>
+      <div class="todo">Which of these already exist in some form (GuardDuty? any SIEM? EDR vendor?) so we build on what's there rather than duplicating.</div>
+    </div>
+  </section>
+
+  <!-- ================= NEXT STEPS ================= -->
+  <section class="panel" id="next">
+    <h2 class="section">Next Steps &amp; Open Questions</h2>
+    <p class="lead">Owned actions to close the incident and lock in the hardening.</p>
+
+    <div class="card">
+      <h3>Immediate (this week)</h3>
+      <ul>
+        <li>Deactivate/delete <code>AKIA4TNB…</code> in IAM; check CloudTrail for its use.</li>
+        <li>Revoke the <code>ghp_…</code> PAT and any tokens on Rhys' account.</li>
+        <li>Complete identity containment (GitHub + SSO/IdP + AWS) from a clean machine.</li>
+        <li>Consolidated <code>gitleaks</code>/<code>trufflehog</code> scan across both repos' full history → single rotation list.</li>
+        <li>Kick off the <strong>Repo history clean-up</strong> activity (below) — rotate, preserve, purge, restore.</li>
+      </ul>
+    </div>
+
+    <div class="card" style="border-color:var(--accent);">
+      <h3>Activity — Repo history clean-up <span class="tag high">owned action</span></h3>
+      <p>Purge the leaked secrets (and any injected malicious commits) from git history across the affected repos.
+        History rewrite is destructive and coordinated — sequence it carefully.</p>
+      <table class="find">
+        <tr><th>#</th><th>Step</th><th>Notes</th></tr>
+        <tr><td>1</td><td><strong>Rotate first</strong> — deactivate/rotate every secret found (<code>AKIA4TNB…</code>, <code>ghp_…</code>, password literals, Secrets Manager values).</td><td>Scrubbing is <em>not</em> remediation — rotation is. A purged secret already harvested is still compromised.</td></tr>
+        <tr><td>2</td><td><strong>Contain the account first</strong> — complete identity containment before touching remote history.</td><td>Otherwise the attacker can re-push during clean-up.</td></tr>
+        <tr><td>3</td><td><strong>Preserve evidence</strong> — <code>git clone --mirror</code> each affected repo offline; note malicious commit SHAs.</td><td>Keep for forensics / insurance / disclosure before overwriting.</td></tr>
+        <tr><td>4</td><td><strong>Enumerate secrets</strong> — run the consolidated <code>gitleaks</code>/<code>trufflehog</code> scan over full history to get the authoritative list.</td><td>Covers <code>.ts</code> + compiled <code>.js</code> blobs and any others we haven't reviewed.</td></tr>
+        <tr><td>5</td><td><strong>Purge from history</strong> — <code>git filter-repo</code> (or BFG) to strip the secret files/strings across all commits.</td><td>Rewrites SHAs for every downstream commit.</td></tr>
+        <tr><td>6</td><td><strong>Restore known-good tip</strong> — reset to the verified pre-compromise SHA; <code>push --force-with-lease</code> per affected branch &amp; tag.</td><td>Temporarily allow force-push, then re-lock immediately.</td></tr>
+        <tr><td>7</td><td><strong>Coordinate the team</strong> — everyone re-clones fresh; stale local clones/forks/PRs still contain the secrets.</td><td>Old clones, forks, and open PRs are re-leak vectors.</td></tr>
+        <tr><td>8</td><td><strong>Verify</strong> — re-scan post-rewrite; confirm secrets gone and secret scanning/push protection now block re-entry.</td><td>Also confirm no injected commits remain.</td></tr>
+      </table>
+      <div class="crit"><strong>Note:</strong> GitHub caches unreachable commits — after rewriting, ask GitHub Support to
+        garbage-collect/expire the old commit objects, or a leaked commit may still be reachable by SHA.</div>
+      <div class="todo">Repos in scope beyond <code>BrytAdminPortal</code> &amp; <code>BrytDataEngineering</code> — confirm the full list before starting.</div>
+    </div>
+
+    <div class="card">
+      <h3>Short term</h3>
+      <ul>
+        <li>Enable secret scanning + push protection; add pre-commit hooks to both repos.</li>
+        <li>Branch protection: block force-push, require review + signed commits.</li>
+        <li>Stand up OIDC-based CI deploys; remove stored cloud creds from CI.</li>
+        <li>Roll out the Identity Center permission-set layout; retire standing Administrator.</li>
+        <li>EDR coverage + confirm on all dev endpoints.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Deferred / parking lot</h3>
+      <p>Consciously deferred — lower priority than the phidex boxes, captured so they aren't lost.</p>
+      <ul>
+        <li><strong>Scoped OUT — <code>SK-Phidex-Key pair</code> instances (4, <code>bryt-phidex</code>)</strong> — the private key was <strong>confirmed never present on Rhys' compromised machine</strong>, so it's outside the exfiltration blast radius. No incident password-rotation / key-deletion required. <em>Residual (non-incident) hardening:</em> these are SQL Server instances in a <strong>public subnet sharing one key pair</strong> — a standing exposure worth a separate review (move to private subnet + SSM, split keys).</li>
+        <li><strong><code>PowerBIWindows</code> (<code>i-01e7cf698ce4e0357</code>, <code>bryt-sagemaker</code> / eu-west-2)</strong> — assessed unlikely to be in the exposed-credential blast radius; SSM access confirmed. When revisited: rotate local admin password via SSM, check for rogue local accounts, delete the <code>PowerBIKeypair</code> record. (Console "password not available" = custom AMI, so the key pair can't retrieve the password anyway.)</li>
+        <li><strong>Custom AMI shared credential (hardening, independent of this incident)</strong> — the <code>PowerBIWindows</code> AMI (owner <code>922850913962</code>, copied from eu-west-1 <code>ami-09da980cbd629ff73</code>) likely carries a <strong>baked-in shared local admin password</strong> across every instance/account launched from it. Action: rebuild the AMI with EC2Launch password randomisation (or no static password), deprecate the old image, and enumerate instances launched from this lineage across accounts/regions.</li>
+        <li><strong>SageMaker Unified Studio domains (11, <code>bryt-sagemaker</code>)</strong> — no EC2 key pairs involved; out of scope for key rotation. Separate review: the IAM execution/project roles behind the domains (what a compromised identity could reach).</li>
+      </ul>
+    </div>
+
+    <div class="card" style="border-color:var(--todo-border); background:var(--todo-bg);">
+      <h3 style="color:#92400e;">Open questions</h3>
+      <ul style="color:#92400e;">
+        <li>Rough date the malware landed (scopes the audit window)?</li>
+        <li>Is GitHub behind SSO (Okta/Entra)? AWS via IAM users w/ long-lived keys, or SSO + short-lived roles?</li>
+        <li>GitHub org audit log &amp; CloudTrail access ready to pull?</li>
+        <li>Were <code>cdk.out</code> / synthesized templates ever committed or kept as CI artifacts?</li>
+        <li>Which other repos did the compromised identity have write access to?</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="page">
+  <div class="wrap">Living incident &amp; hardening document &middot; Bryt &middot; D55 &middot; secret values masked — treat all as compromised</div>
+</footer>
+
+<script>
+  // Tabs
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabButtons.forEach(b => b.classList.toggle('active', b === btn));
+      panels.forEach(p => p.classList.toggle('active', p.id === target));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Accordions
+  document.querySelectorAll('.acc-head').forEach(head => {
+    head.addEventListener('click', () => {
+      head.parentElement.classList.toggle('open');
+    });
+  });
+
+  // TODO checklist — persist state in localStorage + progress bar
+  (function () {
+    const KEY = 'bryt-incident-todo';
+    const boxes = Array.from(document.querySelectorAll('#todo input[type="checkbox"]'));
+    if (!boxes.length) return;
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { saved = {}; }
+    const bar = document.getElementById('todo-bar');
+    const label = document.getElementById('todo-progress');
+
+    function render() {
+      const done = boxes.filter(b => b.checked).length;
+      boxes.forEach(b => b.closest('.todo-item').classList.toggle('done', b.checked));
+      if (bar) bar.style.width = (done / boxes.length * 100) + '%';
+      if (label) label.firstChild.textContent = done + ' of ' + boxes.length + ' done ';
+    }
+
+    boxes.forEach(b => {
+      if (saved[b.id]) b.checked = true;
+      b.addEventListener('change', () => {
+        saved[b.id] = b.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+        render();
+      });
+    });
+    render();
+  })();
+</script>
+
+</body>
+</html>

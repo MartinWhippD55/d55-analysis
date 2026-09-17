@@ -1,0 +1,10 @@
+# Machine-generated investigation output — do not commit (contains raw CloudTrail,
+# source IPs, IAM credential reports, and endpoint triage details).
+aws-audit-*/
+win-check-*/
+
+# Evidence captured during rotation (screenshots, command output).
+rotation-evidence/
+
+# Excel workbooks (exposed-key tracker, profiles) — sensitive, keep local only
+*.xlsx
