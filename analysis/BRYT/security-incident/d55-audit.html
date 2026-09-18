@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D55 — AWS Activity Audit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --ink: #23232f;
+    --brand: #1a0a3e;
+    --brand-2: #4b2fa8;
+    --accent: #7c5cff;
+    --muted: #6b6b7b;
+    --line: #e5e2ef;
+    --bg: #f6f5fb;
+    --card: #ffffff;
+    --ok: #1c7c54;
+    --warn: #b45309;
+    --danger: #b91c1c;
+    --todo-bg: #fff7ed;
+    --todo-border: #fdba74;
+    --crit-bg: #fef2f2;
+    --crit-border: #fca5a5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header.page {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+    color: #fff;
+    padding: 36px 0 30px;
+  }
+  header.page .wrap { padding-bottom: 0; }
+  header.page .eyebrow {
+    text-transform: uppercase; letter-spacing: 2px;
+    font-size: 12px; font-weight: 600; opacity: 0.8;
+  }
+  header.page h1 { font-size: 30px; font-weight: 700; margin: 6px 0 8px; }
+  header.page p.sub { opacity: 0.9; font-weight: 300; max-width: 720px; }
+
+  .tabs {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--brand);
+    display: flex; flex-wrap: wrap; gap: 2px;
+    padding: 0 20px;
+    box-shadow: 0 2px 10px rgba(26,10,62,0.25);
+  }
+  .tabs .wrap { display: flex; flex-wrap: wrap; gap: 4px; padding: 0; }
+  .tab-btn {
+    appearance: none; border: 0; background: transparent;
+    color: rgba(255,255,255,0.7);
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    padding: 14px 18px; cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color .15s, border-color .15s;
+  }
+  .tab-btn:hover { color: #fff; }
+  .tab-btn.active { color: #fff; border-bottom-color: var(--accent); }
+
+  .panel { display: none; padding-top: 28px; }
+  .panel.active { display: block; }
+
+  h2.section { font-size: 22px; color: var(--brand); margin: 4px 0 4px; }
+  p.lead { color: var(--muted); margin-bottom: 18px; max-width: 740px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 20px 22px; margin-bottom: 16px;
+  }
+  .card h3 { color: var(--brand); font-size: 17px; margin-bottom: 8px; }
+  .card ul { margin: 6px 0 6px 20px; }
+  .card li { margin-bottom: 4px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .kv { display: grid; grid-template-columns: 170px 1fr; gap: 6px 14px; }
+  .kv dt { font-weight: 600; color: var(--brand); }
+  .kv dd { color: var(--ink); }
+
+  .acc { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: var(--card); }
+  .acc-head {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; text-align: left; appearance: none; border: 0; background: transparent;
+    font-family: inherit; font-size: 16px; font-weight: 600; color: var(--brand);
+    padding: 16px 20px; cursor: pointer;
+  }
+  .acc-head:hover { background: #faf9ff; }
+  .acc-head .chev { transition: transform .2s; color: var(--accent); font-size: 18px; }
+  .acc.open .acc-head .chev { transform: rotate(90deg); }
+  .acc-body { display: none; padding: 0 20px 18px; border-top: 1px solid var(--line); }
+  .acc.open .acc-body { display: block; }
+  .acc-body h4 { color: var(--brand-2); font-size: 13px; text-transform: uppercase; letter-spacing: 0.6px; margin: 14px 0 4px; }
+  .acc-body ul { margin: 4px 0 4px 20px; }
+  .acc-body li { margin-bottom: 4px; }
+  .acc-body code, .card code { background: #f1eefc; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+
+  .bridge { background: #ecfdf5; border-left: 3px solid var(--ok); padding: 10px 14px; border-radius: 0 8px 8px 0; margin-top: 10px; font-size: 14px; }
+  .bridge strong { color: var(--ok); }
+
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+  .tag.crit { background: #fee2e2; color: var(--danger); }
+  .tag.high { background: #ffedd5; color: var(--warn); }
+  .tag.med { background: #fef9c3; color: #854d0e; }
+  .tag.ok { background: #dcfce7; color: #15803d; }
+  .tag.pending { background: #ede9fe; color: var(--brand-2); }
+
+  .todo {
+    background: var(--todo-bg); border: 1px dashed var(--todo-border);
+    border-radius: 8px; padding: 8px 12px; margin-top: 10px;
+    font-size: 13.5px; color: #92400e;
+  }
+  .todo::before { content: "\1F50D  To confirm: "; font-weight: 700; }
+
+  .crit {
+    background: var(--crit-bg); border-left: 3px solid var(--danger);
+    padding: 10px 14px; border-radius: 0 8px 8px 0; margin-top: 10px; font-size: 14px;
+  }
+  .crit strong { color: var(--danger); }
+
+  table.find { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 14px; }
+  table.find th, table.find td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.find th { color: var(--brand); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  table.find code { background: #f1eefc; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+
+  pre.cmd { background:#1a0a3e; color:#e5e2ef; padding:14px 16px; border-radius:8px; overflow:auto; font-size:13px; margin-top:8px; }
+  pre.cmd code { background:transparent; color:inherit; padding:0; border-radius:0; font-size:inherit; }
+
+  footer.page { color: var(--muted); font-size: 13px; text-align: center; padding-top: 30px; }
+</style>
+</head>
+<body>
+
+<header class="page">
+  <div class="wrap">
+    <div class="eyebrow">D55 &middot; Security Incident &middot; AWS Activity Audit</div>
+    <h1>AWS Activity Audit — D55 Investigation Accounts</h1>
+    <p class="sub">A read-only sweep of the five <code>d55-inv-*</code> AWS accounts for anomalous activity by the
+      (possibly compromised) Rhys identity, over the 30 Jul&ndash;17 Sep 2026 window. Companion to the Bryt
+      <em>AWS Activity Audit</em> and the Incident &amp; Hardening document. Sections marked <em>to confirm</em>
+      await input.</p>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="scope">Scope &amp; Method</button>
+    <button class="tab-btn" data-tab="checks">Checks</button>
+    <button class="tab-btn" data-tab="findings">Findings</button>
+    <button class="tab-btn" data-tab="limits">Limitations</button>
+    <button class="tab-btn" data-tab="next">Next Steps</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ================= OVERVIEW ================= -->
+  <section class="panel active" id="overview">
+    <h2 class="section">Overview</h2>
+    <p class="lead">Why we extended the audit to the D55 accounts, what we looked for, and how to read this document.</p>
+
+    <div class="card">
+      <h3>Objective</h3>
+      <dl class="kv">
+        <dt>Question</dt><dd>Did the (possibly compromised) <strong>Rhys</strong> identity do anything anomalous in the D55 <code>d55-inv-*</code> accounts in the audit window?</dd>
+        <dt>Primary lens</dt><dd>CloudTrail activity attributed to Rhys' SSO principal.</dd>
+        <dt>Secondary lens</dt><dd>High-signal <em>persistence / evasion / exfil / compute-abuse</em> events by <strong>any</strong> actor.</dd>
+        <dt>Window</dt><dd><strong>30 Jul &ndash; 17 Sep 2026</strong> (run with <code>-Days 50</code>, since 29 Jul) — matched to the extended Bryt run so the two are directly comparable.</dd>
+        <dt>Approach</dt><dd>Strictly <strong>read-only</strong> API calls. Nothing is modified.</dd>
+        <dt>Status</dt><dd><span class="tag ok">Complete</span> 5/5 accounts swept; <strong>no evidence of compromise</strong>. One account (<code>d55-inv-sagemaker-v2</code>) raised a single flag that resolves to a routine infrastructure deploy. See Findings.</dd>
+      </dl>
+      <div class="crit"><strong>Mindset carried over from the incident doc:</strong> assume everything the identity could
+        reach is in scope. A clean CloudTrail is reassuring but not exonerating — data-event exfil and off-scope regions
+        need explicit coverage (see Limitations).</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>What "odd" looks like</h3>
+        <ul>
+          <li>Activity from <strong>new source IPs</strong> or geographies / ASNs.</li>
+          <li>Actions in <strong>regions D55 doesn't use</strong>.</li>
+          <li><strong>New IAM users, keys, or login profiles</strong> — persistence.</li>
+          <li>Logging/GuardDuty being <strong>disabled</strong> — evasion.</li>
+          <li>Secrets / snapshots / AMIs <strong>read or shared out</strong> — exfil.</li>
+          <li><strong>New EC2 instances</strong> (esp. large/GPU) — cryptomining.</li>
+          <li>Off-hours bursts of <strong>Describe/List</strong> — recon.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>How to use this doc</h3>
+        <ul>
+          <li><strong>Scope &amp; Method</strong> — accounts, identity, window, and how the sweep runs.</li>
+          <li><strong>Checks</strong> — the catalogue of read-only checks and why each matters.</li>
+          <li><strong>Findings</strong> — filled in per account after the run.</li>
+          <li><strong>Limitations</strong> — what this sweep can and cannot see.</li>
+          <li><strong>Next Steps</strong> — follow-ups and escalation paths.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SCOPE & METHOD ================= -->
+  <section class="panel" id="scope">
+    <h2 class="section">Scope &amp; Method</h2>
+    <p class="lead">Which accounts, which identity, which window — and the read-only mechanism behind the sweep.</p>
+
+    <div class="card">
+      <h3>Inputs &mdash; resolved during the run</h3>
+      <dl class="kv">
+        <dt>Auth model</dt><dd><span class="tag ok">Confirmed</span> Identity Center (SSO). Actions appear as assumed permission-set roles; the session Username normalises to the primary login.</dd>
+        <dt>Identity string</dt><dd><span class="tag ok">Confirmed</span> <code>rhys.jacob@d55.co.uk</code>. Two variants were queried (<code>rhys.jacob@d55.co.uk</code>, <code>rhys.jacob+unified-engineer@d55.co.uk</code>); only the base login produced events.</dd>
+        <dt>Accounts / profiles</dt><dd><span class="tag ok">Confirmed</span> 5 <code>d55-inv-*</code> read-only profiles (see table below).</dd>
+        <dt>Output prefix</dt><dd>New <code>-Prefix</code> argument on the collector puts the run under <code>d55-aws-audit-&lt;stamp&gt;\</code> to keep D55 results separate from the Bryt sweep.</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h3>Accounts in scope</h3>
+      <p>The five accounts reachable via the supplied <code>d55-inv-*</code> read-only profiles, confirmed by
+        <code>sts:GetCallerIdentity</code> at the start of the run. Every one was swept.</p>
+      <table class="find">
+        <tr><th>Account</th><th>ID</th><th>Profile</th><th>Notes</th></tr>
+        <tr><td>audit</td><td><code>963110513549</code></td><td><code>d55-inv-audit</code></td><td>Security / audit tooling account.</td></tr>
+        <tr><td>orchestration</td><td><code>905399349601</code></td><td><code>d55-inv-orchestration</code></td><td>Pipeline / orchestration account.</td></tr>
+        <tr><td>wafr</td><td><code>210973176033</code></td><td><code>d55-inv-wafr</code></td><td>Well-Architected review tooling.</td></tr>
+        <tr><td>sagemaker-v2</td><td><code>922850913962</code></td><td><code>d55-inv-sagemaker-v2</code></td><td>SageMaker / DataZone workloads. Only active account this window.</td></tr>
+        <tr><td>service-catalog</td><td><code>253915587616</code></td><td><code>d55-inv-service-catalog</code></td><td>Service Catalog / provisioning.</td></tr>
+      </table>
+      <div class="todo">This pass covers only the five <code>d55-inv-*</code> profiles supplied. If the Rhys identity can assume into other D55 accounts, add their read profiles and re-run.</div>
+    </div>
+
+    <div class="card">
+      <h3>Running the sweep</h3>
+      <p>The same read-only collector <code>audit-aws.ps1</code> loops each profile and region, pulls the checks below,
+        tabulates them, and writes a flagged <code>00-SUMMARY.txt</code> plus per-account output folders. Invoked with
+        the call operator (not <code>-File</code>) so the comma-separated <code>-Profiles</code> / <code>-Identities</code>
+        lists bind as arrays.</p>
+      <pre class="cmd"><code>&amp; .\audit-aws.ps1 `
+    -Profiles d55-inv-audit,d55-inv-orchestration,d55-inv-wafr,`
+              d55-inv-sagemaker-v2,d55-inv-service-catalog `
+    -Identities rhys.jacob@d55.co.uk,rhys.jacob+unified-engineer@d55.co.uk `
+    -Days 50 `
+    -Prefix d55</code></pre>
+      <div class="bridge"><strong>Read-only by construction:</strong> the script calls only
+        <code>sts:GetCallerIdentity</code>, <code>cloudtrail:LookupEvents</code>, <code>iam:Get*/List*/GenerateCredentialReport</code>,
+        <code>guardduty:List*/Get*</code>, and <code>ec2:Describe*</code>. It modifies nothing.</div>
+    </div>
+  </section>
+
+  <!-- ================= CHECKS ================= -->
+  <section class="panel" id="checks">
+    <h2 class="section">Checks</h2>
+    <p class="lead">The catalogue of read-only checks, grouped by intent. Each maps to output files the collector writes.</p>
+
+    <div class="acc open">
+      <button class="acc-head">1 &middot; CloudTrail — everything the identity did <span><span class="tag high">core</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <p>All management events attributed to Rhys' principal in the window, tabulated to make anomalies obvious.</p>
+        <ul>
+          <li>By <strong>event name</strong>, <strong>source IP</strong>, <strong>region</strong>, and <strong>day</strong>.</li>
+          <li>Distinct source IPs — a quick cue for a new location / stolen session.</li>
+          <li>High-signal events by the identity, isolated for fast review.</li>
+        </ul>
+        <h4>Output</h4>
+        <ul><li><code>01-cloudtrail-identity-raw.json</code>, <code>01a..01f-*.txt</code></li></ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">2 &middot; High-signal events by ANY actor <span><span class="tag high">persistence / evasion</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <p>In case a stolen session created a new identity, we sweep the whole account for the events that matter most.</p>
+        <ul>
+          <li><strong>Persistence:</strong> <code>CreateUser</code>, <code>CreateAccessKey</code>, <code>CreateLoginProfile</code>, <code>Attach*/Put*Policy</code>, <code>CreateRole</code>, <code>UpdateAssumeRolePolicy</code>, <code>EnableMFADevice</code>.</li>
+          <li><strong>Evasion:</strong> <code>StopLogging</code>, <code>DeleteTrail</code>, <code>UpdateTrail</code>, <code>PutEventSelectors</code>, GuardDuty <code>DeleteDetector</code>/<code>UpdateDetector</code>.</li>
+        </ul>
+        <h4>Output</h4>
+        <ul><li><code>02-anyactor-&lt;region&gt;-&lt;EventName&gt;.txt</code></li></ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">3 &middot; IAM current-state snapshot <span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <p>State, not just events — catches what may have been set up before the window or via another path.</p>
+        <ul>
+          <li>Credential report — password/key last-used, key age, MFA status.</li>
+          <li>Access keys per user with last-used service/region; flag keys <strong>created in window</strong>.</li>
+          <li>Users created in window; Rhys' MFA devices (any newly registered).</li>
+        </ul>
+        <h4>Output</h4>
+        <ul><li><code>03-credential-report.csv</code>, <code>03a-new-users.txt</code>, <code>03b-access-keys.txt</code>, <code>03c-mfa-*.json</code></li></ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">4 &middot; GuardDuty findings <span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <p>Managed threat detection for the window, per account/region.</p>
+        <ul>
+          <li>Especially <code>UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration</code>, anomalous API, recon.</li>
+          <li>Absence of a detector is itself flagged as a <strong>coverage gap</strong>.</li>
+        </ul>
+        <h4>Output</h4>
+        <ul><li><code>04-guardduty-&lt;region&gt;.json</code> / <code>.txt</code></li></ul>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">5 &middot; EC2 recent launches &amp; new key pairs <span><span class="tag med">crypto-mining cue</span><span class="chev">&#8250;</span></span></button>
+      <div class="acc-body">
+        <ul>
+          <li>Instances launched in the window (watch large/GPU types + unusual regions).</li>
+          <li>Key pairs created in the window.</li>
+        </ul>
+        <h4>Output</h4>
+        <ul><li><code>05-ec2-recent-&lt;region&gt;.txt</code>, <code>05-keypairs-new-&lt;region&gt;.txt</code></li></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FINDINGS ================= -->
+  <section class="panel" id="findings">
+    <h2 class="section">Findings</h2>
+    <p class="lead">Results of the sweep of the five <code>d55-inv-*</code> accounts for activity by the Rhys identity,
+      from the <strong>17 Sep 2026</strong> run over the 30 Jul&ndash;17 Sep window.</p>
+
+    <div class="card" style="border-color:var(--todo-border);">
+      <h3>Headline <span class="tag med">No evidence of compromise &mdash; one item to confirm</span></h3>
+      <p>Four of the five accounts (<code>d55-inv-audit</code>, <code>d55-inv-orchestration</code>,
+        <code>d55-inv-wafr</code>, <code>d55-inv-service-catalog</code>) show <strong>no Rhys activity at all</strong>
+        in the window. The fifth, <code>d55-inv-sagemaker-v2</code>, is active and raised the run's <strong>single
+        flag</strong>: 47 high-signal events. On inspection those are a <strong>routine SageMaker/DataZone environment
+        deploy via CloudFormation on 14 Aug</strong>, not attacker behaviour.</p>
+      <p style="margin-top:8px;">There is <strong>no</strong> log-tampering/evasion (<code>StopLogging</code>/<code>DeleteTrail</code>),
+        <strong>no</strong> new IAM users or access keys, <strong>no</strong> EC2 launches or new key pairs, and
+        <strong>no</strong> high-signal activity by any <em>other</em> actor across the five accounts. The one item to
+        confirm is two source IPs on the sagemaker-v2 account that we have not yet positively tied to Rhys.</p>
+      <div class="bridge"><strong>Read this correctly:</strong> a clean management-event trail is reassuring but not a
+        full exoneration &mdash; it does not cover S3 object-level reads or anything older than 90 days. See Limitations
+        and Next Steps.</div>
+    </div>
+
+    <div class="card">
+      <h3>Run summary</h3>
+      <dl class="kv">
+        <dt>Run</dt><dd><strong>17 Sep 2026</strong></dd>
+        <dt>Window</dt><dd>~50 days (since 2026-07-29T17:41:19Z), covering the requested 30 Jul 2026 onward</dd>
+        <dt>Identity</dt><dd>2 SSO variants of <code>rhys.jacob</code>; only <code>rhys.jacob@d55.co.uk</code> appeared in CloudTrail</dd>
+        <dt>Profiles scanned</dt><dd>5 <code>d55-inv-*</code> (read-only) profiles</dd>
+        <dt>Regions</dt><dd><code>eu-west-1</code>, <code>eu-west-2</code>, <code>us-east-1</code></dd>
+        <dt>Flags raised</dt><dd><strong>1</strong> &mdash; 47 high-signal events on <code>d55-inv-sagemaker-v2</code>, resolving to a benign CloudFormation deploy (detail below)</dd>
+        <dt>Output</dt><dd><code>d55-aws-audit-20260917-184119\</code></dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h3>Per-account results</h3>
+      <table class="find">
+        <tr><th>Account</th><th>ID</th><th>Rhys events</th><th>Verdict</th></tr>
+        <tr><td>audit</td><td><code>963110513549</code></td><td>0</td><td><span class="tag ok">No activity</span></td></tr>
+        <tr><td>orchestration</td><td><code>905399349601</code></td><td>0</td><td><span class="tag ok">No activity</span></td></tr>
+        <tr><td>wafr</td><td><code>210973176033</code></td><td>0</td><td><span class="tag ok">No activity</span></td></tr>
+        <tr><td>sagemaker-v2</td><td><code>922850913962</code></td><td>~5,355</td><td><span class="tag med">Clean*</span> read-only data-science / catalog work + one 14 Aug CFN deploy (47 high-signal events) &mdash; confirm 2 source IPs</td></tr>
+        <tr><td>service-catalog</td><td><code>253915587616</code></td><td>0</td><td><span class="tag ok">No activity</span></td></tr>
+      </table>
+      <p style="margin-top:10px; font-size:13.5px; color:var(--muted);">* &ldquo;Clean*&rdquo; = mutating actions were present but consistent with a routine infrastructure deploy (see the 14 Aug card). Event count is the total across all three regions (eu-west-1 3,518; us-east-1 1,777; eu-west-2 60).</p>
+    </div>
+
+    <div class="card" style="border-color:var(--todo-border); background:var(--todo-bg);">
+      <h3 style="color:#92400e;">The flag &mdash; 47 high-signal events on <code>d55-inv-sagemaker-v2</code> (14 Aug)</h3>
+      <p style="color:#92400e;">All 47 fall on <strong>14 Aug 2026</strong> and, in shape, are a SageMaker/DataZone
+        environment being stood up through CloudFormation &mdash; not manual, and not attacker-like. The wider event mix
+        that day includes <code>CreateVpc</code>, <code>CreateSubnet</code>, <code>CreateNatGateway</code>,
+        <code>CreateInternetGateway</code>, <code>CreateSecurityGroup</code>, <code>CreateVpcEndpoint</code>,
+        <code>CreateStack</code>, <code>CreateDomain</code> and <code>CreateEnvironment</code> alongside the role/policy
+        burst &mdash; the classic footprint of provisioning a new domain + its supporting VPC.</p>
+      <table class="find">
+        <tr><th>Time (BST)</th><th>Action(s)</th><th>Source</th><th>Reading</th></tr>
+        <tr><td>09:27, 09:32</td><td>2&times; <code>PutBucketPolicy</code></td><td><code>195.167.187.172</code>, <code>31.127.30.67</code></td><td>Bucket policy set on the new environment's buckets.</td></tr>
+        <tr><td>10:14</td><td>1&times; <code>AuthorizeSecurityGroupIngress</code></td><td><code>cloudformation.amazonaws.com</code></td><td>Made by CloudFormation itself &mdash; confirms a stack deploy was in flight.</td></tr>
+        <tr><td>10:20:16&ndash;10:20:40</td><td>~44&times; <code>CreateRole</code> + <code>AttachRolePolicy</code></td><td><code>195.167.187.172</code></td><td>Dozens of roles created in ~24 seconds &mdash; machine-speed, i.e. IaC, not hand-typed. Service roles for the SageMaker/DataZone domain.</td></tr>
+      </table>
+      <p style="margin-top:10px; color:#92400e;">By event type the account is otherwise overwhelmingly read-only
+        (<code>ListManagedNotificationEvents</code>, <code>ListResources</code>, <code>LookupEvents</code>, DataZone
+        <code>Search</code>/<code>ListProjects</code>, QuickSight, Cost Explorer, Config). No access keys exist on the
+        account (SSO-only), so there are no long-lived credentials to rotate here.</p>
+    </div>
+
+    <div class="card" style="border-color:var(--todo-border); background:var(--todo-bg);">
+      <h3 style="color:#92400e;">Source IPs to confirm</h3>
+      <p style="color:#92400e;">On <code>d55-inv-sagemaker-v2</code>, Rhys' events trace to four human IPs. Two are the
+        BT residential addresses already seen in the Bryt audit; two are <strong>new</strong> and carry the 14 Aug
+        high-signal events &mdash; confirm they are Rhys (office / VPN / mobile) and not a stolen session.</p>
+      <table class="find">
+        <tr><th>Source IP</th><th>Events</th><th>Status</th></tr>
+        <tr><td><code>31.127.30.67</code></td><td>1,420</td><td><span class="tag med">New</span> not previously classified &mdash; carries a <code>PutBucketPolicy</code></td></tr>
+        <tr><td><code>86.183.104.170</code></td><td>1,376</td><td><span class="tag ok">Known</span> BT residential IP (the Bryt "clean" baseline IP)</td></tr>
+        <tr><td><code>195.167.187.172</code></td><td>757</td><td><span class="tag med">New</span> not previously classified &mdash; carries the CreateRole/AttachRolePolicy burst + a <code>PutBucketPolicy</code></td></tr>
+        <tr><td><code>86.183.207.201</code></td><td>588</td><td><span class="tag ok">Known</span> second BT residential IP (Rhys' home, per the 3 Aug phidex SG change)</td></tr>
+      </table>
+      <p style="margin-top:8px; font-size:13.5px; color:#92400e;">Remaining IPs on the account resolve to AWS's own eu-west-1 / us-east-1 ranges and service principals (<code>datazone</code>, <code>cloudformation</code>, <code>athena</code>, <code>glue</code>).</p>
+    </div>
+
+    <div class="card">
+      <h3>Secondary finding &mdash; GuardDuty coverage gap <span class="tag high">detection</span></h3>
+      <p>As in the Bryt sweep, GuardDuty reported <strong>no detector</strong> across the accounts/regions checked &mdash;
+        a detection gap that fits the incident's &ldquo;ran undetected&rdquo; root cause. Enabling GuardDuty org-wide is
+        already a tracked hardening action.</p>
+      <div class="todo">Confirm this is a genuine absence and not the read-only audit role lacking <code>guardduty:ListDetectors</code>; where a region wrote no file, a detector may exist there with no in-window findings.</div>
+    </div>
+  </section>
+
+  <!-- ================= LIMITATIONS ================= -->
+  <section class="panel" id="limits">
+    <h2 class="section">Limitations</h2>
+    <p class="lead">What this sweep can and cannot see — read before drawing an all-clear.</p>
+
+    <div class="card">
+      <ul>
+        <li><strong>90-day horizon.</strong> <code>cloudtrail:LookupEvents</code> only reaches back 90 days. If malware landed earlier, the start is invisible here — use an archived trail / CloudTrail Lake / Athena over the S3 log bucket.</li>
+        <li><strong>Management events only.</strong> Bulk S3 <code>GetObject</code> and other data-plane reads are <em>not</em> returned unless <strong>data events</strong> are enabled on a trail.</li>
+        <li><strong>Per-account, per-region.</strong> Coverage is only as complete as the profiles and regions supplied. This pass covered five <code>d55-inv-*</code> profiles and three regions; off-scope accounts/regions can hide activity — use <code>-AllRegions</code> for a full sweep.</li>
+        <li><strong>Identity matching.</strong> SSO role-session names must match the <code>-Identity</code> string; if it's formatted unexpectedly, events can be missed. Cross-check against the raw pull.</li>
+        <li><strong>Clean &ne; exonerated.</strong> A quiet CloudTrail is reassuring but doesn't rule out data-event exfil or pre-window actions.</li>
+      </ul>
+      <div class="bridge"><strong>Strengthen it:</strong> if an org trail with data events or CloudTrail Lake exists, we can query the
+        full period and object-level access directly — tell us what's available and we'll add those queries.</div>
+    </div>
+  </section>
+
+  <!-- ================= NEXT STEPS ================= -->
+  <section class="panel" id="next">
+    <h2 class="section">Next Steps</h2>
+    <p class="lead">To move from a completed run to a closed-out audit.</p>
+
+    <div class="card" style="border-color:var(--ok);">
+      <h3>Done <span class="tag ok">Sweep complete</span></h3>
+      <ul>
+        <li>All five <code>d55-inv-*</code> accounts swept over 30 Jul&ndash;17 Sep 2026; results in <code>d55-aws-audit-20260917-184119\</code>.</li>
+        <li>Outcome: no evidence of compromise; one flag (sagemaker-v2, 14 Aug) resolves to a routine CloudFormation deploy.</li>
+        <li>Collector amended with a <code>-Prefix</code> argument so D55 output folders are namespaced separately from Bryt.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Recommended follow-ups</h3>
+      <ul>
+        <li><strong>Confirm the two new source IPs</strong> &mdash; <code>31.127.30.67</code> and <code>195.167.187.172</code> &mdash; are Rhys (office / VPN / mobile). They carry the 14 Aug high-signal events; a quick reverse-DNS / ownership check plus a word with Rhys should settle it.</li>
+        <li><strong>Confirm the 14 Aug deploy was intended.</strong> If wanted, pull the full event JSON for the 10:20 burst to list the created role names + attached policy ARNs and match them to the SageMaker/DataZone environment that was stood up.</li>
+        <li><strong>Extend the window past 90 days</strong> using an org CloudTrail + Athena, once the true malware-landing date is known.</li>
+        <li><strong>Check S3 data events</strong> for object-level exfil coverage &mdash; only visible if data events are captured on a trail.</li>
+        <li><strong>Confirm / enable GuardDuty</strong> org-wide (tracked hardening item) and re-verify the &ldquo;no detector&rdquo; result isn't a read-role permission artifact.</li>
+        <li><strong>Add any other D55 accounts</strong> the identity can assume into, and re-run with their read profiles.</li>
+      </ul>
+    </div>
+
+    <div class="card" style="border-color:var(--todo-border); background:var(--todo-bg);">
+      <h3 style="color:#92400e;">Open questions</h3>
+      <ul style="color:#92400e;">
+        <li>Are <code>31.127.30.67</code> and <code>195.167.187.172</code> Rhys' known IPs?</li>
+        <li>Was the 14 Aug SageMaker/DataZone CloudFormation deploy on <code>d55-inv-sagemaker-v2</code> intended?</li>
+        <li>Are there other D55 accounts the identity can reach that should be added to the sweep?</li>
+        <li>Confirmed malware-landing date, to set the true (possibly &gt;50 day) window?</li>
+        <li>Are S3 data events captured anywhere, for object-level exfil coverage?</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="page">
+  <div class="wrap">Living AWS activity audit &middot; D55 investigation accounts &middot; read-only sweep — clean is reassuring, not exonerating</div>
+</footer>
+
+<script>
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabButtons.forEach(b => b.classList.toggle('active', b === btn));
+      panels.forEach(p => p.classList.toggle('active', p.id === target));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+  document.querySelectorAll('.acc-head').forEach(head => {
+    head.addEventListener('click', () => head.parentElement.classList.toggle('open'));
+  });
+</script>
+
+</body>
+</html>

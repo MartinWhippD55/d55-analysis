@@ -4,7 +4,11 @@ Delete KeyPair
 Delete Certificates
 Alerting
 SCPs
+Check D55
+Check Kooomo
 
+
+Speak to SP
 
 # GitHub
 Signed Commits

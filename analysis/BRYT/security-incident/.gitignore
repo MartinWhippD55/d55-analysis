@@ -1,7 +1,12 @@
 # Machine-generated investigation output — do not commit (contains raw CloudTrail,
 # source IPs, IAM credential reports, and endpoint triage details).
 aws-audit-*/
+# Prefixed audit runs from -Prefix (e.g. d55-aws-audit-*) — same sensitive content.
+*-aws-audit-*/
 win-check-*/
+
+# Ad-hoc raw CloudTrail event extracts (source IPs, account IDs, security-group rules).
+*-sg-ingress-*.json
 
 # Evidence captured during rotation (screenshots, command output).
 rotation-evidence/

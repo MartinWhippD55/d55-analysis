@@ -26,12 +26,15 @@ param(
   [int]      $Days          = 30,
   [string[]] $Regions       = @('eu-west-1','eu-west-2','us-east-1'),
   [string]   $MgmtProfile   = '',
+  [string]   $Prefix        = '',
   [switch]   $AllRegions
 )
 
 $ErrorActionPreference = 'SilentlyContinue'
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-$out   = Join-Path $PSScriptRoot "aws-audit-$stamp"
+# Optional folder prefix (e.g. -Prefix d55  ->  d55-aws-audit-<stamp>).
+$folderName = if ($Prefix) { "$Prefix-aws-audit-$stamp" } else { "aws-audit-$stamp" }
+$out   = Join-Path $PSScriptRoot $folderName
 New-Item -ItemType Directory -Path $out -Force | Out-Null
 
 $startTime = (Get-Date).ToUniversalTime().AddDays(-$Days).ToString('yyyy-MM-ddTHH:mm:ssZ')
